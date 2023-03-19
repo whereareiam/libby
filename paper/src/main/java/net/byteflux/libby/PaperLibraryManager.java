@@ -11,7 +11,8 @@ import java.nio.file.Path;
 import static java.util.Objects.requireNonNull;
 
 /**
- * A runtime dependency manager for Bukkit plugins.
+ * A runtime dependency manager for Paper Plugins. (Not to be confused with bukkit plugins loaded on paper)
+ * See: <a href="https://docs.papermc.io/paper/dev/getting-started/paper-plugins">Paper docs</a>
  */
 public class PaperLibraryManager extends LibraryManager {
     /**
@@ -20,7 +21,7 @@ public class PaperLibraryManager extends LibraryManager {
     private final URLClassLoaderHelper classLoader;
 
     /**
-     * Creates a new Bukkit library manager.
+     * Creates a new Paper library manager.
      *
      * @param plugin the plugin to manage
      */
@@ -29,7 +30,7 @@ public class PaperLibraryManager extends LibraryManager {
     }
 
     /**
-     * Creates a new Bukkit library manager.
+     * Creates a new Paper library manager.
      *
      * @param plugin the plugin to manage
      * @param directoryName download directory name
@@ -73,7 +74,7 @@ public class PaperLibraryManager extends LibraryManager {
     }
 
     /**
-     * Adds a file to the Bukkit plugin's classpath.
+     * Adds a file to the Paper plugin's classpath.
      *
      * @param file the file to add
      */
