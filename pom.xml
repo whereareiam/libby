@@ -17,6 +17,7 @@
         <module>slf4j</module>
         <module>sponge</module>
         <module>velocity</module>
+        <module>paper</module>
     </modules>
 
     <properties>
