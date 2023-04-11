@@ -6,25 +6,25 @@ import org.slf4j.Logger;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Logging adapter that logs to a SLF4J logger.
+ * Logging adapter that logs to a Velocity plugin logger.
  */
-public class SLF4JLogAdapter implements LogAdapter {
+public class VelocityLogAdapter implements LogAdapter {
     /**
-     * SLF4J logger
+     * Sponge plugin logger
      */
     private final Logger logger;
 
     /**
-     * Creates a new SLF4J log adapter that logs to a {@link Logger}.
+     * Creates a new Velocity log adapter that logs to a {@link Logger}.
      *
-     * @param logger the SLF4J logger to wrap
+     * @param logger the plugin logger to wrap
      */
-    public SLF4JLogAdapter(Logger logger) {
+    public VelocityLogAdapter(Logger logger) {
         this.logger = requireNonNull(logger, "logger");
     }
 
     /**
-     * Logs a message with the provided level to the SLF4J logger.
+     * Logs a message with the provided level to the Velocity plugin logger.
      *
      * @param level   message severity level
      * @param message the message to log
@@ -48,8 +48,8 @@ public class SLF4JLogAdapter implements LogAdapter {
     }
 
     /**
-     * Logs a message and stack trace with the provided level to the SLF4J
-     * logger.
+     * Logs a message and stack trace with the provided level to the Velocity
+     * plugin logger.
      *
      * @param level     message severity level
      * @param message   the message to log

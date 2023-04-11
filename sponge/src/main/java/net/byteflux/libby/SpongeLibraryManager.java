@@ -2,8 +2,8 @@ package net.byteflux.libby;
 
 import com.google.inject.Inject;
 import net.byteflux.libby.classloader.URLClassLoaderHelper;
-import net.byteflux.libby.logging.adapters.SLF4JLogAdapter;
-import org.slf4j.Logger;
+import net.byteflux.libby.logging.adapters.SpongeLogAdapter;
+import org.apache.logging.log4j.Logger;
 import org.spongepowered.api.config.ConfigDir;
 
 import java.net.URLClassLoader;
@@ -30,7 +30,7 @@ public class SpongeLibraryManager<T> extends LibraryManager {
      */
     @Inject
     private SpongeLibraryManager(Logger logger, @ConfigDir(sharedRoot = false) Path dataDirectory, T plugin, String directoryName) {
-        super(new SLF4JLogAdapter(logger), dataDirectory, directoryName);
+        super(new SpongeLogAdapter(logger), dataDirectory, directoryName);
         classLoader = new URLClassLoaderHelper((URLClassLoader) requireNonNull(plugin, "plugin").getClass().getClassLoader(), this);
     }
 

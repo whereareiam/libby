@@ -1,7 +1,7 @@
 package net.byteflux.libby;
 
 import com.velocitypowered.api.plugin.PluginManager;
-import net.byteflux.libby.logging.adapters.SLF4JLogAdapter;
+import net.byteflux.libby.logging.adapters.VelocityLogAdapter;
 import org.slf4j.Logger;
 
 import java.nio.file.Path;
@@ -38,7 +38,7 @@ public class VelocityLibraryManager<T> extends LibraryManager {
                                   T plugin,
                                   String directoryName) {
 
-        super(new SLF4JLogAdapter(logger), dataDirectory, directoryName);
+        super(new VelocityLogAdapter(logger), dataDirectory, directoryName);
         this.pluginManager = requireNonNull(pluginManager, "pluginManager");
         this.plugin = requireNonNull(plugin, "plugin");
     }

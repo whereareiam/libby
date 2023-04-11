@@ -26,11 +26,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>net.byteflux</groupId>
-            <artifactId>libby-slf4j</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.spongepowered</groupId>
             <artifactId>spongeapi</artifactId>
             <version>8.1.0</version>
