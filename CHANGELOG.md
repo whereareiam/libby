@@ -1,8 +1,8 @@
 ### Version 1.2.0
 * Updated platform supported by Libby
   * Sponge from 7 to 8 (Logger now uses log4j)
-* Added Java 9 Modules support (GH-12)
-* Added support for new Paper library manager (GH-13)
+* Added Java 9 Modules support ([GH-12](https://github.com/AlessioDP/libby/pull/12))
+* Added support for new Paper library manager ([GH-13](https://github.com/AlessioDP/libby/pull/13))
 
 ### Version 1.1.5
 
