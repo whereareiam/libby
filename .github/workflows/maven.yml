@@ -24,4 +24,9 @@ jobs:
           distribution: adopt
           java-version: ${{ matrix.java-version }}
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: |
+          if [ "${{ matrix.java-version }}" -eq "11" ]; then
+            mvn -B package --file pom.xml -pl !paper
+          else
+            mvn -B package --file pom.xml
+          fi
