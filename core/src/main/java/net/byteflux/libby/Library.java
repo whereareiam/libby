@@ -68,6 +68,11 @@ public class Library {
     private final String path;
 
     /**
+     * Relative partial Maven path to this library
+     */
+    private final String partialPath;
+
+    /**
      * Relative path to this library's relocated jar
      */
     private final String relocatedPath;
@@ -137,7 +142,8 @@ public class Library {
         this.checksum = checksum;
         this.relocations = relocations != null ? Collections.unmodifiableList(new LinkedList<>(relocations)) : Collections.emptyList();
 
-        String path = this.groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/' + artifactId + '-' + version;
+        this.partialPath = this.groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/';
+        String path = this.partialPath + artifactId + '-' + version;
         if (hasClassifier()) {
             path += '-' + classifier;
         }
@@ -260,10 +266,19 @@ public class Library {
     /**
      * Gets the relative Maven path to this library's artifact.
      *
-     * @return Maven path for this library
+     * @return relative Maven path for this library
      */
     public String getPath() {
         return path;
+    }
+
+    /**
+     * Gets the relative partial Maven path to this library.
+     *
+     * @return relative partial Maven path for this library
+     */
+    public String getPartialPath() {
+        return partialPath;
     }
 
     /**
@@ -282,6 +297,15 @@ public class Library {
      */
     public boolean isIsolatedLoad() {
         return isolatedLoad;
+    }
+
+    /**
+     * Whether the library is a snapshot.
+     *
+     * @return whether the library is a snapshot.
+     */
+    public boolean isSnapshot() {
+        return version.endsWith("-SNAPSHOT");
     }
 
     /**

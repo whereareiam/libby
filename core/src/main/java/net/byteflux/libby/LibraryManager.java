@@ -6,7 +6,15 @@ import net.byteflux.libby.logging.Logger;
 import net.byteflux.libby.logging.adapters.LogAdapter;
 import net.byteflux.libby.relocation.Relocation;
 import net.byteflux.libby.relocation.RelocationHelper;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -232,23 +240,147 @@ public abstract class LibraryManager {
     /**
      * Gets all of the possible download URLs for this library. Entries are
      * ordered by direct download URLs first and then repository download URLs.
+     * <br>This method also resolves SNAPSHOT artifacts URLs.
      *
      * @param library the library to resolve
      * @return download URLs
      */
     public Collection<String> resolveLibrary(Library library) {
         Set<String> urls = new LinkedHashSet<>(requireNonNull(library, "library").getUrls());
+        boolean snapshot = library.isSnapshot();
 
         // Try from library-declared repos first
         for (String repository : library.getRepositories()) {
-            urls.add(repository + library.getPath());
+            if (snapshot) {
+                String url = resolveSnapshot(repository, library);
+                if (url != null)
+                    urls.add(repository + url);
+            } else {
+                urls.add(repository + library.getPath());
+            }
         }
 
         for (String repository : getRepositories()) {
-            urls.add(repository + library.getPath());
+            if (snapshot) {
+                String url = resolveSnapshot(repository, library);
+                if (url != null)
+                    urls.add(repository + url);
+            } else {
+                urls.add(repository + library.getPath());
+            }
         }
 
         return Collections.unmodifiableSet(urls);
+    }
+
+    /**
+     * Resolves the URL of the artifact of a snapshot library.
+     *
+     * @param repository The repository to query for snapshot information
+     * @param library The library
+     * @return The URl of the artifact of a snapshot library or null if no information could be gathered from the
+     *         provided repository
+     */
+    private String resolveSnapshot(String repository, Library library) {
+        String url = requireNonNull(repository, "repository") + requireNonNull(library, "library").getPartialPath() + "maven-metadata.xml";
+        try {
+            URLConnection connection = new URL(requireNonNull(url, "url")).openConnection();
+
+            connection.setConnectTimeout(5000);
+            connection.setReadTimeout(5000);
+            connection.setRequestProperty("User-Agent", LibbyProperties.HTTP_USER_AGENT);
+
+            try (InputStream in = connection.getInputStream()) {
+                return getURLFromMetadata(in, library);
+            }
+        } catch (MalformedURLException e) {
+            throw new IllegalArgumentException(e);
+        } catch (IOException e) {
+            if (e instanceof FileNotFoundException) {
+                logger.debug("File not found: " + url);
+            } else if (e instanceof SocketTimeoutException) {
+                logger.debug("Connect timed out: " + url);
+            } else if (e instanceof UnknownHostException) {
+                logger.debug("Unknown host: " + url);
+            } else {
+                logger.debug("Unexpected IOException", e);
+            }
+
+            return null;
+        }
+    }
+
+    /**
+     * Gets the URL of the artifact of a snapshot library from the provided InputStream, which should be opened to the
+     * library's maven-metadata.xml.
+     *
+     * @param inputStream The InputStream opened to the library's maven-metadata.xml
+     * @param library The library
+     * @return The URl of the artifact of a snapshot library or null if no information could be gathered from the
+     *         provided inputStream
+     * @throws IOException If any IO errors occur
+     */
+    private String getURLFromMetadata(InputStream inputStream, Library library) throws IOException {
+        requireNonNull(inputStream, "inputStream");
+        requireNonNull(library, "library");
+
+        String timestamp, buildNumber;
+        try {
+            // This reads the maven-metadata.xml file and gets the snapshot info from the <snapshot> tag.
+            // Example tag:
+            // <snapshot>
+            //     <timestamp>20220617.013635</timestamp>
+            //     <buildNumber>12</buildNumber>
+            // </snapshot>
+
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(inputStream);
+            doc.getDocumentElement().normalize();
+
+            NodeList nodes = doc.getElementsByTagName("snapshot");
+            if (nodes.getLength() == 0) {
+                return null;
+            }
+            Node snapshot = nodes.item(0);
+            if (snapshot.getNodeType() != Node.ELEMENT_NODE) {
+                return null;
+            }
+            Node timestampNode = ((Element) snapshot).getElementsByTagName("timestamp").item(0);
+            if (timestampNode == null || timestampNode.getNodeType() != Node.ELEMENT_NODE) {
+                return null;
+            }
+            Node buildNumberNode = ((Element) snapshot).getElementsByTagName("buildNumber").item(0);
+            if (buildNumberNode == null || buildNumberNode.getNodeType() != Node.ELEMENT_NODE) {
+                return null;
+            }
+            Node timestampChild = timestampNode.getFirstChild();
+            if (timestampChild == null || timestampChild.getNodeType() != Node.TEXT_NODE) {
+                return null;
+            }
+            Node buildNumberChild = buildNumberNode.getFirstChild();
+            if (buildNumberChild == null || buildNumberChild.getNodeType() != Node.TEXT_NODE) {
+                return null;
+            }
+            timestamp = timestampChild.getNodeValue();
+            buildNumber = buildNumberChild.getNodeValue();
+        } catch (ParserConfigurationException | SAXException e) {
+            logger.debug("Invalid maven-metadata.xml", e);
+            return null;
+        }
+
+        String version = library.getVersion();
+        // Call .substring(...) only on versions ending in "-SNAPSHOT".
+        // It should never happen that a snapshot version doesn't end in "-SNAPSHOT", but better be sure
+        if (version.endsWith("-SNAPSHOT")) {
+            version = version.substring(0, version.length() - 9); // "-SNAPSHOT" is 9 characters long
+        }
+
+        String url = library.getPartialPath() + library.getArtifactId() + '-' + version + '-' + timestamp + '-' + buildNumber;
+        if (library.hasClassifier()) {
+            url += '-' + library.getClassifier();
+        }
+        return url + ".jar";
     }
 
     /**
@@ -301,7 +433,8 @@ public abstract class LibraryManager {
 
     /**
      * Downloads a library jar to the save directory if it doesn't already
-     * exist and returns the local file path.
+     * exist (snapshot libraries are always re-downloaded) and returns
+     * the local file path.
      * <p>
      * If the library has a checksum, it will be compared against the
      * downloaded jar's checksum to verify the integrity of the download. If
@@ -324,7 +457,17 @@ public abstract class LibraryManager {
     public Path downloadLibrary(Library library) {
         Path file = saveDirectory.resolve(requireNonNull(library, "library").getPath());
         if (Files.exists(file)) {
-            return file;
+            // Early return only if library isn't a snapshot, since snapshot libraries are always re-downloaded
+            if (!library.isSnapshot()) {
+                return file;
+            }
+
+            // Delete the file since the Files.move call down below will fail if it exists
+            try {
+                Files.delete(file);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
 
         Collection<String> urls = resolveLibrary(library);
