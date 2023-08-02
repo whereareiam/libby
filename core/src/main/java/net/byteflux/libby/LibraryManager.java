@@ -373,7 +373,7 @@ public abstract class LibraryManager {
         // Call .substring(...) only on versions ending in "-SNAPSHOT".
         // It should never happen that a snapshot version doesn't end in "-SNAPSHOT", but better be sure
         if (version.endsWith("-SNAPSHOT")) {
-            version = version.substring(0, version.length() - 9); // "-SNAPSHOT" is 9 characters long
+            version = version.substring(0, version.length() - "-SNAPSHOT".length());
         }
 
         String url = library.getPartialPath() + library.getArtifactId() + '-' + version + '-' + timestamp + '-' + buildNumber;
