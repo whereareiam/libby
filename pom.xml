@@ -17,6 +17,7 @@
         <module>sponge</module>
         <module>velocity</module>
         <module>paper</module>
+        <module>transitive</module>
     </modules>
 
     <properties>
