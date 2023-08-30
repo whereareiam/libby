@@ -12,7 +12,7 @@ import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactDescriptorException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 
-import net.byteflux.libby.helper.DependencyTreeHelper;
+import net.byteflux.libby.helper.TransitiveDependencyHelper;
 import net.byteflux.libby.logging.adapters.LogAdapter;
 
 /**
@@ -62,11 +62,11 @@ public class TransitiveLibraryManager extends LibraryManager {
         Collection<ExcludedLibrary> excludedLibraryList = Arrays.asList(excludedLibraries);
         RemoteRepository[] repositories = Stream.of(getRepositories(), library.getRepositories())
                 .flatMap(Collection::stream)
-                .map(DependencyTreeHelper::newDefaultRepository)
+                .map(TransitiveDependencyHelper::newDefaultRepository)
                 .toArray(RemoteRepository[]::new);
 
         try {
-            return DependencyTreeHelper.findCompileDependencies(library.getGroupId(), library.getArtifactId(), library.getVersion(), repositories).stream()
+            return TransitiveDependencyHelper.findCompileDependencies(library.getGroupId(), library.getArtifactId(), library.getVersion(), repositories).stream()
                     .map(artifact -> adaptArtifact(library, artifact))
                     .peek(transitiveLibrary -> {
                         if (excludedLibraryList.stream().noneMatch(excludedLibrary -> excludedLibrary.similar(transitiveLibrary)))

@@ -27,11 +27,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DependencyTreeHelper {
+public class TransitiveDependencyHelper {
     private static final RepositorySystem REPOSITORY_SYSTEM = newRepositorySystem();
     private static final RepositorySystemSession REPOSITORY_SYSTEM_SESSION = newRepositorySystemSession(REPOSITORY_SYSTEM);
 
-    private DependencyTreeHelper() {
+    private TransitiveDependencyHelper() {
     }
 
     public static Collection<Artifact> findCompileDependencies(String groupId, String artifactId,
