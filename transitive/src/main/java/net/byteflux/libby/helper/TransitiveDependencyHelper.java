@@ -53,17 +53,12 @@ public class TransitiveDependencyHelper {
         return dependencyResult.getArtifactResults().stream().filter(ArtifactResult::isResolved).map(ArtifactResult::getArtifact).collect(Collectors.toList());
     }
 
-    public static Collection<Artifact> findCompileDependencies(String groupId, String artifactId,
-                                                               String version) throws DependencyResolutionException {
-        return findCompileDependencies(groupId, artifactId, version, newDefaultRepository("central", "https://repo1.maven.org/maven2/"));
-    }
-
-    public static RemoteRepository newDefaultRepository(String id, String url) {
-        return new RemoteRepository.Builder(id, "default", url).build();
+    public static Collection<Artifact> findCompileDependencies(String groupId, String artifactId, String version) throws DependencyResolutionException {
+        return findCompileDependencies(groupId, artifactId, version, newDefaultRepository("https://repo1.maven.org/maven2/"));
     }
 
     public static RemoteRepository newDefaultRepository(String url) {
-        return new RemoteRepository.Builder(null, "default", url).build();
+        return new RemoteRepository.Builder(url, "default", url).build();
     }
 
     private static RepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
