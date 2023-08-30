@@ -32,10 +32,22 @@ import org.eclipse.aether.util.filter.DependencyFilterUtils;
 public class TransitiveDependencyHelper {
 
     /**
+     * Maven repository system
      *
+     * @see #newRepositorySystem()
      */
     private final RepositorySystem repositorySystem = newRepositorySystem();
+    /**
+     * Maven repository system session
+     *
+     * @see #newRepositorySystemSession(RepositorySystem)
+     */
     private final RepositorySystemSession repositorySystemSession;
+    /**
+     * Local repository path
+     *
+     * @see LocalRepository
+     */
     private final Path saveDirectory;
 
     public TransitiveDependencyHelper(Path saveDirectory) {
@@ -43,8 +55,28 @@ public class TransitiveDependencyHelper {
         this.repositorySystemSession = newRepositorySystemSession(repositorySystem);
     }
 
+    /**
+     * Creates a new instance of {@link RemoteRepository}
+     *
+     * @param url Maven repository url
+     * @return New instance of {@link RemoteRepository}
+     */
+    public static RemoteRepository newDefaultRepository(String url) {
+        return new RemoteRepository.Builder(url, "default", url).build();
+    }
+
+    /**
+     * Resolves transitive dependencies of specific maven artifact. Dependencies with scope {@code JavaScopes.COMPILE} returned only
+     *
+     * @param groupId      Maven group ID
+     * @param artifactId   Maven artifact ID
+     * @param version      Maven dependency version
+     * @param repositories Maven repositories that would be used for dependency resolvement
+     * @return Transitive dependencies, exception otherwise
+     * @throws DependencyResolutionException thrown if dependency doesn't exists on provided repositories
+     */
     public Collection<Artifact> findCompileDependencies(String groupId, String artifactId, String version,
-                                                               RemoteRepository... repositories) throws DependencyResolutionException {
+                                                        RemoteRepository... repositories) throws DependencyResolutionException {
         Artifact artifact = new DefaultArtifact(groupId, artifactId, null, "jar", version);
         List<RemoteRepository> repositoryList = Arrays.asList(repositories);
 
@@ -56,14 +88,24 @@ public class TransitiveDependencyHelper {
         return dependencyResult.getArtifactResults().stream().filter(ArtifactResult::isResolved).map(ArtifactResult::getArtifact).collect(Collectors.toList());
     }
 
+    /**
+     * Resolves transitive dependencies of specific maven artifact. Dependencies with scope {@code JavaScopes.COMPILE} returned only. Searches maven central
+     * only.
+     *
+     * @param groupId    Maven group ID
+     * @param artifactId Maven artifact ID
+     * @param version    Maven dependency version
+     * @return Transitive dependencies, exception otherwise
+     * @throws DependencyResolutionException thrown if dependency doesn't exists on provided repositories
+     * @see #findCompileDependencies(String, String, String, RemoteRepository...)
+     */
     public Collection<Artifact> findCompileDependencies(String groupId, String artifactId, String version) throws DependencyResolutionException {
         return findCompileDependencies(groupId, artifactId, version, newDefaultRepository("https://repo1.maven.org/maven2/"));
     }
 
-    public static RemoteRepository newDefaultRepository(String url) {
-        return new RemoteRepository.Builder(url, "default", url).build();
-    }
-
+    /**
+     * Creates new session by provided
+     */
     private RepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
 
@@ -73,6 +115,11 @@ public class TransitiveDependencyHelper {
         return session;
     }
 
+    /**
+     * Creates a new repository system
+     *
+     * @see RepositorySystemSupplier
+     */
     private RepositorySystem newRepositorySystem() {
         return new RepositorySystemSupplier().get();
     }
