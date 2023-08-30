@@ -9,7 +9,6 @@ import java.util.stream.Stream;
 
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.resolution.ArtifactDescriptorException;
 import org.eclipse.aether.resolution.DependencyResolutionException;
 
 import net.byteflux.libby.helper.TransitiveDependencyHelper;
@@ -66,13 +65,15 @@ public class TransitiveLibraryManager extends LibraryManager {
                 .toArray(RemoteRepository[]::new);
 
         try {
-            return TransitiveDependencyHelper.findCompileDependencies(library.getGroupId(), library.getArtifactId(), library.getVersion(), repositories).stream()
+            return TransitiveDependencyHelper.findCompileDependencies(library.getGroupId(), library.getArtifactId(), library.getVersion(), repositories)
+                    .stream()
                     .map(artifact -> adaptArtifact(library, artifact))
                     .peek(transitiveLibrary -> {
                         if (excludedLibraryList.stream().noneMatch(excludedLibrary -> excludedLibrary.similar(transitiveLibrary)))
                             loadLibrary(transitiveLibrary);
-                    }).collect(Collectors.toList());
-        } catch (DependencyResolutionException | ArtifactDescriptorException e) {
+                    })
+                    .collect(Collectors.toList());
+        } catch (DependencyResolutionException e) {
             logger.error("Cannot resolve transitive dependencies of library. Details: " + library, e);
             e.printStackTrace();
         }
