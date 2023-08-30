@@ -15,14 +15,27 @@ import org.eclipse.aether.resolution.DependencyResolutionException;
 import net.byteflux.libby.helper.DependencyTreeHelper;
 import net.byteflux.libby.logging.adapters.LogAdapter;
 
+/**
+ * A runtime dependency wrapper with support of transitive dependencies.
+ */
 public class TransitiveLibraryManager extends LibraryManager {
+
+    /**
+     * Delegate {@link LibraryManager}
+     */
     private final LibraryManager delegate;
 
+    /**
+     * Creates a new {@link TransitiveLibraryManager} simultaneously defining delegate.
+     */
     private TransitiveLibraryManager(LogAdapter adapter, Path dataDirectory, String directoryName, LibraryManager delegate) {
         super(adapter, dataDirectory, directoryName);
         this.delegate = delegate;
     }
 
+    /**
+     * Wraps a {@link LibraryManager}, adds transitive dependencies support.
+     */
     public static TransitiveLibraryManager wrap(LibraryManager delegate) {
         LogAdapter logAdapter = new LoggerLogAdapter(delegate.logger);
         Path dataDirectory = delegate.saveDirectory.getParent();
@@ -30,6 +43,19 @@ public class TransitiveLibraryManager extends LibraryManager {
         return new TransitiveLibraryManager(logAdapter, dataDirectory, directoryName, delegate);
     }
 
+    /**
+     * Loads a provided {@link Library}, and transitive dependencies.
+     * <p>
+     * Dependencies with {@code compile} scope would be loaded as "transitive dependencies"
+     * <p>
+     * If the provided library has any relocations, repositories, they will be applied to
+     * transitive dependencies.
+     *
+     * @param library           the library to load
+     * @param excludedLibraries transitive dependencies that should be skipped
+     * @return All loaded transitive dependencies
+     * @see #loadLibrary(Library)
+     */
     public Collection<Library> loadLibraryTransitively(Library library, ExcludedLibrary... excludedLibraries) {
         loadLibrary(library);
 
@@ -53,18 +79,25 @@ public class TransitiveLibraryManager extends LibraryManager {
         return Collections.emptyList();
     }
 
+    /**
+     * Adapts an {@link Artifact} into {@link Library}.
+     */
     private Library adaptArtifact(Library parent, Artifact artifact) {
         Library.Builder libraryBuilder = Library.builder()
-                                                .groupId(artifact.getGroupId())
-                                                .artifactId(artifact.getArtifactId())
-                                                .version(artifact.getVersion());
+                .groupId(artifact.getGroupId())
+                .artifactId(artifact.getArtifactId())
+                .version(artifact.getVersion());
         parent.getRelocations().forEach(libraryBuilder::relocate);
         parent.getRepositories().forEach(libraryBuilder::repository);
         return libraryBuilder.build();
     }
 
+    /**
+     * Delegates {@code delegate#addToClasspath}
+     */
     @Override
     protected void addToClasspath(Path file) {
         delegate.addToClasspath(file);
     }
+
 }

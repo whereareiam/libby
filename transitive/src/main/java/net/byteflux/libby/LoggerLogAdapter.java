@@ -1,14 +1,26 @@
 package net.byteflux.libby;
 
+import static java.util.Objects.requireNonNull;
+
 import net.byteflux.libby.logging.LogLevel;
 import net.byteflux.libby.logging.Logger;
 import net.byteflux.libby.logging.adapters.LogAdapter;
 
-import static java.util.Objects.requireNonNull;
-
+/**
+ * Adapts {@link Logger} into {@link LogAdapter}, useful for creating wrapper {@link LibraryManager}
+ */
 public class LoggerLogAdapter implements LogAdapter {
+
+    /**
+     * Delegate {@link Logger}
+     */
     private final Logger logger;
 
+    /**
+     * Delegate constructor for adapting {@link} into {@link LogAdapter}
+     *
+     * @param logger delegate
+     */
     public LoggerLogAdapter(Logger logger) {
         this.logger = logger;
     }
@@ -48,4 +60,5 @@ public class LoggerLogAdapter implements LogAdapter {
                 break;
         }
     }
+
 }
