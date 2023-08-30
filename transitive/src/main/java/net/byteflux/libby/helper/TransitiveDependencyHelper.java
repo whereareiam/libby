@@ -1,5 +1,6 @@
 package net.byteflux.libby.helper;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -33,14 +34,16 @@ public class TransitiveDependencyHelper {
     /**
      *
      */
-    private static final RepositorySystem REPOSITORY_SYSTEM = newRepositorySystem();
-    private static final RepositorySystemSession REPOSITORY_SYSTEM_SESSION = newRepositorySystemSession(REPOSITORY_SYSTEM);
+    private final RepositorySystem repositorySystem = newRepositorySystem();
+    private final RepositorySystemSession repositorySystemSession;
+    private final Path saveDirectory;
 
-    private TransitiveDependencyHelper() {
+    public TransitiveDependencyHelper(Path saveDirectory) {
+        this.saveDirectory = saveDirectory;
+        this.repositorySystemSession = newRepositorySystemSession(repositorySystem);
     }
 
-    public static Collection<Artifact> findCompileDependencies(String groupId, String artifactId,
-                                                               String version,
+    public Collection<Artifact> findCompileDependencies(String groupId, String artifactId, String version,
                                                                RemoteRepository... repositories) throws DependencyResolutionException {
         Artifact artifact = new DefaultArtifact(groupId, artifactId, null, "jar", version);
         List<RemoteRepository> repositoryList = Arrays.asList(repositories);
@@ -48,12 +51,12 @@ public class TransitiveDependencyHelper {
         CollectRequest collectRequest = new CollectRequest(new Dependency(artifact, JavaScopes.COMPILE), repositoryList);
         DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE));
 
-        DependencyResult dependencyResult = REPOSITORY_SYSTEM.resolveDependencies(REPOSITORY_SYSTEM_SESSION, dependencyRequest);
+        DependencyResult dependencyResult = repositorySystem.resolveDependencies(repositorySystemSession, dependencyRequest);
 
         return dependencyResult.getArtifactResults().stream().filter(ArtifactResult::isResolved).map(ArtifactResult::getArtifact).collect(Collectors.toList());
     }
 
-    public static Collection<Artifact> findCompileDependencies(String groupId, String artifactId, String version) throws DependencyResolutionException {
+    public Collection<Artifact> findCompileDependencies(String groupId, String artifactId, String version) throws DependencyResolutionException {
         return findCompileDependencies(groupId, artifactId, version, newDefaultRepository("https://repo1.maven.org/maven2/"));
     }
 
@@ -61,16 +64,16 @@ public class TransitiveDependencyHelper {
         return new RemoteRepository.Builder(url, "default", url).build();
     }
 
-    private static RepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
+    private RepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
 
-        LocalRepository localRepo = new LocalRepository("target/local-repo");
+        LocalRepository localRepo = new LocalRepository(saveDirectory.toAbsolutePath().toFile());
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
 
         return session;
     }
 
-    private static RepositorySystem newRepositorySystem() {
+    private RepositorySystem newRepositorySystem() {
         return new RepositorySystemSupplier().get();
     }
 

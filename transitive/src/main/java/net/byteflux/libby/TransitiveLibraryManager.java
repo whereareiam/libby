@@ -23,12 +23,17 @@ public class TransitiveLibraryManager extends LibraryManager {
      * Delegate {@link LibraryManager}
      */
     private final LibraryManager delegate;
+    /**
+     * Dependency helper
+     */
+    private final TransitiveDependencyHelper dependencyHelper;
 
     /**
      * Creates a new {@link TransitiveLibraryManager} simultaneously defining delegate.
      */
     private TransitiveLibraryManager(LogAdapter adapter, Path dataDirectory, String directoryName, LibraryManager delegate) {
         super(adapter, dataDirectory, directoryName);
+        this.dependencyHelper = new TransitiveDependencyHelper(delegate.saveDirectory);
         this.delegate = delegate;
     }
 
@@ -65,7 +70,7 @@ public class TransitiveLibraryManager extends LibraryManager {
                 .toArray(RemoteRepository[]::new);
 
         try {
-            return TransitiveDependencyHelper.findCompileDependencies(library.getGroupId(), library.getArtifactId(), library.getVersion(), repositories)
+            return dependencyHelper.findCompileDependencies(library.getGroupId(), library.getArtifactId(), library.getVersion(), repositories)
                     .stream()
                     .map(artifact -> adaptArtifact(library, artifact))
                     .peek(transitiveLibrary -> {
