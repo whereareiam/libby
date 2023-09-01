@@ -1,11 +1,5 @@
 package net.byteflux.libby.helper;
 
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -23,6 +17,13 @@ import org.eclipse.aether.resolution.DependencyResult;
 import org.eclipse.aether.supplier.RepositorySystemSupplier;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
+
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * A supplier-based helper class for providing compile scope transitive dependencies.
@@ -111,6 +112,12 @@ public class TransitiveDependencyHelper {
 
         LocalRepository localRepo = new LocalRepository(saveDirectory.toAbsolutePath().toFile());
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(session, localRepo));
+
+        Properties properties = new Properties();
+        properties.putAll(System.getProperties());
+
+        session.setSystemProperties(properties);
+        session.setConfigProperties(properties);
 
         return session;
     }
