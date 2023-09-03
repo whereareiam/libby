@@ -1,3 +1,8 @@
+### Version 1.3.0
+* Support for snapshot libraries ([GH-20](https://github.com/AlessioDP/libby/pull/20))
+* Updated jar-relocator ([GH-21](https://github.com/AlessioDP/libby/pull/21))
+* Updated Maven plugins
+
 ### Version 1.2.0
 * Updated platform supported by Libby
   * Sponge from 7 to 8 (Logger now uses log4j)
