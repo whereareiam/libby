@@ -4,6 +4,7 @@ import net.byteflux.libby.classloader.URLClassLoaderHelper;
 import net.byteflux.libby.logging.adapters.JDKLogAdapter;
 import org.bukkit.plugin.Plugin;
 
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -19,6 +20,8 @@ public class PaperLibraryManager extends LibraryManager {
      * Plugin classpath helper
      */
     private final URLClassLoaderHelper classLoader;
+
+    private final Plugin plugin;
 
     /**
      * Creates a new Paper library manager.
@@ -71,6 +74,7 @@ public class PaperLibraryManager extends LibraryManager {
         }
 
         classLoader = new URLClassLoaderHelper(libraryLoader, this);
+        this.plugin = plugin;
     }
 
     /**
@@ -81,5 +85,10 @@ public class PaperLibraryManager extends LibraryManager {
     @Override
     protected void addToClasspath(Path file) {
         classLoader.addToClasspath(file);
+    }
+
+    @Override
+    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
+        return plugin.getResource(path);
     }
 }
