@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  *
  * @see <a href=https://github.com/apache/maven-resolver>maven-resolver</a>.
  */
-public class TransitiveDependencyHelper {
+public class TransitiveDependencyCollector {
 
     /**
      * Maven repository system
@@ -52,7 +52,7 @@ public class TransitiveDependencyHelper {
      */
     private final Path saveDirectory;
 
-    public TransitiveDependencyHelper(Path saveDirectory) {
+    public TransitiveDependencyCollector(Path saveDirectory) {
         this.saveDirectory = saveDirectory;
         this.repositorySystemSession = newRepositorySystemSession(repositorySystem);
     }
