@@ -106,7 +106,10 @@ public class TransitiveDependencyCollector {
     }
 
     /**
-     * Creates new session by provided
+     * Creates new session by provided {@link RepositorySystem}
+     *
+     * @return new session from {@link RepositorySystem}
+     * @see MavenRepositorySystemUtils#newSession()
      */
     private RepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
@@ -126,6 +129,7 @@ public class TransitiveDependencyCollector {
     /**
      * Creates a new repository system
      *
+     * @return New supplier repository system
      * @see RepositorySystemSupplier
      */
     private RepositorySystem newRepositorySystem() {
