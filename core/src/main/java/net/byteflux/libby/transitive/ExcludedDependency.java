@@ -12,7 +12,7 @@ import static java.util.Objects.requireNonNull;
  *
  * @see TransitiveDependencyHelper#findCompileDependencies(String, String, String, RemoteRepository...)
  */
-public class ExcludedLibrary {
+public class ExcludedDependency {
 
     /**
      * Maven group ID
@@ -24,12 +24,12 @@ public class ExcludedLibrary {
     private final String artifactId;
 
     /**
-     * Creates a new {@link ExcludedLibrary}
+     * Creates a new {@link ExcludedDependency}
      *
      * @param groupId    Maven group ID
      * @param artifactId Maven artifact ID
      */
-    public ExcludedLibrary(String groupId, String artifactId) {
+    public ExcludedDependency(String groupId, String artifactId) {
         this.groupId = requireNonNull(groupId, "groupId").replace("{}", ".");
         this.artifactId = requireNonNull(artifactId, "artifactId");
     }
