@@ -10,7 +10,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Simple immutable data-class for holding {@code groupId}, {@code artifactId}.
  *
- * @see TransitiveDependencyHelper#findCompileDependencies(String, String, String, RemoteRepository...) 
+ * @see TransitiveDependencyHelper#findCompileDependencies(String, String, String, RemoteRepository...)
  */
 public class ExcludedLibrary {
 
@@ -29,22 +29,9 @@ public class ExcludedLibrary {
      * @param groupId    Maven group ID
      * @param artifactId Maven artifact ID
      */
-    private ExcludedLibrary(String groupId, String artifactId) {
+    public ExcludedLibrary(String groupId, String artifactId) {
         this.groupId = requireNonNull(groupId, "groupId").replace("{}", ".");
         this.artifactId = requireNonNull(artifactId, "artifactId");
-    }
-
-    /**
-     * Creates a new {@link ExcludedLibrary} from raw {@code groupId}, {@code artifactId}
-     *
-     * @param groupId Maven group ID
-     * @param artifactId Maven artifact ID
-     * @return new {@link ExcludedLibrary} instance
-     *
-     * @see #similar(Library)
-     */
-    public static ExcludedLibrary of(String groupId, String artifactId) {
-        return new ExcludedLibrary(groupId, artifactId);
     }
 
     /**
