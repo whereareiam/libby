@@ -1,5 +1,6 @@
 package net.byteflux.libby.transitive;
 
+import net.byteflux.libby.Repositories;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -101,7 +102,7 @@ public class TransitiveDependencyHelper {
      * @see #findCompileDependencies(String, String, String, RemoteRepository...)
      */
     public Collection<Artifact> findCompileDependencies(String groupId, String artifactId, String version) throws DependencyResolutionException {
-        return findCompileDependencies(groupId, artifactId, version, newDefaultRepository("https://repo1.maven.org/maven2/"));
+        return findCompileDependencies(groupId, artifactId, version, newDefaultRepository(Repositories.MAVEN_CENTRAL));
     }
 
     /**
