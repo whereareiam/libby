@@ -10,7 +10,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Simple immutable data-class for holding {@code groupId}, {@code artifactId}.
  *
- * @see TransitiveDependencyHelper#findCompileDependencies(String, String, String, RemoteRepository...)
+ * @see TransitiveDependencyHelper#findTransitiveDependencies(String, String, String, RemoteRepository...)
  */
 public class ExcludedDependency {
 
@@ -58,7 +58,7 @@ public class ExcludedDependency {
      * This method checks equality of {@code groupId}, {@code artifactId}.
      *
      * @return {@code} if {@code groupId}, {@code artifactId} are equals with this class.
-     * @see TransitiveDependencyHelper#findCompileDependencies(String, String, String, RemoteRepository...)
+     * @see TransitiveDependencyHelper#findTransitiveDependencies(String, String, String, RemoteRepository...)
      */
     public boolean similar(Library library) {
         return Objects.equals(groupId, library.getGroupId()) && Objects.equals(artifactId, library.getArtifactId());
