@@ -574,6 +574,14 @@ public abstract class LibraryManager {
         }
     }
 
+    /**
+     * Resolves and loads transitive libraries for a given library. This method ensures that
+     * all libraries on which the provided library depends are properly loaded.
+     *
+     * @param library the primary library for which transitive libraries need to be resolved and loaded.
+     * @throws NullPointerException if the provided library is null.
+     * @see #loadLibrary(Library)
+     */
     private void resolveTransitiveLibraries(Library library) {
         requireNonNull(library, "library");
 
