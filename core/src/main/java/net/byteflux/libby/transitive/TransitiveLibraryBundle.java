@@ -7,6 +7,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
+/**
+ * Represents a bundle of libraries required for Maven transitive dependency resolution and related operations.
+ * <p>
+ * This class bundles Maven Resolver Supplier, Maven Resolver Provider and their transitive dependencies.
+ * The libraries are statically defined and stored in the DEPENDENCY_BUNDLE collection for easy access
+ * and use in Maven-related operations.
+ */
 class TransitiveLibraryBundle {
     private static final Library MAVEN_RESOLVER_SUPPLIER = Library.builder()
                                                                   .groupId("org.apache.maven.resolver")
