@@ -91,6 +91,21 @@ public class TransitiveDependencyCollector {
     }
 
     /**
+     * Resolves transitive dependencies of specific maven artifact. Dependencies with scope {@code JavaScopes.COMPILE}, {@code JavaScopes.RUNTIME} returned only. Searches provided repository urls only.
+     *
+     * @param groupId      Maven group ID
+     * @param artifactId   Maven artifact ID
+     * @param version      Maven dependency version
+     * @param repositories Maven repositories for transitive dependencies search
+     * @return Transitive dependencies, exception otherwise
+     * @throws DependencyResolutionException thrown if dependency doesn't exists on provided repositories
+     * @see #findTransitiveDependencies(String, String, String, RemoteRepository...)
+     */
+    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, String... repositories) throws DependencyResolutionException {
+        return findTransitiveDependencies(groupId, artifactId, version, Arrays.stream(repositories).map(TransitiveDependencyCollector::newDefaultRepository).toArray(RemoteRepository[]::new));
+    }
+
+    /**
      * Resolves transitive dependencies of specific maven artifact. Dependencies with scope {@code JavaScopes.COMPILE}, {@code JavaScopes.RUNTIME} returned only. Searches maven central
      * only.
      *
