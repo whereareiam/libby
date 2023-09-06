@@ -16,13 +16,40 @@ import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * A reflection-based helper for resolving transitive libraries. It automatically
+ * downloads Maven Resolver Supplier, Maven Resolver Provider and their transitive dependencies to resolve transitive dependencies..
+ *
+ * @see <a href="https://github.com/apache/maven-resolver">Apache Maven Artifact Resolver</a>
+ */
 public class TransitiveDependencyHelper {
-
+    /**
+     * TransitiveDependencyCollector class instance, used in {@link #findTransitiveLibraries(Library)}
+     */
     private final Object transitiveDependencyCollectorObject;
+
+    /**
+     * Reflected method for resolving transitive dependencies
+     */
     private final Method resolveTransitiveDependenciesMethod;
+
+    /**
+     * Reflected getter methods of Artifact class
+     */
     private final Method artifactGetGroupIdMethod, artifactGetArtifactIdMethod, artifactGetVersionMethod;
+
+    /**
+     * LibraryManager instance, used in {@link #findTransitiveLibraries(Library)}
+     */
     private final LibraryManager libraryManager;
 
+    /**
+     * Creates a new transitive dependency helper using the provided library manager to
+     * download the dependencies required for transitive dependency resolvement in runtime.
+     *
+     * @param libraryManager the library manager used to download dependencies
+     * @param saveDirectory the directory where all transitive dependencies would be saved
+     */
     public TransitiveDependencyHelper(LibraryManager libraryManager, Path saveDirectory) {
         requireNonNull(libraryManager, "libraryManager");
         this.libraryManager = libraryManager;
@@ -57,6 +84,23 @@ public class TransitiveDependencyHelper {
         }
     }
 
+    /**
+     * Finds and returns a collection of transitive libraries for a given library.
+     * <p>
+     * This method fetches the transitive dependencies of the provided library using reflection-based
+     * interaction with the underlying transitive dependency collector. The method ensures to filter out
+     * any excluded transitive dependencies as specified by the provided library.
+     * </p>
+     * <p>
+     * Note: The method merges the repositories from both the library manager and the given library
+     * for dependency resolution. And clones all relocations into transitive libraries.
+     * </p>
+     *
+     * @param library The primary library for which transitive dependencies need to be found.
+     * @return A collection of {@link Library} objects representing the transitive libraries
+     *         excluding the ones marked as excluded in the provided library.
+     * @throws RuntimeException If there's any exception during the reflection-based operations.
+     */
     public Collection<Library> findTransitiveLibraries(Library library) {
         List<Library> transitiveLibraries = new ArrayList<>();
 
