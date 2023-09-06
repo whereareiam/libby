@@ -31,7 +31,7 @@ import java.util.stream.Collectors;
  *
  * @see <a href=https://github.com/apache/maven-resolver>maven-resolver</a>.
  */
-public class TransitiveDependencyCollector {
+class TransitiveDependencyCollector {
 
     /**
      * Maven repository system
