@@ -48,7 +48,7 @@ public class TransitiveDependencyHelper {
      * download the dependencies required for transitive dependency resolvement in runtime.
      *
      * @param libraryManager the library manager used to download dependencies
-     * @param saveDirectory the directory where all transitive dependencies would be saved
+     * @param saveDirectory  the directory where all transitive dependencies would be saved
      */
     public TransitiveDependencyHelper(LibraryManager libraryManager, Path saveDirectory) {
         requireNonNull(libraryManager, "libraryManager");
@@ -71,13 +71,18 @@ public class TransitiveDependencyHelper {
             Class<?> transitiveDependencyCollectorClass = classLoader.loadClass(collectorClassName);
             Class<?> artifactClass = classLoader.loadClass("org.eclipse.aether.artifact.Artifact");
 
+            // net.byteflux.libby.TransitiveDependencyCollector(Path)
             Constructor<?> constructor = transitiveDependencyCollectorClass.getConstructor(Path.class);
             constructor.setAccessible(true);
             transitiveDependencyCollectorObject = constructor.newInstance(saveDirectory);
+            // net.byteflux.libby.TransitiveDependencyCollector#findTransitiveDependencies(String, String, String, String...)
             resolveTransitiveDependenciesMethod = transitiveDependencyCollectorClass.getMethod("findTransitiveDependencies", String.class, String.class, String.class, String[].class);
             resolveTransitiveDependenciesMethod.setAccessible(true);
+            // org.eclipse.aether.artifact.Artifact#getGroupId()
             artifactGetGroupIdMethod = artifactClass.getMethod("getGroupId");
+            // org.eclipse.aether.artifact.Artifact#getArtifactId()
             artifactGetArtifactIdMethod = artifactClass.getMethod("getArtifactId");
+            // org.eclipse.aether.artifact.Artifact#getVersion()
             artifactGetVersionMethod = artifactClass.getMethod("getVersion");
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
@@ -98,7 +103,7 @@ public class TransitiveDependencyHelper {
      *
      * @param library The primary library for which transitive dependencies need to be found.
      * @return A collection of {@link Library} objects representing the transitive libraries
-     *         excluding the ones marked as excluded in the provided library.
+     * excluding the ones marked as excluded in the provided library.
      * @throws RuntimeException If there's any exception during the reflection-based operations.
      */
     public Collection<Library> findTransitiveLibraries(Library library) {
