@@ -4,6 +4,7 @@ import cn.nukkit.plugin.Plugin;
 import net.byteflux.libby.classloader.URLClassLoaderHelper;
 import net.byteflux.libby.logging.adapters.NukkitLogAdapter;
 
+import java.io.InputStream;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 
@@ -17,6 +18,8 @@ public class NukkitLibraryManager extends LibraryManager {
      * Plugin classpath helper
      */
     private final URLClassLoaderHelper classLoader;
+
+    private final Plugin plugin;
 
     /**
      * Creates a new Nukkit library manager.
@@ -36,6 +39,7 @@ public class NukkitLibraryManager extends LibraryManager {
     public NukkitLibraryManager(Plugin plugin, String directoryName) {
         super(new NukkitLogAdapter(requireNonNull(plugin, "plugin").getLogger()), plugin.getDataFolder().toPath(), directoryName);
         classLoader = new URLClassLoaderHelper((URLClassLoader) plugin.getClass().getClassLoader(), this);
+        this.plugin = plugin;
     }
 
     /**
@@ -46,5 +50,10 @@ public class NukkitLibraryManager extends LibraryManager {
     @Override
     protected void addToClasspath(Path file) {
         classLoader.addToClasspath(file);
+    }
+
+    @Override
+    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
+        return plugin.getResource(path);
     }
 }
