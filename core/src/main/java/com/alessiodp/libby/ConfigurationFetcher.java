@@ -138,7 +138,15 @@ public class ConfigurationFetcher {
 						throw new IllegalArgumentException("The checksum property must be a valid base64 encoded SHA-256 checksum");
 					}
 				}
-				
+
+				libraryBuilder.isolatedLoad(library.getBoolean("isolatedLoad"));
+
+				String id = library.getString("id");
+
+				if (id != null) {
+					libraryBuilder.id(id);
+				}
+
 				Set<Relocation> relocations = fetchRelocations(library);
 				
 				// Apply relocation
