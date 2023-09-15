@@ -111,7 +111,7 @@ public class TransitiveDependencyHelper {
 
         String[] repositories = Stream.of(libraryManager.getRepositories(), library.getRepositories()).flatMap(Collection::stream).toArray(String[]::new);
         try {
-            Collection<Object> artifacts = (Collection<Object>) resolveTransitiveDependenciesMethod.invoke(transitiveDependencyCollectorObject,
+            Collection<?> artifacts = (Collection<?>) resolveTransitiveDependenciesMethod.invoke(transitiveDependencyCollectorObject,
                 library.getGroupId(),
                 library.getArtifactId(),
                 library.getVersion(),
@@ -126,7 +126,9 @@ public class TransitiveDependencyHelper {
                 Library.Builder libraryBuilder = Library.builder()
                                                         .groupId(groupId)
                                                         .artifactId(artifactId)
-                                                        .version(version);
+                                                        .version(version)
+                                                        .isolatedLoad(library.isIsolatedLoad())
+                                                        .id(library.getId());
 
                 library.getRelocations().forEach(libraryBuilder::relocate);
                 library.getRepositories().forEach(libraryBuilder::repository);
