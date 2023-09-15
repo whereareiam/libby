@@ -6,7 +6,6 @@ import com.alessiodp.libby.logging.Logger;
 import com.alessiodp.libby.relocation.Relocation;
 import com.alessiodp.libby.relocation.RelocationHelper;
 import com.alessiodp.libby.transitive.TransitiveDependencyHelper;
-import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
 import com.grack.nanojson.JsonParser;
 import com.grack.nanojson.JsonParserException;
@@ -40,7 +39,6 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -93,7 +91,12 @@ public abstract class LibraryManager {
      * Map of isolated class loaders and theirs id
      */
     private final Map<String, IsolatedClassLoader> isolatedLibraries = new HashMap<>();
-
+    
+    /**
+     * Configuration fetcher used to fetch the JSON config
+     */
+    private ConfigurationFetcher configurationFetcher = new ConfigurationFetcher();
+    
     /**
      * Creates a new library manager.
      *
@@ -647,88 +650,30 @@ public abstract class LibraryManager {
      *     <li>Adding and relocating libraries</li>
      * </ul>
      *
-     * @param data The json file
-     * @throws JsonParserException If the json file is corrupted
+     * @param data the json file
+     * @throws JsonParserException if the json file is corrupted
      */
     public void configureFromJSON(InputStream data) throws JsonParserException {
         JsonObject root = JsonParser.object().from(data);
-
-        // The version value must be included in the JSON file and match the version of the parser
-        int version = root.getInt("version", -1);
-
-        if (version != 0) {
-            throw new IllegalArgumentException("The json file is version " + version + " but this version of libby only supports version 0");
-        }
-
-        // The repositories don't have to be included in the JSON file
-        // If they are, they must be an array of strings representing the repository URLs
-        JsonArray repositories = root.getArray("repositories");
-        if (repositories != null) {
-            for (int i = 0; i < repositories.size(); i++) {
-                addRepository(repositories.getString(i));
+        ConfigurationFetcher configurationFetcher = new ConfigurationFetcher();
+        
+        try {
+            configurationFetcher.fetchVersion(root);
+            Set<String> repositories = configurationFetcher.fetchRepositories(root);
+            Set<Relocation> globalRelocations = configurationFetcher.fetchRelocations(root);
+            Set<Library> libraries = configurationFetcher.fetchLibraries(root, globalRelocations);
+            
+            // Load repositories
+            for (String repo : repositories) {
+                addRepository(repo);
             }
-        }
-
-        Set<Relocation> parsedRelocations = new HashSet<>();
-
-        // The relocations don't have to be included in the JSON file
-        // If they are, they must be an object with keys representing the original class name and values representing the relocated class name
-        JsonObject relocations = root.getObject("relocations");
-
-        for (String from : relocations.keySet()) {
-            parsedRelocations.add(new Relocation(from, relocations.getString(from)));
-        }
-
-        // The libraries don't have to be included in the JSON file
-        // If they are, they must be an array of objects that include the following properties:
-        // - group: The groupId of the library
-        // - name: The artifactId of the library
-        // - version: The version of the library
-        // Optional properties:
-        // - checksum: The SHA-256 checksum of the library, must be a base64 encoded string and may only be included if the library is a JAR.
-        JsonArray libraries = root.getArray("libraries");
-
-        if (libraries != null) {
-            for (int i = 0; i < libraries.size(); i++) {
-                JsonObject library = libraries.getObject(i);
-                Library.Builder libraryBuilder = Library.builder();
-
-                String groupId = library.getString("group");
-
-                if (groupId == null) {
-                    throw new IllegalArgumentException("The group property is required for all libraries");
-                }
-
-                String artifactId = library.getString("name");
-
-                if (artifactId == null) {
-                    throw new IllegalArgumentException("The name property is required for all libraries");
-                }
-
-                String artifactVersion = library.getString("version");
-
-                if (artifactVersion == null) {
-                    throw new IllegalArgumentException("The version property is required for all libraries");
-                }
-
-                libraryBuilder
-                    .groupId(groupId)
-                    .artifactId(artifactId)
-                    .version(artifactVersion);
-
-                String checksum = library.getString("checksum");
-
-                if (checksum != null) {
-                    libraryBuilder.checksum(checksum);
-                }
-
-                // We will just apply the relocations to all libraries. While it's not the most efficient, it's the easiest to implement
-                for (Relocation relocation : parsedRelocations) {
-                    libraryBuilder.relocate(relocation);
-                }
-
-                loadLibrary(libraryBuilder.build());
+            
+            // Load libraries
+            for (Library library : libraries) {
+                loadLibrary(library);
             }
+        } catch (IllegalArgumentException ex) {
+            logger.error(ex.getMessage());
         }
     }
 
@@ -738,10 +683,20 @@ public abstract class LibraryManager {
      * @see #configureFromJSON(InputStream)
      */
     public void configureFromJSON() {
+        configureFromJSON("libby.json");
+    }
+
+    /**
+     * Configures the current library manager from a file in the plugin classpath.
+     * Example: configureFromJSON("libby.json")
+     *
+     * @see #configureFromJSON(InputStream)
+     */
+    public void configureFromJSON(String fileName) {
         try {
-            configureFromJSON(getPluginResourceAsInputStream("libby.json"));
+            configureFromJSON(getPluginResourceAsInputStream(fileName));
         } catch (JsonParserException e) {
-            logger.error("Your libby.json file is corrupted!", e);
+            logger.error("Your " + fileName + " file is corrupted!", e);
         } catch (UnsupportedOperationException e) {
             logger.error("Loading resources from the plugin file is not implemented on this platform.", e);
         }
