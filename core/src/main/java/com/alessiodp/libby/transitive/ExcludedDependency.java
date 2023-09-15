@@ -53,10 +53,11 @@ public class ExcludedDependency {
     }
 
     /**
-     * Returns similarity of {@link Library} and this class.
+     * Returns similarity of {@link Library} and this object.
      * <p>
-     * This method checks equality of {@code groupId}, {@code artifactId}.
+     * This method checks equality of {@code groupId} and {@code artifactId}.
      *
+     * @param library The library
      * @return {@code} if {@code groupId}, {@code artifactId} are equals with this class.
      * @see TransitiveDependencyCollector#findTransitiveDependencies(String, String, String, RemoteRepository...)
      */

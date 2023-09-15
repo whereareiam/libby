@@ -338,6 +338,11 @@ public class Library {
         return resolveTransitiveDependencies;
     }
 
+    /**
+     * Gets the excluded dependencies during transitive dependencies resolution.
+     *
+     * @return The dependencies excluded during transitive dependencies resolution.
+     */
     public Collection<ExcludedDependency> getExcludedTransitiveDependencies() {
         return excludedTransitiveDependencies;
     }
