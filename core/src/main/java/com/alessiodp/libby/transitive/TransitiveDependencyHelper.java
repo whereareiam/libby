@@ -18,7 +18,7 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * A reflection-based helper for resolving transitive libraries. It automatically
- * downloads Maven Resolver Supplier, Maven Resolver Provider and their transitive dependencies to resolve transitive dependencies..
+ * downloads Maven Resolver Supplier, Maven Resolver Provider and their transitive dependencies to resolve transitive dependencies.
  *
  * @see <a href="https://github.com/apache/maven-resolver">Apache Maven Artifact Resolver</a>
  */
