@@ -17,11 +17,20 @@ subprojects {
     apply(plugin = "java-library")
     apply(plugin = "maven-publish")
 
+    dependencies {
+        testImplementation(platform("org.junit:junit-bom:5.10.0"))
+        testImplementation("org.junit.jupiter:junit-jupiter")
+    }
+
     java {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
 
         withJavadocJar()
+    }
+
+    tasks.test {
+        useJUnitPlatform()
     }
 
     publishing {

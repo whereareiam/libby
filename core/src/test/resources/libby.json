@@ -1,0 +1,31 @@
+{
+  "version": 0,
+  "libraries": [
+    {
+      "group": "fake{}library{}1",
+      "name": "library-1",
+      "version": "1.0.0"
+    },
+    {
+      "group": "fake{}library{}2",
+      "name": "library-2",
+      "version": "1.0.0",
+      "relocations": [
+        {
+          "pattern": "fake{}library{}2",
+          "relocatedPattern": "relocated{}fake{}library{}2"
+        }
+      ]
+    }
+  ],
+  "repositories": [
+    "repo1",
+    "repo2"
+  ],
+  "relocations": [
+    {
+      "pattern": "fake{}library{}1",
+      "relocatedPattern": "relocated{}fake{}library{}1"
+    }
+  ]
+}
