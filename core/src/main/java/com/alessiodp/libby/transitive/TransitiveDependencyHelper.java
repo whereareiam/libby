@@ -75,8 +75,8 @@ public class TransitiveDependencyHelper {
             Constructor<?> constructor = transitiveDependencyCollectorClass.getConstructor(Path.class);
             constructor.setAccessible(true);
             transitiveDependencyCollectorObject = constructor.newInstance(saveDirectory);
-            // com.alessiodp.libby.TransitiveDependencyCollector#findTransitiveDependencies(String, String, String, String...)
-            resolveTransitiveDependenciesMethod = transitiveDependencyCollectorClass.getMethod("findTransitiveDependencies", String.class, String.class, String.class, String[].class);
+            // com.alessiodp.libby.TransitiveDependencyCollector#findTransitiveDependencies(String, String, String, Stream<String>)
+            resolveTransitiveDependenciesMethod = transitiveDependencyCollectorClass.getMethod("findTransitiveDependencies", String.class, String.class, String.class, Stream.class);
             resolveTransitiveDependenciesMethod.setAccessible(true);
             // org.eclipse.aether.artifact.Artifact#getGroupId()
             artifactGetGroupIdMethod = artifactClass.getMethod("getGroupId");
@@ -109,7 +109,7 @@ public class TransitiveDependencyHelper {
     public Collection<Library> findTransitiveLibraries(Library library) {
         List<Library> transitiveLibraries = new ArrayList<>();
 
-        String[] repositories = Stream.of(libraryManager.getRepositories(), library.getRepositories()).flatMap(Collection::stream).toArray(String[]::new);
+        Stream<String> repositories = Stream.of(libraryManager.getRepositories(), library.getRepositories()).flatMap(Collection::stream);
         try {
             Collection<?> artifacts = (Collection<?>) resolveTransitiveDependenciesMethod.invoke(transitiveDependencyCollectorObject,
                 library.getGroupId(),
