@@ -1,23 +1,16 @@
 package com.alessiodp.libby.transitive;
 
-import com.alessiodp.libby.Library;
-import org.eclipse.aether.repository.RemoteRepository;
-
-import java.util.Objects;
-
 import static java.util.Objects.requireNonNull;
 
 /**
- * Simple immutable data-class for holding {@code groupId}, {@code artifactId}.
- *
- * @see TransitiveDependencyCollector#findTransitiveDependencies(String, String, String, RemoteRepository...)
+ * Represents a dependency to exclude during transitive dependency resolution for a library.
  */
 public class ExcludedDependency {
-
     /**
      * Maven group ID
      */
     private final String groupId;
+
     /**
      * Maven artifact ID
      */
@@ -35,7 +28,7 @@ public class ExcludedDependency {
     }
 
     /**
-     * Gets the Maven group ID for this excluded library
+     * Gets the Maven group ID for this excluded dependency
      *
      * @return Maven group ID
      */
@@ -44,7 +37,7 @@ public class ExcludedDependency {
     }
 
     /**
-     * Gets the Maven artifact ID for this excluded library
+     * Gets the Maven artifact ID for this excluded dependency
      *
      * @return Maven artifact ID
      */
@@ -52,16 +45,21 @@ public class ExcludedDependency {
         return artifactId;
     }
 
-    /**
-     * Returns similarity of {@link Library} and this object.
-     * <p>
-     * This method checks equality of {@code groupId} and {@code artifactId}.
-     *
-     * @param library The library
-     * @return {@code} if {@code groupId}, {@code artifactId} are equals with this class.
-     * @see TransitiveDependencyCollector#findTransitiveDependencies(String, String, String, RemoteRepository...)
-     */
-    public boolean similar(Library library) {
-        return Objects.equals(groupId, library.getGroupId()) && Objects.equals(artifactId, library.getArtifactId());
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ExcludedDependency that = (ExcludedDependency) o;
+
+        if (!groupId.equals(that.groupId)) return false;
+        return artifactId.equals(that.artifactId);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = groupId.hashCode();
+        result = 31 * result + artifactId.hashCode();
+        return result;
     }
 }

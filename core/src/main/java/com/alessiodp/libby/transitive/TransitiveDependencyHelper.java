@@ -10,8 +10,10 @@ import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
@@ -108,6 +110,7 @@ public class TransitiveDependencyHelper {
      */
     public Collection<Library> findTransitiveLibraries(Library library) {
         List<Library> transitiveLibraries = new ArrayList<>();
+        Set<ExcludedDependency> excludedDependencies = new HashSet<>(library.getExcludedTransitiveDependencies());
 
         Stream<String> repositories = Stream.of(libraryManager.getRepositories(), library.getRepositories()).flatMap(Collection::stream);
         try {
@@ -121,7 +124,11 @@ public class TransitiveDependencyHelper {
                 String artifactId = (String) artifactGetArtifactIdMethod.invoke(artifact);
                 String version = (String) artifactGetVersionMethod.invoke(artifact);
 
-                if (library.getGroupId().equals(groupId) && library.getArtifactId().equals(artifactId)) continue;
+                if (library.getGroupId().equals(groupId) && library.getArtifactId().equals(artifactId))
+                    continue;
+
+                if (excludedDependencies.contains(new ExcludedDependency(groupId, artifactId)))
+                    continue;
 
                 Library.Builder libraryBuilder = Library.builder()
                                                         .groupId(groupId)
@@ -139,9 +146,6 @@ public class TransitiveDependencyHelper {
             throw new RuntimeException(e);
         }
 
-        return transitiveLibraries.stream().filter(transitiveLibrary -> library.getExcludedTransitiveDependencies()
-                                                                               .stream()
-                                                                               .noneMatch(excludedDependency -> excludedDependency.similar(transitiveLibrary)))
-                                  .collect(Collectors.toList());
+        return Collections.unmodifiableCollection(transitiveLibraries);
     }
 }
