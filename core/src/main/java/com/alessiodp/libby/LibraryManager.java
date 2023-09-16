@@ -85,6 +85,9 @@ public abstract class LibraryManager {
      */
     private RelocationHelper relocator;
 
+    /**
+     * Lazily-initialized helper for transitive dependencies resolution
+     */
     private TransitiveDependencyHelper transitiveDependencyHelper;
 
     /**
@@ -150,6 +153,7 @@ public abstract class LibraryManager {
      * Get the isolated class loader of the library
      *
      * @param libraryId the id of the library
+     * @return The isolated class loader associated with the provided id
      */
     public IsolatedClassLoader getIsolatedClassLoaderOf(String libraryId) {
         return isolatedLibraries.get(libraryId);
@@ -690,6 +694,7 @@ public abstract class LibraryManager {
      * Configures the current library manager from a file in the plugin classpath.
      * Example: configureFromJSON("libby.json")
      *
+     * @param fileName The name of the json file
      * @see #configureFromJSON(InputStream)
      */
     public void configureFromJSON(String fileName) {

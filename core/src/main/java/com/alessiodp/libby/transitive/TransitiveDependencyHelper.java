@@ -18,7 +18,7 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * A reflection-based helper for resolving transitive libraries. It automatically
- * downloads Maven Resolver Supplier, Maven Resolver Provider and their transitive dependencies to resolve transitive dependencies..
+ * downloads Maven Resolver Supplier, Maven Resolver Provider and their transitive dependencies to resolve transitive dependencies.
  *
  * @see <a href="https://github.com/apache/maven-resolver">Apache Maven Artifact Resolver</a>
  */
@@ -58,17 +58,17 @@ public class TransitiveDependencyHelper {
         String collectorClassName = "com.alessiodp.libby.transitive.TransitiveDependencyCollector";
         String collectorClassPath = '/' + collectorClassName.replace('.', '/') + ".class";
 
+        for (Library library : TransitiveLibraryBundle.DEPENDENCY_BUNDLE)
+            classLoader.addPath(libraryManager.downloadLibrary(library));
+
+        final Class<?> transitiveDependencyCollectorClass;
         try {
-            classLoader.defineClass(collectorClassName, getClass().getResourceAsStream(collectorClassPath));
+            transitiveDependencyCollectorClass = classLoader.defineClass(collectorClassName, getClass().getResourceAsStream(collectorClassPath));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        for (Library library : TransitiveLibraryBundle.DEPENDENCY_BUNDLE)
-            classLoader.addPath(libraryManager.downloadLibrary(library));
-
         try {
-            Class<?> transitiveDependencyCollectorClass = classLoader.loadClass(collectorClassName);
             Class<?> artifactClass = classLoader.loadClass("org.eclipse.aether.artifact.Artifact");
 
             // com.alessiodp.libby.TransitiveDependencyCollector(Path)
@@ -111,7 +111,7 @@ public class TransitiveDependencyHelper {
 
         String[] repositories = Stream.of(libraryManager.getRepositories(), library.getRepositories()).flatMap(Collection::stream).toArray(String[]::new);
         try {
-            Collection<Object> artifacts = (Collection<Object>) resolveTransitiveDependenciesMethod.invoke(transitiveDependencyCollectorObject,
+            Collection<?> artifacts = (Collection<?>) resolveTransitiveDependenciesMethod.invoke(transitiveDependencyCollectorObject,
                 library.getGroupId(),
                 library.getArtifactId(),
                 library.getVersion(),
@@ -126,7 +126,9 @@ public class TransitiveDependencyHelper {
                 Library.Builder libraryBuilder = Library.builder()
                                                         .groupId(groupId)
                                                         .artifactId(artifactId)
-                                                        .version(version);
+                                                        .version(version)
+                                                        .isolatedLoad(library.isIsolatedLoad())
+                                                        .id(library.getId());
 
                 library.getRelocations().forEach(libraryBuilder::relocate);
                 library.getRepositories().forEach(libraryBuilder::repository);
