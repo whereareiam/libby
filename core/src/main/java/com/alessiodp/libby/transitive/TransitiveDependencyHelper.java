@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 import static java.util.Objects.requireNonNull;
 
 /**
- * A reflection-based helper for resolving transitive libraries. It automatically
+ * A reflection-based helper for resolving transitive dependencies. It automatically
  * downloads Maven Resolver Supplier, Maven Resolver Provider and their transitive dependencies to resolve transitive dependencies.
  *
  * @see <a href="https://github.com/apache/maven-resolver">Apache Maven Artifact Resolver</a>
@@ -112,7 +112,13 @@ public class TransitiveDependencyHelper {
         List<Library> transitiveLibraries = new ArrayList<>();
         Set<ExcludedDependency> excludedDependencies = new HashSet<>(library.getExcludedTransitiveDependencies());
 
-        Stream<String> repositories = Stream.of(libraryManager.getRepositories(), library.getRepositories()).flatMap(Collection::stream);
+        Collection<String> globalRepositories = libraryManager.getRepositories();
+        Collection<String> libraryRepositories = library.getRepositories();
+        if (globalRepositories.isEmpty() && libraryRepositories.isEmpty()) {
+            throw new IllegalArgumentException("No repositories have been added before resolving transitive dependencies");
+        }
+
+        Stream<String> repositories = Stream.of(globalRepositories, libraryRepositories).flatMap(Collection::stream);
         try {
             Collection<?> artifacts = (Collection<?>) resolveTransitiveDependenciesMethod.invoke(transitiveDependencyCollectorObject,
                 library.getGroupId(),
