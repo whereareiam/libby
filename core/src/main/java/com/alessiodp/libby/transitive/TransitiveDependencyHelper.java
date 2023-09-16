@@ -58,17 +58,17 @@ public class TransitiveDependencyHelper {
         String collectorClassName = "com.alessiodp.libby.transitive.TransitiveDependencyCollector";
         String collectorClassPath = '/' + collectorClassName.replace('.', '/') + ".class";
 
+        for (Library library : TransitiveLibraryBundle.DEPENDENCY_BUNDLE)
+            classLoader.addPath(libraryManager.downloadLibrary(library));
+
+        final Class<?> transitiveDependencyCollectorClass;
         try {
-            classLoader.defineClass(collectorClassName, getClass().getResourceAsStream(collectorClassPath));
+            transitiveDependencyCollectorClass = classLoader.defineClass(collectorClassName, getClass().getResourceAsStream(collectorClassPath));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        for (Library library : TransitiveLibraryBundle.DEPENDENCY_BUNDLE)
-            classLoader.addPath(libraryManager.downloadLibrary(library));
-
         try {
-            Class<?> transitiveDependencyCollectorClass = classLoader.loadClass(collectorClassName);
             Class<?> artifactClass = classLoader.loadClass("org.eclipse.aether.artifact.Artifact");
 
             // com.alessiodp.libby.TransitiveDependencyCollector(Path)
