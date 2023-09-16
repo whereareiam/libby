@@ -58,8 +58,8 @@ public class TransitiveDependencyHelper {
         String collectorClassName = "com.alessiodp.libby.transitive.TransitiveDependencyCollector";
         String collectorClassPath = '/' + collectorClassName.replace('.', '/') + ".class";
 
-        for (Library library : TransitiveLibraryBundle.DEPENDENCY_BUNDLE)
-            classLoader.addPath(libraryManager.downloadLibrary(library));
+        for (TransitiveLibraryResolutionDependency dependency : TransitiveLibraryResolutionDependency.values())
+            classLoader.addPath(libraryManager.downloadLibrary(dependency.toLibrary()));
 
         final Class<?> transitiveDependencyCollectorClass;
         try {
