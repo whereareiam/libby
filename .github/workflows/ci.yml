@@ -5,7 +5,7 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, gradle ]
 
 jobs:
   build:
@@ -29,7 +29,13 @@ jobs:
       - name: Validate Gradle wrapper
         uses: gradle/wrapper-validation-action@v1
 
-      - name: Build with Gradle
+      - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-        with:
-          arguments: build
+
+      - name: Build with Gradle
+        run: |
+          if [ "${{ matrix.java-version }}" -lt "17" ]; then
+            ./gradlew build -x paper
+          else
+            ./gradlew build
+          fi
