@@ -19,6 +19,13 @@ sourceSets {
             }
         }
     }
+    test {
+        blossom {
+            javaSources {
+                property("buildDir", layout.buildDirectory.asFile.get().absolutePath)
+            }
+        }
+    }
 }
 
 tasks.build {
