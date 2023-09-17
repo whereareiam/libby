@@ -1,6 +1,5 @@
 package com.alessiodp.libby.transitive;
 
-import com.alessiodp.libby.Repositories;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -20,11 +19,11 @@ import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
 
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A supplier-based helper class for providing compile scope transitive dependencies.
@@ -77,12 +76,10 @@ class TransitiveDependencyCollector {
      * @return Transitive dependencies, exception otherwise
      * @throws DependencyResolutionException thrown if dependency doesn't exists on provided repositories
      */
-    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version,
-                                                           RemoteRepository... repositories) throws DependencyResolutionException {
+    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, List<RemoteRepository> repositories) throws DependencyResolutionException {
         Artifact artifact = new DefaultArtifact(groupId, artifactId, null, "jar", version);
-        List<RemoteRepository> repositoryList = Arrays.asList(repositories);
 
-        CollectRequest collectRequest = new CollectRequest(new Dependency(artifact, JavaScopes.COMPILE), repositoryList);
+        CollectRequest collectRequest = new CollectRequest(new Dependency(artifact, JavaScopes.COMPILE), repositories);
         DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME));
 
         DependencyResult dependencyResult = repositorySystem.resolveDependencies(repositorySystemSession, dependencyRequest);
@@ -99,25 +96,10 @@ class TransitiveDependencyCollector {
      * @param repositories Maven repositories for transitive dependencies search
      * @return Transitive dependencies, exception otherwise
      * @throws DependencyResolutionException thrown if dependency doesn't exists on provided repositories
-     * @see #findTransitiveDependencies(String, String, String, RemoteRepository...)
+     * @see #findTransitiveDependencies(String, String, String, List)
      */
-    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, String... repositories) throws DependencyResolutionException {
-        return findTransitiveDependencies(groupId, artifactId, version, Arrays.stream(repositories).map(TransitiveDependencyCollector::newDefaultRepository).toArray(RemoteRepository[]::new));
-    }
-
-    /**
-     * Resolves transitive dependencies of specific maven artifact. Dependencies with scope {@code JavaScopes.COMPILE}, {@code JavaScopes.RUNTIME} returned only. Searches maven central
-     * only.
-     *
-     * @param groupId    Maven group ID
-     * @param artifactId Maven artifact ID
-     * @param version    Maven dependency version
-     * @return Transitive dependencies, exception otherwise
-     * @throws DependencyResolutionException thrown if dependency doesn't exists on provided repositories
-     * @see #findTransitiveDependencies(String, String, String, RemoteRepository...)
-     */
-    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version) throws DependencyResolutionException {
-        return findTransitiveDependencies(groupId, artifactId, version, newDefaultRepository(Repositories.MAVEN_CENTRAL));
+    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, Stream<String> repositories) throws DependencyResolutionException {
+        return findTransitiveDependencies(groupId, artifactId, version, repositories.map(TransitiveDependencyCollector::newDefaultRepository).collect(Collectors.toList()));
     }
 
     /**

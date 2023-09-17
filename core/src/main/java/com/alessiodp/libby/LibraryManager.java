@@ -98,7 +98,7 @@ public abstract class LibraryManager {
     /**
      * Configuration fetcher used to fetch the JSON config
      */
-    private ConfigurationFetcher configurationFetcher = new ConfigurationFetcher();
+    private final ConfigurationFetcher configurationFetcher = new ConfigurationFetcher();
     
     /**
      * Creates a new library manager.
@@ -659,8 +659,7 @@ public abstract class LibraryManager {
      */
     public void configureFromJSON(InputStream data) throws JsonParserException {
         JsonObject root = JsonParser.object().from(data);
-        ConfigurationFetcher configurationFetcher = new ConfigurationFetcher();
-        
+
         try {
             configurationFetcher.fetchVersion(root);
             Set<String> repositories = configurationFetcher.fetchRepositories(root);
