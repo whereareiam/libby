@@ -141,11 +141,7 @@ public class ConfigurationFetcher {
 
 				libraryBuilder.isolatedLoad(library.getBoolean("isolatedLoad"));
 
-				String id = library.getString("id");
-
-				if (id != null) {
-					libraryBuilder.id(id);
-				}
+				libraryBuilder.loaderId(library.getString("loaderId"));
 
 				Set<Relocation> relocations = fetchRelocations(library);
 				

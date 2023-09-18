@@ -1,5 +1,6 @@
 package com.alessiodp.libby;
 
+import com.alessiodp.libby.logging.adapters.LogAdapter;
 import com.alessiodp.libby.logging.adapters.VelocityLogAdapter;
 import com.velocitypowered.api.plugin.PluginManager;
 import org.slf4j.Logger;
@@ -31,17 +32,12 @@ public class VelocityLibraryManager<T> extends LibraryManager {
      * @param dataDirectory plugin's data directory
      * @param pluginManager Velocity plugin manager
      * @param plugin        the plugin to manage
-     * @param directoryName download directory name
      */
     public VelocityLibraryManager(Logger logger,
                                   Path dataDirectory,
                                   PluginManager pluginManager,
-                                  T plugin,
-                                  String directoryName) {
-
-        super(new VelocityLogAdapter(logger), dataDirectory, directoryName);
-        this.pluginManager = requireNonNull(pluginManager, "pluginManager");
-        this.plugin = requireNonNull(plugin, "plugin");
+                                  T plugin) {
+        this(logger, dataDirectory, pluginManager, plugin, "lib");
     }
 
     /**
@@ -51,12 +47,38 @@ public class VelocityLibraryManager<T> extends LibraryManager {
      * @param dataDirectory plugin's data directory
      * @param pluginManager Velocity plugin manager
      * @param plugin        the plugin to manage
+     * @param directoryName download directory name
      */
     public VelocityLibraryManager(Logger logger,
                                   Path dataDirectory,
                                   PluginManager pluginManager,
-                                  T plugin) {
-        this(logger, dataDirectory, pluginManager, plugin, "lib");
+                                  T plugin,
+                                  String directoryName) {
+        this(new VelocityLogAdapter(logger), dataDirectory, pluginManager, plugin, directoryName);
+    }
+
+    /**
+     * Creates a new Velocity library manager.
+     *
+     * @param logAdapter    the log adapter to use instead of the plugin logger
+     * @param dataDirectory plugin's data directory
+     * @param pluginManager Velocity plugin manager
+     * @param plugin        the plugin to manage
+     * @param directoryName download directory name
+     */
+    public VelocityLibraryManager(LogAdapter logAdapter,
+                                  Path dataDirectory,
+                                  PluginManager pluginManager,
+                                  T plugin,
+                                  String directoryName) {
+        super(logAdapter, dataDirectory, directoryName);
+        this.pluginManager = requireNonNull(pluginManager, "pluginManager");
+        this.plugin = requireNonNull(plugin, "plugin");
+    }
+
+    @Override
+    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
+        return getClass().getClassLoader().getResourceAsStream(path);
     }
 
     /**
@@ -67,10 +89,5 @@ public class VelocityLibraryManager<T> extends LibraryManager {
     @Override
     protected void addToClasspath(Path file) {
         pluginManager.addToClasspath(plugin, file);
-    }
-
-    @Override
-    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
-        return getClass().getClassLoader().getResourceAsStream(path);
     }
 }

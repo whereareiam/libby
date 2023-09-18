@@ -89,7 +89,12 @@ public abstract class LibraryManager {
      * Lazily-initialized helper for transitive dependencies resolution
      */
     private TransitiveDependencyHelper transitiveDependencyHelper;
-
+    
+    /**
+     * Global isolated class loader for libraries
+     */
+    private final IsolatedClassLoader globalIsolatedClassLoader = new IsolatedClassLoader();
+    
     /**
      * Map of isolated class loaders and theirs id
      */
@@ -140,23 +145,32 @@ public abstract class LibraryManager {
      */
     protected void addToIsolatedClasspath(Library library, Path file) {
         IsolatedClassLoader classLoader;
-        String id = library.getId();
-        if (id != null) {
-            classLoader = isolatedLibraries.computeIfAbsent(id, s -> new IsolatedClassLoader());
+        String loaderId = library.getLoaderId();
+        if (loaderId != null) {
+            classLoader = isolatedLibraries.computeIfAbsent(loaderId, s -> new IsolatedClassLoader());
         } else {
-            classLoader = new IsolatedClassLoader();
+            classLoader = globalIsolatedClassLoader;
         }
         classLoader.addPath(file);
     }
-
+    
+    /**
+     * Get the global isolated class loader for libraries
+     *
+     * @return the isolated class loader
+     */
+    public IsolatedClassLoader getGlobalIsolatedClassLoader() {
+        return globalIsolatedClassLoader;
+    }
+    
     /**
      * Get the isolated class loader of the library
      *
-     * @param libraryId the id of the library
-     * @return The isolated class loader associated with the provided id
+     * @param loaderId the id of the loader
+     * @return the isolated class loader associated with the provided id
      */
-    public IsolatedClassLoader getIsolatedClassLoaderOf(String libraryId) {
-        return isolatedLibraries.get(libraryId);
+    public IsolatedClassLoader getIsolatedClassLoaderById(String loaderId) {
+        return isolatedLibraries.get(loaderId);
     }
 
     /**

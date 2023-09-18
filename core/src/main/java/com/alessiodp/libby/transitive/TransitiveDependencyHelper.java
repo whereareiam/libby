@@ -141,7 +141,7 @@ public class TransitiveDependencyHelper {
                                                         .artifactId(artifactId)
                                                         .version(version)
                                                         .isolatedLoad(library.isIsolatedLoad())
-                                                        .id(library.getId());
+                                                        .loaderId(library.getLoaderId());
 
                 library.getRelocations().forEach(libraryBuilder::relocate);
                 library.getRepositories().forEach(libraryBuilder::repository);
