@@ -10,7 +10,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class VelocityLogAdapter implements LogAdapter {
     /**
-     * Sponge plugin logger
+     * Velocity plugin logger
      */
     private final Logger logger;
 
