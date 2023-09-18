@@ -1,6 +1,7 @@
 package com.alessiodp.libby;
 
 import cn.nukkit.plugin.Plugin;
+import com.alessiodp.libby.logging.adapters.LogAdapter;
 import com.alessiodp.libby.logging.adapters.NukkitLogAdapter;
 import com.alessiodp.libby.classloader.URLClassLoaderHelper;
 
@@ -37,7 +38,18 @@ public class NukkitLibraryManager extends LibraryManager {
      * @param directoryName download directory name
      */
     public NukkitLibraryManager(Plugin plugin, String directoryName) {
-        super(new NukkitLogAdapter(requireNonNull(plugin, "plugin").getLogger()), plugin.getDataFolder().toPath(), directoryName);
+        this(plugin, directoryName, new NukkitLogAdapter(requireNonNull(plugin, "plugin").getLogger()));
+    }
+    
+    /**
+     * Creates a new Nukkit library manager.
+     *
+     * @param plugin the plugin to manage
+     * @param directoryName download directory name
+     * @param logAdapter the log adapter to use
+     */
+    public NukkitLibraryManager(Plugin plugin, String directoryName, LogAdapter logAdapter) {
+        super(logAdapter, plugin.getDataFolder().toPath(), directoryName);
         classLoader = new URLClassLoaderHelper((URLClassLoader) plugin.getClass().getClassLoader(), this);
         this.plugin = plugin;
     }
