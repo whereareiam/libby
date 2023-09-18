@@ -22,7 +22,7 @@ public class DownloadingTest {
     private static final String LIBRARY_ID = "commonsLang3";
     private static final String STRING_UTILS_CLASS = "org.apache.commons.lang3.StringUtils";
 
-    private static final Library APACHE_COMMONS_LANG3 = Library.builder()
+    public static final Library APACHE_COMMONS_LANG3 = Library.builder()
             .groupId("org{}apache{}commons")
             .artifactId("commons-lang3")
             .version("3.13.0")
@@ -57,7 +57,7 @@ public class DownloadingTest {
         assertTrue(downloadedFilePath.toFile().isFile());
 
         // Make sure downloaded file has the correct checksum
-        assertCorrectFile(downloadedFilePath);
+        assertCorrectFile(downloadedFilePath, APACHE_COMMONS_LANG3.getChecksum());
 
         assertNoneLoaded();
     }
@@ -69,7 +69,7 @@ public class DownloadingTest {
         // Assert addToClasspath method has been called with the correct file
         Set<String> loaded = libraryManager.getLoaded();
         assertEquals(1, loaded.size());
-        loaded.forEach(s -> assertCorrectFile(Paths.get(s)));
+        loaded.forEach(s -> assertCorrectFile(Paths.get(s), APACHE_COMMONS_LANG3.getChecksum()));
     }
 
     @Test
@@ -83,23 +83,23 @@ public class DownloadingTest {
         assertCorrectlyLoaded(isolated);
     }
 
+    public static void assertCorrectFile(Path file, byte[] expectedChecksum) {
+        try {
+            // Asserts the file is the Apache Commons Lang3 jar checking its checksum
+            byte[] bytes = Files.readAllBytes(file);
+            byte[] sha256 = MessageDigest.getInstance("SHA-256").digest(bytes);
+            assertArrayEquals(expectedChecksum, sha256);
+        } catch (IOException | NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private void assertNotLoaded() {
         assertThrows(ClassNotFoundException.class, () -> Class.forName(STRING_UTILS_CLASS));
     }
 
     private void assertNoneLoaded() {
         assertTrue(libraryManager.getLoaded().isEmpty());
-    }
-
-    private void assertCorrectFile(Path file) {
-        try {
-            // Asserts the file is the Apache Commons Lang3 jar checking its checksum
-            byte[] bytes = Files.readAllBytes(file);
-            byte[] sha256 = MessageDigest.getInstance("SHA-256").digest(bytes);
-            assertArrayEquals(APACHE_COMMONS_LANG3.getChecksum(), sha256);
-        } catch (IOException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void assertCorrectlyLoaded(IsolatedClassLoader isolated) throws Exception {

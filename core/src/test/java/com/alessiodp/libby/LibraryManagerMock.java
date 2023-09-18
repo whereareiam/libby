@@ -34,6 +34,10 @@ public class LibraryManagerMock extends LibraryManager {
         return Collections.unmodifiableSet(loadedPaths);
     }
 
+    public Path getSaveDirectory() {
+        return super.saveDirectory;
+    }
+
     @Override
     protected void addToClasspath(Path file) {
         loadedPaths.add(file.toAbsolutePath().toString());
