@@ -7,8 +7,8 @@ plugins {
 
 dependencies {
     implementation("com.grack:nanojson:1.8")
-    implementation("org.apache.maven.resolver:maven-resolver-supplier:1.9.15")
-    implementation("org.apache.maven:maven-resolver-provider:3.9.4")
+    compileOnly("org.apache.maven.resolver:maven-resolver-supplier:1.9.15")
+    compileOnly("org.apache.maven:maven-resolver-provider:3.9.4")
 }
 
 sourceSets {
