@@ -4,6 +4,7 @@ setOf(
     "bukkit",
     "bungee",
     "core",
+    "fabric",
     "nukkit",
     "paper",
     "sponge",
