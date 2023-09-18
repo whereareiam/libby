@@ -17,7 +17,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class DownloadingTest {
+public class DownloadAndLoadTest {
 
     private static final String LIBRARY_ID = "commonsLang3";
     private static final String STRING_UTILS_CLASS = "org.apache.commons.lang3.StringUtils";
