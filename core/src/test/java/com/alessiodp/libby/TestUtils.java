@@ -16,6 +16,7 @@ public class TestUtils {
 
     public static final String LIBRARY_ID = "commonsLang3";
     public static final String STRING_UTILS_CLASS = "org.apache.commons.lang3.StringUtils";
+    public static final String STRING_UTILS_CLASS_RELOCATED = "libs.org.apache.commons.lang3.StringUtils";
 
     public static final Library APACHE_COMMONS_LANG3 = Library.builder()
             .groupId("org{}apache{}commons")
@@ -30,6 +31,15 @@ public class TestUtils {
             .checksum(APACHE_COMMONS_LANG3.getChecksum())
             .isolatedLoad(true)
             .id(LIBRARY_ID)
+            .build();
+    public static final Library APACHE_COMMONS_LANG3_ISOLATED_RELOCATED = Library.builder()
+            .groupId(APACHE_COMMONS_LANG3.getGroupId())
+            .artifactId(APACHE_COMMONS_LANG3.getArtifactId())
+            .version(APACHE_COMMONS_LANG3.getVersion())
+            .checksum(APACHE_COMMONS_LANG3.getChecksum())
+            .isolatedLoad(true)
+            .id(LIBRARY_ID)
+            .relocate("org.apache.commons.lang3", "libs.org.apache.commons.lang3")
             .build();
 
     public static void assertNoneLoaded(LibraryManagerMock libraryManager) {
@@ -61,6 +71,7 @@ public class TestUtils {
 
     public static void assertNotLoaded() {
         assertThrows(ClassNotFoundException.class, () -> Class.forName(STRING_UTILS_CLASS));
+        assertThrows(ClassNotFoundException.class, () -> Class.forName(STRING_UTILS_CLASS_RELOCATED));
     }
 
 }
