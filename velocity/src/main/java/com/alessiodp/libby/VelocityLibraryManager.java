@@ -33,11 +33,11 @@ public class VelocityLibraryManager<T> extends LibraryManager {
      * @param pluginManager Velocity plugin manager
      * @param plugin        the plugin to manage
      */
-    public VelocityLibraryManager(Logger logger,
+    public VelocityLibraryManager(T plugin,
+                                  Logger logger,
                                   Path dataDirectory,
-                                  PluginManager pluginManager,
-                                  T plugin) {
-        this(logger, dataDirectory, pluginManager, plugin, "lib");
+                                  PluginManager pluginManager) {
+        this(plugin, logger, dataDirectory, pluginManager, "lib");
     }
 
     /**
@@ -49,12 +49,12 @@ public class VelocityLibraryManager<T> extends LibraryManager {
      * @param plugin        the plugin to manage
      * @param directoryName download directory name
      */
-    public VelocityLibraryManager(Logger logger,
+    public VelocityLibraryManager(T plugin,
+                                  Logger logger,
                                   Path dataDirectory,
                                   PluginManager pluginManager,
-                                  T plugin,
                                   String directoryName) {
-        this(new VelocityLogAdapter(logger), dataDirectory, pluginManager, plugin, directoryName);
+        this(plugin, new VelocityLogAdapter(logger), dataDirectory, pluginManager, directoryName);
     }
 
     /**
@@ -66,10 +66,10 @@ public class VelocityLibraryManager<T> extends LibraryManager {
      * @param plugin        the plugin to manage
      * @param directoryName download directory name
      */
-    public VelocityLibraryManager(LogAdapter logAdapter,
+    public VelocityLibraryManager(T plugin,
+                                  LogAdapter logAdapter,
                                   Path dataDirectory,
                                   PluginManager pluginManager,
-                                  T plugin,
                                   String directoryName) {
         super(logAdapter, dataDirectory, directoryName);
         this.pluginManager = requireNonNull(pluginManager, "pluginManager");
