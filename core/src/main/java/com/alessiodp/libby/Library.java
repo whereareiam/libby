@@ -155,7 +155,7 @@ public class Library {
         this.urls = urls != null ? Collections.unmodifiableList(new LinkedList<>(urls)) : Collections.emptyList();
         this.id = id != null ? id : UUID.randomUUID().toString();
         this.groupId = requireNonNull(groupId, "groupId").replace("{}", ".");
-        this.artifactId = requireNonNull(artifactId, "artifactId");
+        this.artifactId = requireNonNull(artifactId, "artifactId").replace("{}", ".");
         this.version = requireNonNull(version, "version");
         this.classifier = classifier;
         this.checksum = checksum;
