@@ -98,8 +98,8 @@ public class Library {
      *
      * @param urls         direct download URLs
      * @param id           library ID
-     * @param groupId      Maven group ID
-     * @param artifactId   Maven artifact ID
+     * @param groupId      Maven group ID, any {@code "{}"} is replaced with a {@code "."}
+     * @param artifactId   Maven artifact ID, any {@code "{}"} is replaced with a {@code "."}
      * @param version      artifact version
      * @param classifier   artifact classifier or null
      * @param checksum     binary SHA-256 checksum or null
@@ -129,8 +129,8 @@ public class Library {
      * @param urls         direct download URLs
      * @param repositories repository URLs
      * @param id           library ID
-     * @param groupId      Maven group ID
-     * @param artifactId   Maven artifact ID
+     * @param groupId      Maven group ID, any {@code "{}"} is replaced with a {@code "."}
+     * @param artifactId   Maven artifact ID, any {@code "{}"} is replaced with a {@code "."}
      * @param version      artifact version
      * @param classifier   artifact classifier or null
      * @param checksum     binary SHA-256 checksum or null
@@ -474,6 +474,9 @@ public class Library {
 
         /**
          * Sets the Maven group ID for this library.
+         * <p>
+         * To avoid issues with shading and relocation, any {@code "{}"} inside the provided groupId string
+         * is replaced with a {@code "."}.
          *
          * @param groupId Maven group ID
          * @return this builder
@@ -485,6 +488,9 @@ public class Library {
 
         /**
          * Sets the Maven artifact ID for this library.
+         * <p>
+         * To avoid issues with shading and relocation, any {@code "{}"} inside the provided artifactId string
+         * is replaced with a {@code "."}.
          *
          * @param artifactId Maven artifact ID
          * @return this builder
