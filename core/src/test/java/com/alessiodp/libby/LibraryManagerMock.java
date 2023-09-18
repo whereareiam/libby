@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -27,6 +28,10 @@ public class LibraryManagerMock extends LibraryManager {
 
     public boolean isLoaded(Path file) {
         return isLoaded(file.toFile());
+    }
+
+    public Set<String> getLoaded() {
+        return Collections.unmodifiableSet(loadedPaths);
     }
 
     @Override
