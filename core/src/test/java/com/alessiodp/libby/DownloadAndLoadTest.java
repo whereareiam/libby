@@ -5,17 +5,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static com.alessiodp.libby.TestUtils.*;
 
 public class DownloadAndLoadTest {
 
@@ -59,7 +54,7 @@ public class DownloadAndLoadTest {
         // Make sure downloaded file has the correct checksum
         assertCorrectFile(downloadedFilePath, APACHE_COMMONS_LANG3.getChecksum());
 
-        assertNoneLoaded();
+        assertNoneLoaded(libraryManager);
     }
 
     @Test
@@ -76,41 +71,10 @@ public class DownloadAndLoadTest {
     void isolatedLoad() throws Exception {
         libraryManager.loadLibrary(APACHE_COMMONS_LANG3_ISOLATED);
 
-        assertNoneLoaded();
+        assertNoneLoaded(libraryManager);
 
         IsolatedClassLoader isolated = libraryManager.getIsolatedClassLoaderOf(LIBRARY_ID);
         assertNotNull(isolated);
-        assertCorrectlyLoaded(isolated);
-    }
-
-    public static void assertCorrectFile(Path file, byte[] expectedChecksum) {
-        try {
-            // Asserts the file is the Apache Commons Lang3 jar checking its checksum
-            byte[] bytes = Files.readAllBytes(file);
-            byte[] sha256 = MessageDigest.getInstance("SHA-256").digest(bytes);
-            assertArrayEquals(expectedChecksum, sha256);
-        } catch (IOException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void assertNotLoaded() {
-        assertThrows(ClassNotFoundException.class, () -> Class.forName(STRING_UTILS_CLASS));
-    }
-
-    private void assertNoneLoaded() {
-        assertTrue(libraryManager.getLoaded().isEmpty());
-    }
-
-    private void assertCorrectlyLoaded(IsolatedClassLoader isolated) throws Exception {
-        // Try to run a method from StringUtils to ensure the library was loaded correctly
-        Class<?> stringUtilsClass = isolated.loadClass(STRING_UTILS_CLASS);
-
-        Method capitalize = stringUtilsClass.getMethod("capitalize", String.class);
-        assertEquals(String.class, capitalize.getReturnType());
-        assertTrue(Modifier.isStatic(capitalize.getModifiers()));
-
-        String capitalized = (String) capitalize.invoke(null, "this is a phrase");
-        assertEquals("This is a phrase", capitalized);
+        assertCorrectlyLoaded(isolated, STRING_UTILS_CLASS);
     }
 }
