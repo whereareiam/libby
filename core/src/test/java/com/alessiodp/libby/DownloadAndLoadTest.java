@@ -29,7 +29,7 @@ public class DownloadAndLoadTest {
             .version(APACHE_COMMONS_LANG3.getVersion())
             .checksum(APACHE_COMMONS_LANG3.getChecksum())
             .isolatedLoad(true)
-            .id(LIBRARY_ID)
+            .loaderId(LIBRARY_ID)
             .build();
 
     private LibraryManagerMock libraryManager;
@@ -73,7 +73,7 @@ public class DownloadAndLoadTest {
 
         assertNoneLoaded(libraryManager);
 
-        IsolatedClassLoader isolated = libraryManager.getIsolatedClassLoaderOf(LIBRARY_ID);
+        IsolatedClassLoader isolated = libraryManager.getIsolatedClassLoaderById(LIBRARY_ID);
         assertNotNull(isolated);
         assertCorrectlyLoaded(isolated, STRING_UTILS_CLASS);
     }

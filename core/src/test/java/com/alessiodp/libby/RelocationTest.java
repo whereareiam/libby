@@ -30,7 +30,7 @@ public class RelocationTest {
 
         assertNoneLoaded(libraryManager);
 
-        IsolatedClassLoader isolated = libraryManager.getIsolatedClassLoaderOf(LIBRARY_ID);
+        IsolatedClassLoader isolated = libraryManager.getIsolatedClassLoaderById(LIBRARY_ID);
         assertNotNull(isolated);
         assertThrows(ClassNotFoundException.class, () -> isolated.loadClass(STRING_UTILS_CLASS));
         assertCorrectlyLoaded(isolated, STRING_UTILS_CLASS_RELOCATED);

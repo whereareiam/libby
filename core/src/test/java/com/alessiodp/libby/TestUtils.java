@@ -30,7 +30,7 @@ public class TestUtils {
             .version(APACHE_COMMONS_LANG3.getVersion())
             .checksum(APACHE_COMMONS_LANG3.getChecksum())
             .isolatedLoad(true)
-            .id(LIBRARY_ID)
+            .loaderId(LIBRARY_ID)
             .build();
     public static final Library APACHE_COMMONS_LANG3_ISOLATED_RELOCATED = Library.builder()
             .groupId(APACHE_COMMONS_LANG3.getGroupId())
@@ -38,7 +38,7 @@ public class TestUtils {
             .version(APACHE_COMMONS_LANG3.getVersion())
             .checksum(APACHE_COMMONS_LANG3.getChecksum())
             .isolatedLoad(true)
-            .id(LIBRARY_ID)
+            .loaderId(LIBRARY_ID)
             .relocate("org.apache.commons.lang3", "libs.org.apache.commons.lang3")
             .build();
 
