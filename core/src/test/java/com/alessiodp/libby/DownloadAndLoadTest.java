@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Set;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static com.alessiodp.libby.TestUtils.*;
@@ -62,7 +62,7 @@ public class DownloadAndLoadTest {
         libraryManager.loadLibrary(APACHE_COMMONS_LANG3);
 
         // Assert addToClasspath method has been called with the correct file
-        Set<String> loaded = libraryManager.getLoaded();
+        List<String> loaded = libraryManager.getLoaded();
         assertEquals(1, loaded.size());
         loaded.forEach(s -> assertCorrectFile(Paths.get(s), APACHE_COMMONS_LANG3.getChecksum()));
     }

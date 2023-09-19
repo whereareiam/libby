@@ -7,16 +7,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LibraryManagerMock extends LibraryManager {
 
-    private final Set<String> loadedPaths = new HashSet<>();
+    private final List<String> loadedPaths = new ArrayList<>();
 
     public LibraryManagerMock() throws IOException {
         super(new JDKLogAdapter(Logger.getLogger("LibraryManagerMock")), generateDownloadFolder(), "libs");
@@ -30,8 +30,8 @@ public class LibraryManagerMock extends LibraryManager {
         return isLoaded(file.toFile());
     }
 
-    public Set<String> getLoaded() {
-        return Collections.unmodifiableSet(loadedPaths);
+    public List<String> getLoaded() {
+        return Collections.unmodifiableList(loadedPaths);
     }
 
     public Path getSaveDirectory() {
