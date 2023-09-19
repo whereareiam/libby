@@ -161,8 +161,8 @@ public class Library {
         this.checksum = checksum;
         this.relocations = relocations != null ? Collections.unmodifiableList(new LinkedList<>(relocations)) : Collections.emptyList();
 
-        this.partialPath = this.groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/';
-        String path = this.partialPath + artifactId + '-' + version;
+        this.partialPath = this.groupId.replace('.', '/') + '/' + this.artifactId + '/' + version + '/';
+        String path = this.partialPath + this.artifactId + '-' + version;
         if (hasClassifier()) {
             path += '-' + classifier;
         }
