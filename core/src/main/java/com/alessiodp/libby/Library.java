@@ -476,7 +476,7 @@ public class Library {
          * @return this builder
          */
         public Builder classifier(String classifier) {
-            this.classifier = requireNonNull(classifier, "classifier");
+            this.classifier = classifier;
             return this;
         }
 
