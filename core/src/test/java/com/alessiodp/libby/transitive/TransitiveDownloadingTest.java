@@ -35,25 +35,25 @@ public class TransitiveDownloadingTest {
     private LibraryManagerMock libraryManager;
 
     @BeforeEach
-    void setUp() throws Exception {
+    public void setUp() throws Exception {
         libraryManager = new LibraryManagerMock();
         libraryManager.addMavenCentral();
     }
 
     @AfterEach
-    void tearDown() {
+    public void tearDown() {
         libraryManager = null;
     }
 
     @Test
-    void transitiveLoad() {
+    public void transitiveLoad() {
         libraryManager.loadLibrary(MAVEN_RESOLVER_SUPPLIER);
 
         checkDownloadedDependencies();
     }
 
     @Test
-    void transitiveWithExcludedLoad() {
+    public void transitiveWithExcludedLoad() {
         libraryManager.loadLibrary(MAVEN_RESOLVER_SUPPLIER_WITH_EXCLUDED);
 
         checkDownloadedDependencies(TransitiveLibraryResolutionDependency.MAVEN_RESOLVER_API);

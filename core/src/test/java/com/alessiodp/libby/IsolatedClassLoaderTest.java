@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class IsolatedClassLoaderTest {
 
     @Test
-    void isolation() {
+    public void isolation() {
         IsolatedClassLoader isolatedClassLoader = new IsolatedClassLoader();
 
         assertThrows(ClassNotFoundException.class, () -> isolatedClassLoader.loadClass("com.alessiodp.libby.Library"));

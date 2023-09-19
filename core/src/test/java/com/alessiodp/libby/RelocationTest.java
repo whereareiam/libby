@@ -13,19 +13,19 @@ public class RelocationTest {
     private LibraryManagerMock libraryManager;
 
     @BeforeEach
-    void setUp() throws Exception {
+    public void setUp() throws Exception {
         libraryManager = new LibraryManagerMock();
         libraryManager.addMavenCentral();
         assertNotLoaded();
     }
 
     @AfterEach
-    void tearDown() {
+    public void tearDown() {
         libraryManager = null;
     }
 
     @Test
-    void isolatedRelocatedLoad() throws Exception {
+    public void isolatedRelocatedLoad() throws Exception {
         libraryManager.loadLibrary(APACHE_COMMONS_LANG3_ISOLATED_RELOCATED);
 
         assertNoneLoaded(libraryManager);

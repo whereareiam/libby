@@ -17,19 +17,19 @@ public class DownloadAndLoadTest {
     private LibraryManagerMock libraryManager;
 
     @BeforeEach
-    void setUp() throws Exception {
+    public void setUp() throws Exception {
         libraryManager = new LibraryManagerMock();
         libraryManager.addMavenCentral();
         assertNotLoaded();
     }
 
     @AfterEach
-    void tearDown() {
+    public void tearDown() {
         libraryManager = null;
     }
 
     @Test
-    void downloadLibrary() {
+    public void downloadLibrary() {
         Path downloadedFilePath = libraryManager.downloadLibrary(APACHE_COMMONS_LANG3);
         assertTrue(downloadedFilePath.toFile().isFile());
 
@@ -41,7 +41,7 @@ public class DownloadAndLoadTest {
     }
 
     @Test
-    void loadLibrary() {
+    public void loadLibrary() {
         libraryManager.loadLibrary(APACHE_COMMONS_LANG3);
 
         assertNotLoadedInGlobal();
@@ -53,7 +53,7 @@ public class DownloadAndLoadTest {
     }
 
     @Test
-    void isolatedLoad() throws Exception {
+    public void isolatedLoad() throws Exception {
         libraryManager.loadLibrary(APACHE_COMMONS_LANG3_ISOLATED);
 
         assertNoneLoaded(libraryManager);
@@ -65,7 +65,7 @@ public class DownloadAndLoadTest {
     }
 
     @Test
-    void globalIsolatedLoad() throws Exception {
+    public void globalIsolatedLoad() throws Exception {
         libraryManager.loadLibrary(APACHE_COMMONS_LANG3_GLOBAL_ISOLATED);
 
         assertNoneLoaded(libraryManager);
