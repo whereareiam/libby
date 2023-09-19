@@ -24,7 +24,7 @@ public class ExcludedDependency {
      */
     public ExcludedDependency(String groupId, String artifactId) {
         this.groupId = requireNonNull(groupId, "groupId").replace("{}", ".");
-        this.artifactId = requireNonNull(artifactId, "artifactId");
+        this.artifactId = requireNonNull(artifactId, "artifactId").replace("{}", ".");
     }
 
     /**
