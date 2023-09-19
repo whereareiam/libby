@@ -7,7 +7,6 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.UUID;
 
 import static java.util.Objects.requireNonNull;
 
@@ -92,37 +91,6 @@ public class Library {
      * Transitive dependencies that would be excluded on transitive resolvement
      */
     private final Collection<ExcludedDependency> excludedTransitiveDependencies;
-
-    /**
-     * Creates a new library.
-     *
-     * @param urls         direct download URLs
-     * @param id           library ID
-     * @param groupId      Maven group ID, any {@code "{}"} is replaced with a {@code "."}
-     * @param artifactId   Maven artifact ID, any {@code "{}"} is replaced with a {@code "."}
-     * @param version      artifact version
-     * @param classifier   artifact classifier or null
-     * @param checksum     binary SHA-256 checksum or null
-     * @param relocations  jar relocations or null
-     * @param isolatedLoad isolated load for this library
-     * @param loaderId     the loader ID for this library
-     * @param resolveTransitiveDependencies transitive dependencies resolvement for this library
-     * @param excludedTransitiveDependencies excluded transitive dependencies or null
-     */
-    private Library(Collection<String> urls,
-                    String groupId,
-                    String artifactId,
-                    String version,
-                    String classifier,
-                    byte[] checksum,
-                    Collection<Relocation> relocations,
-                    boolean isolatedLoad,
-                    String loaderId,
-                    boolean resolveTransitiveDependencies,
-                    Collection<ExcludedDependency> excludedTransitiveDependencies) {
-
-        this(urls, null, groupId, artifactId, version, classifier, checksum, relocations, isolatedLoad, loaderId, resolveTransitiveDependencies, excludedTransitiveDependencies);
-    }
 
     /**
      * Creates a new library.
