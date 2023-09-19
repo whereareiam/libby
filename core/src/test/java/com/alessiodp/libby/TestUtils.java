@@ -32,6 +32,13 @@ public class TestUtils {
             .isolatedLoad(true)
             .loaderId(LIBRARY_ID)
             .build();
+    public static final Library APACHE_COMMONS_LANG3_GLOBAL_ISOLATED = Library.builder()
+            .groupId(APACHE_COMMONS_LANG3.getGroupId())
+            .artifactId(APACHE_COMMONS_LANG3.getArtifactId())
+            .version(APACHE_COMMONS_LANG3.getVersion())
+            .checksum(APACHE_COMMONS_LANG3.getChecksum())
+            .isolatedLoad(true)
+            .build();
     public static final Library APACHE_COMMONS_LANG3_ISOLATED_RELOCATED = Library.builder()
             .groupId(APACHE_COMMONS_LANG3.getGroupId())
             .artifactId(APACHE_COMMONS_LANG3.getArtifactId())

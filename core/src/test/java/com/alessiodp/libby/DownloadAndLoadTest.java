@@ -14,24 +14,6 @@ import static com.alessiodp.libby.TestUtils.*;
 
 public class DownloadAndLoadTest {
 
-    private static final String LIBRARY_ID = "commonsLang3";
-    private static final String STRING_UTILS_CLASS = "org.apache.commons.lang3.StringUtils";
-
-    public static final Library APACHE_COMMONS_LANG3 = Library.builder()
-            .groupId("org{}apache{}commons")
-            .artifactId("commons-lang3")
-            .version("3.13.0")
-            .checksum("gvUoz3GMejwvMPxbx4TjxqChCxdgXa254WyC7eEeYGQ=")
-            .build();
-    private static final Library APACHE_COMMONS_LANG3_ISOLATED = Library.builder()
-            .groupId(APACHE_COMMONS_LANG3.getGroupId())
-            .artifactId(APACHE_COMMONS_LANG3.getArtifactId())
-            .version(APACHE_COMMONS_LANG3.getVersion())
-            .checksum(APACHE_COMMONS_LANG3.getChecksum())
-            .isolatedLoad(true)
-            .loaderId(LIBRARY_ID)
-            .build();
-
     private LibraryManagerMock libraryManager;
 
     @BeforeEach
@@ -55,11 +37,14 @@ public class DownloadAndLoadTest {
         assertCorrectFile(downloadedFilePath, APACHE_COMMONS_LANG3.getChecksum());
 
         assertNoneLoaded(libraryManager);
+        assertNotLoadedInGlobal();
     }
 
     @Test
     void loadLibrary() {
         libraryManager.loadLibrary(APACHE_COMMONS_LANG3);
+
+        assertNotLoadedInGlobal();
 
         // Assert addToClasspath method has been called with the correct file
         List<String> loaded = libraryManager.getLoaded();
@@ -72,9 +57,24 @@ public class DownloadAndLoadTest {
         libraryManager.loadLibrary(APACHE_COMMONS_LANG3_ISOLATED);
 
         assertNoneLoaded(libraryManager);
+        assertNotLoadedInGlobal();
 
         IsolatedClassLoader isolated = libraryManager.getIsolatedClassLoaderById(LIBRARY_ID);
         assertNotNull(isolated);
         assertCorrectlyLoaded(isolated, STRING_UTILS_CLASS);
+    }
+
+    @Test
+    void globalIsolatedLoad() throws Exception {
+        libraryManager.loadLibrary(APACHE_COMMONS_LANG3_GLOBAL_ISOLATED);
+
+        assertNoneLoaded(libraryManager);
+
+        assertNull(libraryManager.getIsolatedClassLoaderById(LIBRARY_ID));
+        assertCorrectlyLoaded(libraryManager.getGlobalIsolatedClassLoader(), STRING_UTILS_CLASS);
+    }
+
+    private void assertNotLoadedInGlobal() {
+        assertThrows(ClassNotFoundException.class, () -> libraryManager.getGlobalIsolatedClassLoader().loadClass(STRING_UTILS_CLASS));
     }
 }
