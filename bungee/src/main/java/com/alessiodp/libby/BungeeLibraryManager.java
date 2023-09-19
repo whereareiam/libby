@@ -2,6 +2,7 @@ package com.alessiodp.libby;
 
 import com.alessiodp.libby.classloader.URLClassLoaderHelper;
 import com.alessiodp.libby.logging.adapters.JDKLogAdapter;
+import com.alessiodp.libby.logging.adapters.LogAdapter;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.io.InputStream;
@@ -37,7 +38,18 @@ public class BungeeLibraryManager extends LibraryManager {
      * @param directoryName download directory name
      */
     public BungeeLibraryManager(Plugin plugin, String directoryName) {
-        super(new JDKLogAdapter(requireNonNull(plugin, "plugin").getLogger()), plugin.getDataFolder().toPath(), directoryName);
+        this(plugin, directoryName, new JDKLogAdapter(requireNonNull(plugin, "plugin").getLogger()));
+    }
+
+    /**
+     * Creates a new Bungee library manager.
+     *
+     * @param plugin the plugin to manage
+     * @param directoryName download directory name
+     * @param logAdapter the log adapter to use
+     */
+    public BungeeLibraryManager(Plugin plugin, String directoryName, LogAdapter logAdapter) {
+        super(logAdapter, plugin.getDataFolder().toPath(), directoryName);
         classLoader = new URLClassLoaderHelper((URLClassLoader) plugin.getClass().getClassLoader(), this);
         this.plugin = plugin;
     }

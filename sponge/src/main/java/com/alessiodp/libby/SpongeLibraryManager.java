@@ -1,12 +1,11 @@
 package com.alessiodp.libby;
 
-import com.google.inject.Inject;
-import com.alessiodp.libby.classloader.URLClassLoaderHelper;
+import com.alessiodp.libby.classloader.SpongeClassLoaderHelper;
+import com.alessiodp.libby.logging.adapters.LogAdapter;
 import com.alessiodp.libby.logging.adapters.SpongeLogAdapter;
 import org.apache.logging.log4j.Logger;
-import org.spongepowered.api.config.ConfigDir;
 
-import java.net.URLClassLoader;
+import java.io.InputStream;
 import java.nio.file.Path;
 
 import static java.util.Objects.requireNonNull;
@@ -18,7 +17,18 @@ public class SpongeLibraryManager<T> extends LibraryManager {
     /**
      * Plugin classpath helper
      */
-    private final URLClassLoaderHelper classLoader;
+    private final SpongeClassLoaderHelper classLoader;
+
+    /**
+     * Creates a new Sponge library manager.
+     *
+     * @param logger        the plugin logger
+     * @param dataDirectory plugin's data directory
+     * @param plugin        the plugin to manage
+     */
+    public SpongeLibraryManager(Logger logger, Path dataDirectory, T plugin) {
+        this(logger, dataDirectory, plugin, "lib");
+    }
 
     /**
      * Creates a new Sponge library manager.
@@ -28,10 +38,26 @@ public class SpongeLibraryManager<T> extends LibraryManager {
      * @param plugin        the plugin to manage
      * @param directoryName download directory name
      */
-    @Inject
-    private SpongeLibraryManager(Logger logger, @ConfigDir(sharedRoot = false) Path dataDirectory, T plugin, String directoryName) {
-        super(new SpongeLogAdapter(logger), dataDirectory, directoryName);
-        classLoader = new URLClassLoaderHelper((URLClassLoader) requireNonNull(plugin, "plugin").getClass().getClassLoader(), this);
+    public SpongeLibraryManager(Logger logger, Path dataDirectory, T plugin, String directoryName) {
+        this(new SpongeLogAdapter(logger), dataDirectory, plugin, directoryName);
+    }
+
+    /**
+     * Creates a new Sponge library manager.
+     *
+     * @param logAdapter    the log adapter to use instead of the plugin logger
+     * @param dataDirectory plugin's data directory
+     * @param plugin        the plugin to manage
+     * @param directoryName download directory name
+     */
+    public SpongeLibraryManager(LogAdapter logAdapter, Path dataDirectory, T plugin, String directoryName) {
+        super(logAdapter, dataDirectory, directoryName);
+        classLoader = new SpongeClassLoaderHelper((plugin.getClass().getClassLoader()), this);
+    }
+
+    @Override
+    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
+        return getClass().getClassLoader().getResourceAsStream(path);
     }
 
     /**
@@ -41,6 +67,7 @@ public class SpongeLibraryManager<T> extends LibraryManager {
      */
     @Override
     protected void addToClasspath(Path file) {
+        requireNonNull(classLoader, "classLoader");
         classLoader.addToClasspath(file);
     }
 }

@@ -2,6 +2,7 @@ package com.alessiodp.libby;
 
 import com.alessiodp.libby.classloader.URLClassLoaderHelper;
 import com.alessiodp.libby.logging.adapters.JDKLogAdapter;
+import com.alessiodp.libby.logging.adapters.LogAdapter;
 import org.bukkit.plugin.Plugin;
 
 import java.io.InputStream;
@@ -39,13 +40,24 @@ public class PaperLibraryManager extends LibraryManager {
      * @param directoryName download directory name
      */
     public PaperLibraryManager(Plugin plugin, String directoryName) {
-        super(new JDKLogAdapter(requireNonNull(plugin, "plugin").getLogger()), plugin.getDataFolder().toPath(), directoryName);
+        this(plugin, directoryName, new JDKLogAdapter(requireNonNull(plugin, "plugin").getLogger()));
+    }
 
+    /**
+     * Creates a new Paper library manager.
+     *
+     * @param plugin the plugin to manage
+     * @param directoryName download directory name
+     * @param logAdapter the log adapter to use
+     */
+    public PaperLibraryManager(Plugin plugin, String directoryName, LogAdapter logAdapter) {
+        super(logAdapter, plugin.getDataFolder().toPath(), directoryName);
+        
         ClassLoader cl = plugin.getClass().getClassLoader();
         Class<?> paperClClazz;
 
         try {
-             paperClClazz = Class.forName("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
+            paperClClazz = Class.forName("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
         } catch (ClassNotFoundException e) {
             System.err.println("PaperPluginClassLoader not found, are you using Paper 1.19.3+?");
             throw new RuntimeException(e);

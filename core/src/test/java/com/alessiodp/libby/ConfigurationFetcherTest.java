@@ -38,7 +38,7 @@ public class ConfigurationFetcherTest {
 				&& l.getArtifactId().equals("library-1")
 				&& l.getVersion().equals("1.0.0")
 				&& l.isIsolatedLoad()
-				&& l.getId().equals("fakeLibraryId")
+				&& l.getLoaderId().equals("isolatedLoader1")
 				&& l.getRelocations().size() == 1)); // 1 global relocation
 		assertTrue(libraries.stream().anyMatch(l -> l.getGroupId().equals(replaceWithDots("fake{}library{}2"))
 				&& l.getArtifactId().equals("library-2")

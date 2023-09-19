@@ -29,11 +29,6 @@ public class Library {
     private final Collection<String> repositories;
 
     /**
-     * Library id (used by Isolated Class Loaders)
-     */
-    private final String id;
-
-    /**
      * Maven group ID
      */
     private final String groupId;
@@ -82,6 +77,11 @@ public class Library {
      * Should this library be loaded in an isolated class loader?
      */
     private final boolean isolatedLoad;
+    
+    /**
+     * The isolated loader id for this library
+     */
+    private final String loaderId;
 
     /**
      * Should transitive dependencies be resolved for this library?
@@ -98,18 +98,18 @@ public class Library {
      *
      * @param urls         direct download URLs
      * @param id           library ID
-     * @param groupId      Maven group ID
-     * @param artifactId   Maven artifact ID
+     * @param groupId      Maven group ID, any {@code "{}"} is replaced with a {@code "."}
+     * @param artifactId   Maven artifact ID, any {@code "{}"} is replaced with a {@code "."}
      * @param version      artifact version
      * @param classifier   artifact classifier or null
      * @param checksum     binary SHA-256 checksum or null
      * @param relocations  jar relocations or null
      * @param isolatedLoad isolated load for this library
+     * @param loaderId     the loader ID for this library
      * @param resolveTransitiveDependencies transitive dependencies resolvement for this library
      * @param excludedTransitiveDependencies excluded transitive dependencies or null
      */
     private Library(Collection<String> urls,
-                    String id,
                     String groupId,
                     String artifactId,
                     String version,
@@ -117,10 +117,11 @@ public class Library {
                     byte[] checksum,
                     Collection<Relocation> relocations,
                     boolean isolatedLoad,
+                    String loaderId,
                     boolean resolveTransitiveDependencies,
                     Collection<ExcludedDependency> excludedTransitiveDependencies) {
 
-        this(urls, null, id, groupId, artifactId, version, classifier, checksum, relocations, isolatedLoad, resolveTransitiveDependencies, excludedTransitiveDependencies);
+        this(urls, null, groupId, artifactId, version, classifier, checksum, relocations, isolatedLoad, loaderId, resolveTransitiveDependencies, excludedTransitiveDependencies);
     }
 
     /**
@@ -128,20 +129,19 @@ public class Library {
      *
      * @param urls         direct download URLs
      * @param repositories repository URLs
-     * @param id           library ID
-     * @param groupId      Maven group ID
-     * @param artifactId   Maven artifact ID
+     * @param groupId      Maven group ID, any {@code "{}"} is replaced with a {@code "."}
+     * @param artifactId   Maven artifact ID, any {@code "{}"} is replaced with a {@code "."}
      * @param version      artifact version
      * @param classifier   artifact classifier or null
      * @param checksum     binary SHA-256 checksum or null
      * @param relocations  jar relocations or null
      * @param isolatedLoad isolated load for this library
+     * @param loaderId     the loader ID for this library
      * @param resolveTransitiveDependencies transitive dependencies resolvement for this library
      * @param excludedTransitiveDependencies excluded transitive dependencies or null
      */
     private Library(Collection<String> urls,
                     Collection<String> repositories,
-                    String id,
                     String groupId,
                     String artifactId,
                     String version,
@@ -149,13 +149,13 @@ public class Library {
                     byte[] checksum,
                     Collection<Relocation> relocations,
                     boolean isolatedLoad,
+                    String loaderId,
                     boolean resolveTransitiveDependencies,
                     Collection<ExcludedDependency> excludedTransitiveDependencies) {
 
         this.urls = urls != null ? Collections.unmodifiableList(new LinkedList<>(urls)) : Collections.emptyList();
-        this.id = id != null ? id : UUID.randomUUID().toString();
         this.groupId = requireNonNull(groupId, "groupId").replace("{}", ".");
-        this.artifactId = requireNonNull(artifactId, "artifactId");
+        this.artifactId = requireNonNull(artifactId, "artifactId").replace("{}", ".");
         this.version = requireNonNull(version, "version");
         this.classifier = classifier;
         this.checksum = checksum;
@@ -172,6 +172,7 @@ public class Library {
         this.repositories = repositories != null ? Collections.unmodifiableList(new LinkedList<>(repositories)) : Collections.emptyList();
         relocatedPath = hasRelocations() ? path + "-relocated.jar" : null;
         this.isolatedLoad = isolatedLoad;
+        this.loaderId = loaderId;
         this.resolveTransitiveDependencies = resolveTransitiveDependencies;
         this.excludedTransitiveDependencies = excludedTransitiveDependencies != null ? Collections.unmodifiableList(new LinkedList<>(excludedTransitiveDependencies)) : Collections.emptyList();
     }
@@ -192,15 +193,6 @@ public class Library {
      */
     public Collection<String> getRepositories() {
         return repositories;
-    }
-
-    /**
-     * Gets the library ID
-     *
-     * @return the library id
-     */
-    public String getId() {
-        return id;
     }
 
     /**
@@ -319,7 +311,16 @@ public class Library {
     public boolean isIsolatedLoad() {
         return isolatedLoad;
     }
-
+    
+    /**
+     * Get the isolated loader ID
+     *
+     * @return the loader ID
+     */
+    public String getLoaderId() {
+        return loaderId;
+    }
+    
     /**
      * Whether the library is a snapshot.
      *
@@ -388,11 +389,6 @@ public class Library {
         private final Collection<String> repositories = new LinkedList<>();
 
         /**
-         * The library ID
-         */
-        private String id;
-
-        /**
          * Maven group ID
          */
         private String groupId;
@@ -421,6 +417,11 @@ public class Library {
          * Isolated load
          */
         private boolean isolatedLoad;
+        
+        /**
+         * Loader ID
+         */
+        private String loaderId;
 
         /**
          * Jar relocations to apply
@@ -462,18 +463,10 @@ public class Library {
         }
 
         /**
-         * Sets the id for this library.
-         *
-         * @param id the ID
-         * @return this builder
-         */
-        public Builder id(String id) {
-            this.id = id != null ? id : UUID.randomUUID().toString();
-            return this;
-        }
-
-        /**
          * Sets the Maven group ID for this library.
+         * <p>
+         * To avoid issues with shading and relocation, any {@code "{}"} inside the provided groupId string
+         * is replaced with a {@code "."}.
          *
          * @param groupId Maven group ID
          * @return this builder
@@ -485,6 +478,9 @@ public class Library {
 
         /**
          * Sets the Maven artifact ID for this library.
+         * <p>
+         * To avoid issues with shading and relocation, any {@code "{}"} inside the provided artifactId string
+         * is replaced with a {@code "."}.
          *
          * @param artifactId Maven artifact ID
          * @return this builder
@@ -545,6 +541,17 @@ public class Library {
          */
         public Builder isolatedLoad(boolean isolatedLoad) {
             this.isolatedLoad = isolatedLoad;
+            return this;
+        }
+        
+        /**
+         * Sets the loader ID for this library.
+         *
+         * @param loaderId the ID
+         * @return this builder
+         */
+        public Builder loaderId(String loaderId) {
+            this.loaderId = loaderId;
             return this;
         }
 
@@ -612,7 +619,7 @@ public class Library {
          * @return new library
          */
         public Library build() {
-            return new Library(urls, repositories, id, groupId, artifactId, version, classifier, checksum, relocations, isolatedLoad, resolveTransitiveDependencies, excludedTransitiveDependencies);
+            return new Library(urls, repositories, groupId, artifactId, version, classifier, checksum, relocations, isolatedLoad, loaderId, resolveTransitiveDependencies, excludedTransitiveDependencies);
         }
     }
 }

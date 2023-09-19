@@ -6,11 +6,11 @@ import org.slf4j.Logger;
 import static java.util.Objects.requireNonNull;
 
 /**
- * Logging adapter that logs to a Velocity plugin logger.
+ * Logging adapter that logs to a Fabric mod logger.
  */
-public class VelocityLogAdapter implements LogAdapter {
+public class FabricLogAdapter implements LogAdapter {
     /**
-     * Velocity plugin logger
+     * Fabric mod logger
      */
     private final Logger logger;
 
@@ -19,12 +19,12 @@ public class VelocityLogAdapter implements LogAdapter {
      *
      * @param logger the plugin logger to wrap
      */
-    public VelocityLogAdapter(Logger logger) {
+    public FabricLogAdapter(Logger logger) {
         this.logger = requireNonNull(logger, "logger");
     }
 
     /**
-     * Logs a message with the provided level to the Velocity plugin logger.
+     * Logs a message with the provided level to the Fabric mod logger.
      *
      * @param level   message severity level
      * @param message the message to log
@@ -48,8 +48,8 @@ public class VelocityLogAdapter implements LogAdapter {
     }
 
     /**
-     * Logs a message and stack trace with the provided level to the Velocity
-     * plugin logger.
+     * Logs a message and stack trace with the provided level to the Fabric
+     * mod logger.
      *
      * @param level     message severity level
      * @param message   the message to log
