@@ -1,6 +1,7 @@
 plugins {
     `java-library`
     `maven-publish`
+    signing
 }
 
 allprojects {
@@ -16,6 +17,7 @@ allprojects {
 subprojects {
     apply(plugin = "java-library")
     apply(plugin = "maven-publish")
+    apply(plugin = "signing")
 
     dependencies {
         testImplementation(platform("org.junit:junit-bom:5.10.0"))
@@ -28,6 +30,7 @@ subprojects {
         targetCompatibility = JavaVersion.VERSION_1_8
 
         withJavadocJar()
+        withSourcesJar()
     }
 
     tasks.test {
@@ -35,10 +38,69 @@ subprojects {
     }
 
     publishing {
-        publications {
-            create<MavenPublication>("mavenJar") {
-                from(components["java"])
+        repositories {
+            maven {
+                val releaseUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+                val snapshotUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotUrl else releaseUrl)
+
+                credentials {
+                    username = (project.properties["ossrhUsername"] ?: "").toString()
+                    password = (project.properties["ossrhPassword"] ?: "").toString()
+                }
+            }
+
+            maven {
+                val releaseUrl = "https://repo.alessiodp.com/releases"
+                val snapshotUrl = "https://repo.alessiodp.com/snapshots"
+
+                url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotUrl else releaseUrl)
+
+                credentials {
+                    username = (project.properties["alessiodpRepoUsername"] ?: "").toString()
+                    password = (project.properties["alessiodpRepoPassword"] ?: "").toString()
+                }
             }
         }
+
+        publications {
+            create<MavenPublication>("mavenJava") {
+                from(components["java"])
+
+                pom {
+                    name.set("Libby")
+                    description.set("A runtime dependency management library for plugins running in Java-based Minecraft server platforms.")
+                    url.set("https://github.com/AlessioDP/libby")
+
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://opensource.org/license/mit/")
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = "AlessioDP"
+                            email = "me@alessiodp.com"
+                        }
+                    }
+
+                    scm {
+                        connection = "scm:git:git://github.com/AlessioDP/libby.git"
+                        developerConnection = "scm:git:git@github.com:AlessioDP/libby.git"
+                        url = "https://github.com/AlessioDP/libby"
+                    }
+                }
+            }
+        }
+    }
+
+    signing {
+        setRequired {
+            gradle.taskGraph.allTasks.any { it is PublishToMavenRepository }
+        }
+        useGpgCmd()
+        sign(publishing.publications["mavenJava"])
     }
 }
