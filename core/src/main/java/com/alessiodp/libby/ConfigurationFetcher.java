@@ -1,6 +1,7 @@
 package com.alessiodp.libby;
 
 import com.alessiodp.libby.relocation.Relocation;
+import com.alessiodp.libby.transitive.ExcludedDependency;
 import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
 
@@ -79,7 +80,43 @@ public class ConfigurationFetcher {
         }
         return fetchedRelocations;
     }
-    
+
+    /**
+     * Fetch the excluded transitive dependencies from the JSON of a library. It can be omitted.
+     * If defined, they must be an array of objects that include the following properties:
+     * <ul>
+     *     <li>groupId: The groupId of the excluded dependency</li>
+     *     <li>artifactId: The artifactId excluded dependency</li>
+     * </ul>
+     *
+     * @param library The JsonObject of the library
+     * @return A Set containing the excluded dependencies of the library
+     */
+    public Set<ExcludedDependency> fetchExcludedTransitiveDependencies(JsonObject library) {
+        Set<ExcludedDependency> fetchedExcludedDependencies = new HashSet<>();
+        JsonArray excludedDependencies = library.getArray("excludedTransitiveDependencies");
+        if (excludedDependencies != null) {
+            for (int i = 0; i < excludedDependencies.size(); i++) {
+                JsonObject relocation = excludedDependencies.getObject(i);
+
+                String groupId = relocation.getString("groupId");
+
+                if (groupId == null) {
+                    throw new IllegalArgumentException("The groupId property is required for all excluded transitive dependencies");
+                }
+
+                String artifactId = relocation.getString("artifactId");
+
+                if (artifactId == null) {
+                    throw new IllegalArgumentException("The artifactId property is required for all excluded transitive dependencies");
+                }
+
+                fetchedExcludedDependencies.add(new ExcludedDependency(groupId, artifactId));
+            }
+        }
+        return fetchedExcludedDependencies;
+    }
+
     /**
      * Fetch the libraries from the JSON file. It can be omitted from the JSON.
      * If defined, they must be an array of objects that include the following properties:
@@ -91,6 +128,13 @@ public class ConfigurationFetcher {
      * Optional properties:
      * <ul>
      *     <li>checksum: The SHA-256 checksum of the library, must be a base64 encoded string and may only be included if the library is a JAR</li>
+     *     <li>classifier: The artifact classifier of the library</li>
+     *     <li>isolatedLoad: Whether to load this library in an IsolatedClassLoader</li>
+     *     <li>loaderId: The loader ID of this library</li>
+     *     <li>repositories: An array of additional per-library repositories</li>
+     *     <li>relocations: An array of relocations to apply to this library</li>
+     *     <li>resolveTransitiveDependencies: Whether to resolve transitive dependencies</li>
+     *     <li>excludedTransitiveDependencies: An array of dependencies excluded during transitive dependencies resolution</li>
      * </ul>
      *
      * @param configuration the root object of the JSON file
@@ -140,8 +184,16 @@ public class ConfigurationFetcher {
                 }
                 
                 libraryBuilder.isolatedLoad(library.getBoolean("isolatedLoad"));
-                
+
                 libraryBuilder.loaderId(library.getString("loaderId"));
+
+                libraryBuilder.classifier(library.getString("classifier"));
+
+                libraryBuilder.resolveTransitiveDependencies(library.getBoolean("resolveTransitiveDependencies"));
+
+                fetchExcludedTransitiveDependencies(library).forEach(libraryBuilder::excludeTransitiveDependency);
+
+                fetchRepositories(library).forEach(libraryBuilder::repository);
                 
                 Set<Relocation> relocations = fetchRelocations(library);
                 
