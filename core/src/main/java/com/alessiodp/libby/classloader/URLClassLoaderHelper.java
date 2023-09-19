@@ -191,7 +191,7 @@ public class URLClassLoaderHelper {
         try {
             isolatedClassLoader.addPath(libraryManager.downloadLibrary(
                 Library.builder()
-                       .groupId("net.bytebuddy")
+                       .groupId("net{}bytebuddy")
                        .artifactId("byte-buddy-agent")
                        .version("1.12.1")
                        .checksum("mcCtBT9cljUEniB5ESpPDYZMfVxEs1JRPllOiWTP+bM=")

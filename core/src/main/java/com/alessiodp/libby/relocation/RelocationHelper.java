@@ -51,7 +51,7 @@ public class RelocationHelper {
         // ObjectWeb ASM Commons
         classLoader.addPath(libraryManager.downloadLibrary(
             Library.builder()
-                   .groupId("org.ow2.asm")
+                   .groupId("org{}ow2{}asm")
                    .artifactId("asm-commons")
                    .version("9.2")
                    .checksum("vkzlMTiiOLtSLNeBz5Hzulzi9sqT7GLUahYqEnIl4KY=")
@@ -62,7 +62,7 @@ public class RelocationHelper {
         // ObjectWeb ASM
         classLoader.addPath(libraryManager.downloadLibrary(
             Library.builder()
-                   .groupId("org.ow2.asm")
+                   .groupId("org{}ow2{}asm")
                    .artifactId("asm")
                    .version("9.2")
                    .checksum("udT+TXGTjfOIOfDspCqqpkz4sxPWeNoDbwyzyhmbR/U=")
@@ -73,7 +73,7 @@ public class RelocationHelper {
         // Luck's Jar Relocator
         classLoader.addPath(libraryManager.downloadLibrary(
             Library.builder()
-                   .groupId("me.lucko")
+                   .groupId("me{}lucko")
                    .artifactId("jar-relocator")
                    .version("1.7")
                    .checksum("b30RhOF6kHiHl+O5suNLh/+eAr1iOFEFLXhwkHHDu4I=")
