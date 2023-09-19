@@ -120,6 +120,8 @@ class TransitiveDependencyCollector {
         session.setSystemProperties(properties);
         session.setConfigProperties(properties);
 
+        session.setReadOnly(); // Don't allow to modify it further since DefaultRepositorySystemSession isn't thread-safe
+
         return session;
     }
 
