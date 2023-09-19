@@ -16,10 +16,12 @@ import org.eclipse.aether.resolution.DependencyResolutionException;
 import org.eclipse.aether.resolution.DependencyResult;
 import org.eclipse.aether.supplier.RepositorySystemSupplier;
 import org.eclipse.aether.util.artifact.JavaScopes;
-import org.eclipse.aether.util.filter.DependencyFilterUtils;
+import org.eclipse.aether.util.filter.ScopeDependencyFilter;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -38,12 +40,14 @@ class TransitiveDependencyCollector {
      * @see #newRepositorySystem()
      */
     private final RepositorySystem repositorySystem = newRepositorySystem();
+
     /**
      * Maven repository system session
      *
      * @see #newRepositorySystemSession(RepositorySystem)
      */
     private final RepositorySystemSession repositorySystemSession;
+
     /**
      * Local repository path
      *
@@ -80,7 +84,7 @@ class TransitiveDependencyCollector {
         Artifact artifact = new DefaultArtifact(groupId, artifactId, null, "jar", version);
 
         CollectRequest collectRequest = new CollectRequest(new Dependency(artifact, JavaScopes.COMPILE), repositories);
-        DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME));
+        DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, new ScopeDependencyFilter(Arrays.asList(JavaScopes.COMPILE, JavaScopes.RUNTIME), Collections.emptyList()));
 
         DependencyResult dependencyResult = repositorySystem.resolveDependencies(repositorySystemSession, dependencyRequest);
 
