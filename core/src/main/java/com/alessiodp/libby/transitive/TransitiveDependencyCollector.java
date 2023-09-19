@@ -76,12 +76,13 @@ class TransitiveDependencyCollector {
      * @param groupId      Maven group ID
      * @param artifactId   Maven artifact ID
      * @param version      Maven dependency version
+     * @param classifier   Maven artifact classifier. May be null
      * @param repositories Maven repositories that would be used for dependency resolvement
      * @return Transitive dependencies, exception otherwise
      * @throws DependencyResolutionException thrown if dependency doesn't exists on provided repositories
      */
-    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, List<RemoteRepository> repositories) throws DependencyResolutionException {
-        Artifact artifact = new DefaultArtifact(groupId, artifactId, null, "jar", version);
+    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, String classifier, List<RemoteRepository> repositories) throws DependencyResolutionException {
+        Artifact artifact = new DefaultArtifact(groupId, artifactId, classifier, "jar", version);
 
         CollectRequest collectRequest = new CollectRequest(new Dependency(artifact, JavaScopes.COMPILE), repositories);
         DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, new ScopeDependencyFilter(Arrays.asList(JavaScopes.COMPILE, JavaScopes.RUNTIME), Collections.emptyList()));
@@ -96,14 +97,15 @@ class TransitiveDependencyCollector {
      *
      * @param groupId      Maven group ID
      * @param artifactId   Maven artifact ID
-     * @param version      Maven dependency version
+     * @param version      Maven artifact version
+     * @param classifier   Maven artifact classifier. May be null
      * @param repositories Maven repositories for transitive dependencies search
      * @return Transitive dependencies, exception otherwise
      * @throws DependencyResolutionException thrown if dependency doesn't exists on provided repositories
-     * @see #findTransitiveDependencies(String, String, String, List)
+     * @see #findTransitiveDependencies(String, String, String, String, List)
      */
-    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, Stream<String> repositories) throws DependencyResolutionException {
-        return findTransitiveDependencies(groupId, artifactId, version, repositories.map(TransitiveDependencyCollector::newDefaultRepository).collect(Collectors.toList()));
+    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, String classifier, Stream<String> repositories) throws DependencyResolutionException {
+        return findTransitiveDependencies(groupId, artifactId, version, classifier, repositories.map(TransitiveDependencyCollector::newDefaultRepository).collect(Collectors.toList()));
     }
 
     /**
