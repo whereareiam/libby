@@ -25,6 +25,10 @@ import static java.util.Objects.requireNonNull;
  * the classpath.
  */
 public class URLClassLoaderHelper {
+    /**
+     * net.bytebuddy.agent.ByteBuddyAgent class name for reflections
+     */
+    private static final String BYTE_BUDDY_AGENT_CLASS = "net{}bytebuddy{}agent{}ByteBuddyAgent".replace("{}", ".");
 
     /**
      * Unsafe class instance. Used in {@link #getPrivilegedMethodHandle(Method)}.
@@ -199,7 +203,7 @@ public class URLClassLoaderHelper {
                        .build()
             ));
 
-            Class<?> byteBuddyAgent = isolatedClassLoader.loadClass("net.bytebuddy.agent.ByteBuddyAgent");
+            Class<?> byteBuddyAgent = isolatedClassLoader.loadClass(BYTE_BUDDY_AGENT_CLASS);
 
             // This is effectively calling:
             //

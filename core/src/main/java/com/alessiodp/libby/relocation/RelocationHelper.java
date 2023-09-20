@@ -23,6 +23,16 @@ import static java.util.Objects.requireNonNull;
  */
 public class RelocationHelper {
     /**
+     * me.lucko.jarrelocator.JarRelocator class name for reflections
+     */
+    private static final String JAR_RELOCATOR_CLASS = "me{}lucko{}jarrelocator{}JarRelocator".replace("{}", ".");
+
+    /**
+     * me.lucko.jarrelocator.Relocation class name for reflections
+     */
+    private static final String RELOCATION_CLASS = "me{}lucko{}jarrelocator{}Relocation".replace("{}", ".");
+
+    /**
      * Reflected constructor for creating new jar relocator instances
      */
     private final Constructor<?> jarRelocatorConstructor;
@@ -82,8 +92,8 @@ public class RelocationHelper {
         ));
 
         try {
-            Class<?> jarRelocatorClass = classLoader.loadClass("me.lucko.jarrelocator.JarRelocator");
-            Class<?> relocationClass = classLoader.loadClass("me.lucko.jarrelocator.Relocation");
+            Class<?> jarRelocatorClass = classLoader.loadClass(JAR_RELOCATOR_CLASS);
+            Class<?> relocationClass = classLoader.loadClass(RELOCATION_CLASS);
 
             // me.lucko.jarrelocator.JarRelocator(File, File, Collection)
             jarRelocatorConstructor = jarRelocatorClass.getConstructor(File.class, File.class, Collection.class);

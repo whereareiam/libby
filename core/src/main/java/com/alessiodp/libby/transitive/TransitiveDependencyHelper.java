@@ -25,6 +25,12 @@ import static java.util.Objects.requireNonNull;
  * @see <a href="https://github.com/apache/maven-resolver">Apache Maven Artifact Resolver</a>
  */
 public class TransitiveDependencyHelper {
+
+    /**
+     * org.eclipse.aether.artifact.Artifact class name for reflections
+     */
+    private static final String ARTIFACT_CLASS = "org{}eclipse{}aether{}artifact{}Artifact".replace("{}", ".");
+
     /**
      * TransitiveDependencyCollector class instance, used in {@link #findTransitiveLibraries(Library)}
      */
@@ -71,7 +77,7 @@ public class TransitiveDependencyHelper {
         }
 
         try {
-            Class<?> artifactClass = classLoader.loadClass("org.eclipse.aether.artifact.Artifact");
+            Class<?> artifactClass = classLoader.loadClass(ARTIFACT_CLASS);
 
             // com.alessiodp.libby.TransitiveDependencyCollector(Path)
             Constructor<?> constructor = transitiveDependencyCollectorClass.getConstructor(Path.class);
