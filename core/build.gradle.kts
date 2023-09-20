@@ -22,7 +22,7 @@ sourceSets {
     test {
         blossom {
             javaSources {
-                property("buildDir", layout.buildDirectory.asFile.get().absolutePath)
+                property("buildDir", layout.buildDirectory.asFile.get().absolutePath.replace("\\", "\\\\"))
             }
         }
     }
