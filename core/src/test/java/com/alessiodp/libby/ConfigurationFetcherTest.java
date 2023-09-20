@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,12 +31,12 @@ public class ConfigurationFetcherTest {
         assertTrue(repositories.contains("repo1"));
         assertTrue(repositories.contains("repo2"));
 
-        Set<Relocation> relocations = configurationFetcher.fetchRelocations(config);
+        List<Relocation> relocations = configurationFetcher.fetchRelocations(config);
         assertEquals(1, relocations.size());
         assertTrue(relocations.stream().anyMatch(r -> r.getPattern().equals(replaceWithDots("fake{}library{}1"))
                 && r.getRelocatedPattern().equals(replaceWithDots("relocated{}fake{}library{}1"))));
 
-        Set<Library> libraries = configurationFetcher.fetchLibraries(config, relocations);
+        List<Library> libraries = configurationFetcher.fetchLibraries(config, relocations);
         assertEquals(2, libraries.size());
         assertTrue(libraries.stream().anyMatch(l -> l.getGroupId().equals(replaceWithDots("fake{}library{}1"))
                 && l.getArtifactId().equals("library-1")
@@ -91,19 +92,19 @@ public class ConfigurationFetcherTest {
         assertTrue(ex.getMessage().contains("relocatedPattern property"));
 
         // Libraries
-        ex = assertThrows(IllegalArgumentException.class, () -> configurationFetcher.fetchLibraries(config, Collections.emptySet()));
+        ex = assertThrows(IllegalArgumentException.class, () -> configurationFetcher.fetchLibraries(config, Collections.emptyList()));
         assertTrue(ex.getMessage().contains("group property"));
         config.getArray("libraries").getObject(0).put("group", ""); // Add group field
-        ex = assertThrows(IllegalArgumentException.class, () -> configurationFetcher.fetchLibraries(config, Collections.emptySet()));
+        ex = assertThrows(IllegalArgumentException.class, () -> configurationFetcher.fetchLibraries(config, Collections.emptyList()));
         assertTrue(ex.getMessage().contains("name property"));
         config.getArray("libraries").getObject(0).put("name", ""); // Add name field
-        ex = assertThrows(IllegalArgumentException.class, () -> configurationFetcher.fetchLibraries(config, Collections.emptySet()));
+        ex = assertThrows(IllegalArgumentException.class, () -> configurationFetcher.fetchLibraries(config, Collections.emptyList()));
         assertTrue(ex.getMessage().contains("version property"));
         config.getArray("libraries").getObject(0).put("version", ""); // Add version field
 
         // Invalid checksum
         config.getArray("libraries").getObject(0).put("checksum", "invalid-checksum");
-        ex = assertThrows(IllegalArgumentException.class, () -> configurationFetcher.fetchLibraries(config, Collections.emptySet()));
+        ex = assertThrows(IllegalArgumentException.class, () -> configurationFetcher.fetchLibraries(config, Collections.emptyList()));
         assertTrue(ex.getMessage().contains("valid base64"));
     }
 

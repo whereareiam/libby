@@ -5,7 +5,10 @@ import com.alessiodp.libby.transitive.ExcludedDependency;
 import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -54,12 +57,14 @@ public class ConfigurationFetcher {
      * </ul>
      *
      * @param configuration the root object of the JSON file
-     * @return the set of relocations as Relocation
+     * @return The list of relocations
      */
-    public Set<Relocation> fetchRelocations(JsonObject configuration) {
-        Set<Relocation> fetchedRelocations = new HashSet<>();
+    public List<Relocation> fetchRelocations(JsonObject configuration) {
         JsonArray relocations = configuration.getArray("relocations");
+
         if (relocations != null) {
+            List<Relocation> fetchedRelocations = new ArrayList<>(relocations.size());
+
             for (int i = 0; i < relocations.size(); i++) {
                 JsonObject relocation = relocations.getObject(i);
                 
@@ -77,8 +82,11 @@ public class ConfigurationFetcher {
                 
                 fetchedRelocations.add(new Relocation(pattern, relocatedPattern));
             }
+
+            return Collections.unmodifiableList(fetchedRelocations);
         }
-        return fetchedRelocations;
+
+        return Collections.emptyList();
     }
 
     /**
@@ -90,12 +98,14 @@ public class ConfigurationFetcher {
      * </ul>
      *
      * @param library The JsonObject of the library
-     * @return A Set containing the excluded dependencies of the library
+     * @return The list containing the excluded dependencies of the library
      */
-    public Set<ExcludedDependency> fetchExcludedTransitiveDependencies(JsonObject library) {
-        Set<ExcludedDependency> fetchedExcludedDependencies = new HashSet<>();
+    public List<ExcludedDependency> fetchExcludedTransitiveDependencies(JsonObject library) {
         JsonArray excludedDependencies = library.getArray("excludedTransitiveDependencies");
+
         if (excludedDependencies != null) {
+            List<ExcludedDependency> fetchedExcludedDependencies = new ArrayList<>(excludedDependencies.size());
+
             for (int i = 0; i < excludedDependencies.size(); i++) {
                 JsonObject relocation = excludedDependencies.getObject(i);
 
@@ -113,8 +123,11 @@ public class ConfigurationFetcher {
 
                 fetchedExcludedDependencies.add(new ExcludedDependency(groupId, artifactId));
             }
+
+            return Collections.unmodifiableList(fetchedExcludedDependencies);
         }
-        return fetchedExcludedDependencies;
+
+        return Collections.emptyList();
     }
 
     /**
@@ -138,14 +151,15 @@ public class ConfigurationFetcher {
      * </ul>
      *
      * @param configuration the root object of the JSON file
-     * @param globalRelocations the set of global relocations to apply to all libraries
-     * @return the set of relocations as Relocation
+     * @param globalRelocations the list of global relocations to apply to all libraries
+     * @return The list of libraries fetched from the JSON file
      */
-    public Set<Library> fetchLibraries(JsonObject configuration, Set<Relocation> globalRelocations) {
-        Set<Library> fetchedLibraries = new HashSet<>();
+    public List<Library> fetchLibraries(JsonObject configuration, List<Relocation> globalRelocations) {
         JsonArray libraries = configuration.getArray("libraries");
         
         if (libraries != null) {
+            List<Library> fetchedLibraries = new ArrayList<>(libraries.size());
+
             for (int i = 0; i < libraries.size(); i++) {
                 JsonObject library = libraries.getObject(i);
                 Library.Builder libraryBuilder = Library.builder();
@@ -195,7 +209,7 @@ public class ConfigurationFetcher {
 
                 fetchRepositories(library).forEach(libraryBuilder::repository);
                 
-                Set<Relocation> relocations = fetchRelocations(library);
+                List<Relocation> relocations = fetchRelocations(library);
                 
                 // Apply relocation
                 for (Relocation relocation : relocations) {
@@ -209,7 +223,10 @@ public class ConfigurationFetcher {
                 
                 fetchedLibraries.add(libraryBuilder.build());
             }
+
+            return Collections.unmodifiableList(fetchedLibraries);
         }
-        return fetchedLibraries;
+
+        return Collections.emptyList();
     }
 }

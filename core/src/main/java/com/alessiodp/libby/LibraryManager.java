@@ -677,8 +677,8 @@ public abstract class LibraryManager {
         try {
             configurationFetcher.fetchVersion(root);
             Set<String> repositories = configurationFetcher.fetchRepositories(root);
-            Set<Relocation> globalRelocations = configurationFetcher.fetchRelocations(root);
-            Set<Library> libraries = configurationFetcher.fetchLibraries(root, globalRelocations);
+            List<Relocation> globalRelocations = configurationFetcher.fetchRelocations(root);
+            List<Library> libraries = configurationFetcher.fetchLibraries(root, globalRelocations);
             
             // Load repositories
             for (String repo : repositories) {
