@@ -134,8 +134,8 @@ public class ConfigurationFetcher {
      * Fetch the libraries from the JSON file. It can be omitted from the JSON.
      * If defined, they must be an array of objects that include the following properties:
      * <ul>
-     *     <li>group: The groupId of the library</li>
-     *     <li>name: The artifactId of the library</li>
+     *     <li>groupId: The groupId of the library</li>
+     *     <li>artifactId: The artifactId of the library</li>
      *     <li>version: The version of the library</li>
      * </ul>
      * Optional properties:
@@ -164,16 +164,16 @@ public class ConfigurationFetcher {
                 JsonObject library = libraries.getObject(i);
                 Library.Builder libraryBuilder = Library.builder();
                 
-                String groupId = library.getString("group");
+                String groupId = library.getString("groupId");
                 
                 if (groupId == null) {
-                    throw new IllegalArgumentException("The group property is required for all libraries");
+                    throw new IllegalArgumentException("The groupId property is required for all libraries");
                 }
                 
-                String artifactId = library.getString("name");
+                String artifactId = library.getString("artifactId");
                 
                 if (artifactId == null) {
-                    throw new IllegalArgumentException("The name property is required for all libraries");
+                    throw new IllegalArgumentException("The artifactId property is required for all libraries");
                 }
                 
                 String artifactVersion = library.getString("version");

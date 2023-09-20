@@ -93,11 +93,11 @@ public class ConfigurationFetcherTest {
 
         // Libraries
         ex = assertThrows(IllegalArgumentException.class, () -> configurationFetcher.fetchLibraries(config, Collections.emptyList()));
-        assertTrue(ex.getMessage().contains("group property"));
-        config.getArray("libraries").getObject(0).put("group", ""); // Add group field
+        assertTrue(ex.getMessage().contains("groupId property"));
+        config.getArray("libraries").getObject(0).put("groupId", ""); // Add group field
         ex = assertThrows(IllegalArgumentException.class, () -> configurationFetcher.fetchLibraries(config, Collections.emptyList()));
-        assertTrue(ex.getMessage().contains("name property"));
-        config.getArray("libraries").getObject(0).put("name", ""); // Add name field
+        assertTrue(ex.getMessage().contains("artifactId property"));
+        config.getArray("libraries").getObject(0).put("artifactId", ""); // Add name field
         ex = assertThrows(IllegalArgumentException.class, () -> configurationFetcher.fetchLibraries(config, Collections.emptyList()));
         assertTrue(ex.getMessage().contains("version property"));
         config.getArray("libraries").getObject(0).put("version", ""); // Add version field
