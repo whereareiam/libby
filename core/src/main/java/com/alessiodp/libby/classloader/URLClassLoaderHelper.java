@@ -98,7 +98,7 @@ public class URLClassLoaderHelper {
                         addURLMethod.setAccessible(true);
                     } catch (Exception e) {
                         // Cannot access at all
-                        System.err.println("Cannot access URLClassLoader#addURL(URL), if you are using Java 9+ try to add the following option to your java command: --add-opens java.base/java.net=ALL-UNNAMED");
+                        libraryManager.getLogger().error("Cannot access URLClassLoader#addURL(URL), if you are using Java 9+ try to add the following option to your java command: --add-opens java.base/java.net=ALL-UNNAMED");
                         throw new RuntimeException("Cannot access URLClassLoader#addURL(URL)", e);
                     }
                 } else {

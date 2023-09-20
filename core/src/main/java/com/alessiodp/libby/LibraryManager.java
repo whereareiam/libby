@@ -199,6 +199,15 @@ public abstract class LibraryManager {
     }
 
     /**
+     * Gets the logger of this library manager.
+     *
+     * @return the logger
+     */
+    public Logger getLogger() {
+        return logger;
+    }
+
+    /**
      * Gets the currently added repositories used to resolve artifacts.
      * <p>
      * For each library this list is traversed to download artifacts after the
