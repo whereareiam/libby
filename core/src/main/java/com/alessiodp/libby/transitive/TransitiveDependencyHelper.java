@@ -25,6 +25,12 @@ import static java.util.Objects.requireNonNull;
  * @see <a href="https://github.com/apache/maven-resolver">Apache Maven Artifact Resolver</a>
  */
 public class TransitiveDependencyHelper {
+
+    /**
+     * org.eclipse.aether.artifact.Artifact class name for reflections
+     */
+    private static final String ARTIFACT_CLASS = "org{}eclipse{}aether{}artifact{}Artifact".replace("{}", ".");
+
     /**
      * TransitiveDependencyCollector class instance, used in {@link #findTransitiveLibraries(Library)}
      */
@@ -38,7 +44,7 @@ public class TransitiveDependencyHelper {
     /**
      * Reflected getter methods of Artifact class
      */
-    private final Method artifactGetGroupIdMethod, artifactGetArtifactIdMethod, artifactGetVersionMethod;
+    private final Method artifactGetGroupIdMethod, artifactGetArtifactIdMethod, artifactGetVersionMethod, artifactGetClassifierMethod;
 
     /**
      * LibraryManager instance, used in {@link #findTransitiveLibraries(Library)}
@@ -71,14 +77,14 @@ public class TransitiveDependencyHelper {
         }
 
         try {
-            Class<?> artifactClass = classLoader.loadClass("org.eclipse.aether.artifact.Artifact");
+            Class<?> artifactClass = classLoader.loadClass(ARTIFACT_CLASS);
 
             // com.alessiodp.libby.TransitiveDependencyCollector(Path)
             Constructor<?> constructor = transitiveDependencyCollectorClass.getConstructor(Path.class);
             constructor.setAccessible(true);
             transitiveDependencyCollectorObject = constructor.newInstance(saveDirectory);
-            // com.alessiodp.libby.TransitiveDependencyCollector#findTransitiveDependencies(String, String, String, Stream<String>)
-            resolveTransitiveDependenciesMethod = transitiveDependencyCollectorClass.getMethod("findTransitiveDependencies", String.class, String.class, String.class, Stream.class);
+            // com.alessiodp.libby.TransitiveDependencyCollector#findTransitiveDependencies(String, String, String, String, Stream<String>)
+            resolveTransitiveDependenciesMethod = transitiveDependencyCollectorClass.getMethod("findTransitiveDependencies", String.class, String.class, String.class, String.class, Stream.class);
             resolveTransitiveDependenciesMethod.setAccessible(true);
             // org.eclipse.aether.artifact.Artifact#getGroupId()
             artifactGetGroupIdMethod = artifactClass.getMethod("getGroupId");
@@ -86,6 +92,8 @@ public class TransitiveDependencyHelper {
             artifactGetArtifactIdMethod = artifactClass.getMethod("getArtifactId");
             // org.eclipse.aether.artifact.Artifact#getVersion()
             artifactGetVersionMethod = artifactClass.getMethod("getVersion");
+            // org.eclipse.aether.artifact.Artifact#getClassifier()
+            artifactGetClassifierMethod = artifactClass.getMethod("getClassifier");
         } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
         }
@@ -124,11 +132,13 @@ public class TransitiveDependencyHelper {
                 library.getGroupId(),
                 library.getArtifactId(),
                 library.getVersion(),
+                library.getClassifier(),
                 repositories);
             for (Object artifact : artifacts) {
                 String groupId = (String) artifactGetGroupIdMethod.invoke(artifact);
                 String artifactId = (String) artifactGetArtifactIdMethod.invoke(artifact);
                 String version = (String) artifactGetVersionMethod.invoke(artifact);
+                String classifier = (String) artifactGetClassifierMethod.invoke(artifact);
 
                 if (library.getGroupId().equals(groupId) && library.getArtifactId().equals(artifactId))
                     continue;
@@ -142,6 +152,10 @@ public class TransitiveDependencyHelper {
                                                         .version(version)
                                                         .isolatedLoad(library.isIsolatedLoad())
                                                         .loaderId(library.getLoaderId());
+
+                if (classifier != null && !classifier.isEmpty()) {
+                    libraryBuilder.classifier(classifier);
+                }
 
                 library.getRelocations().forEach(libraryBuilder::relocate);
                 library.getRepositories().forEach(libraryBuilder::repository);

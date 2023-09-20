@@ -25,6 +25,10 @@ import static java.util.Objects.requireNonNull;
  * the classpath.
  */
 public class URLClassLoaderHelper {
+    /**
+     * net.bytebuddy.agent.ByteBuddyAgent class name for reflections
+     */
+    private static final String BYTE_BUDDY_AGENT_CLASS = "net{}bytebuddy{}agent{}ByteBuddyAgent".replace("{}", ".");
 
     /**
      * Unsafe class instance. Used in {@link #getPrivilegedMethodHandle(Method)}.
@@ -94,7 +98,7 @@ public class URLClassLoaderHelper {
                         addURLMethod.setAccessible(true);
                     } catch (Exception e) {
                         // Cannot access at all
-                        System.err.println("Cannot access URLClassLoader#addURL(URL), if you are using Java 9+ try to add the following option to your java command: --add-opens java.base/java.net=ALL-UNNAMED");
+                        libraryManager.getLogger().error("Cannot access URLClassLoader#addURL(URL), if you are using Java 9+ try to add the following option to your java command: --add-opens java.base/java.net=ALL-UNNAMED");
                         throw new RuntimeException("Cannot access URLClassLoader#addURL(URL)", e);
                     }
                 } else {
@@ -191,7 +195,7 @@ public class URLClassLoaderHelper {
         try {
             isolatedClassLoader.addPath(libraryManager.downloadLibrary(
                 Library.builder()
-                       .groupId("net.bytebuddy")
+                       .groupId("net{}bytebuddy")
                        .artifactId("byte-buddy-agent")
                        .version("1.12.1")
                        .checksum("mcCtBT9cljUEniB5ESpPDYZMfVxEs1JRPllOiWTP+bM=")
@@ -199,7 +203,7 @@ public class URLClassLoaderHelper {
                        .build()
             ));
 
-            Class<?> byteBuddyAgent = isolatedClassLoader.loadClass("net.bytebuddy.agent.ByteBuddyAgent");
+            Class<?> byteBuddyAgent = isolatedClassLoader.loadClass(BYTE_BUDDY_AGENT_CLASS);
 
             // This is effectively calling:
             //

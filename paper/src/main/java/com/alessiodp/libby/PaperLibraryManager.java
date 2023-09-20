@@ -59,7 +59,7 @@ public class PaperLibraryManager extends LibraryManager {
         try {
             paperClClazz = Class.forName("io.papermc.paper.plugin.entrypoint.classloader.PaperPluginClassLoader");
         } catch (ClassNotFoundException e) {
-            System.err.println("PaperPluginClassLoader not found, are you using Paper 1.19.3+?");
+            getLogger().error("PaperPluginClassLoader not found, are you using Paper 1.19.3+?");
             throw new RuntimeException(e);
         }
 
@@ -72,7 +72,7 @@ public class PaperLibraryManager extends LibraryManager {
         try {
             libraryLoaderField = paperClClazz.getDeclaredField("libraryLoader");
         } catch (NoSuchFieldException e) {
-            System.err.println("Cannot find libraryLoader field in PaperPluginClassLoader, please open a bug report.");
+            getLogger().error("Cannot find libraryLoader field in PaperPluginClassLoader, please open a bug report.");
             throw new RuntimeException(e);
         }
 

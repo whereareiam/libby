@@ -23,6 +23,16 @@ import static java.util.Objects.requireNonNull;
  */
 public class RelocationHelper {
     /**
+     * me.lucko.jarrelocator.JarRelocator class name for reflections
+     */
+    private static final String JAR_RELOCATOR_CLASS = "me{}lucko{}jarrelocator{}JarRelocator".replace("{}", ".");
+
+    /**
+     * me.lucko.jarrelocator.Relocation class name for reflections
+     */
+    private static final String RELOCATION_CLASS = "me{}lucko{}jarrelocator{}Relocation".replace("{}", ".");
+
+    /**
      * Reflected constructor for creating new jar relocator instances
      */
     private final Constructor<?> jarRelocatorConstructor;
@@ -51,7 +61,7 @@ public class RelocationHelper {
         // ObjectWeb ASM Commons
         classLoader.addPath(libraryManager.downloadLibrary(
             Library.builder()
-                   .groupId("org.ow2.asm")
+                   .groupId("org{}ow2{}asm")
                    .artifactId("asm-commons")
                    .version("9.2")
                    .checksum("vkzlMTiiOLtSLNeBz5Hzulzi9sqT7GLUahYqEnIl4KY=")
@@ -62,7 +72,7 @@ public class RelocationHelper {
         // ObjectWeb ASM
         classLoader.addPath(libraryManager.downloadLibrary(
             Library.builder()
-                   .groupId("org.ow2.asm")
+                   .groupId("org{}ow2{}asm")
                    .artifactId("asm")
                    .version("9.2")
                    .checksum("udT+TXGTjfOIOfDspCqqpkz4sxPWeNoDbwyzyhmbR/U=")
@@ -73,7 +83,7 @@ public class RelocationHelper {
         // Luck's Jar Relocator
         classLoader.addPath(libraryManager.downloadLibrary(
             Library.builder()
-                   .groupId("me.lucko")
+                   .groupId("me{}lucko")
                    .artifactId("jar-relocator")
                    .version("1.7")
                    .checksum("b30RhOF6kHiHl+O5suNLh/+eAr1iOFEFLXhwkHHDu4I=")
@@ -82,8 +92,8 @@ public class RelocationHelper {
         ));
 
         try {
-            Class<?> jarRelocatorClass = classLoader.loadClass("me.lucko.jarrelocator.JarRelocator");
-            Class<?> relocationClass = classLoader.loadClass("me.lucko.jarrelocator.Relocation");
+            Class<?> jarRelocatorClass = classLoader.loadClass(JAR_RELOCATOR_CLASS);
+            Class<?> relocationClass = classLoader.loadClass(RELOCATION_CLASS);
 
             // me.lucko.jarrelocator.JarRelocator(File, File, Collection)
             jarRelocatorConstructor = jarRelocatorClass.getConstructor(File.class, File.class, Collection.class);

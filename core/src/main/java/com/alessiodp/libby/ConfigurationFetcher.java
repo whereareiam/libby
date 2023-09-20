@@ -1,10 +1,14 @@
 package com.alessiodp.libby;
 
 import com.alessiodp.libby.relocation.Relocation;
+import com.alessiodp.libby.transitive.ExcludedDependency;
 import com.grack.nanojson.JsonArray;
 import com.grack.nanojson.JsonObject;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -53,12 +57,14 @@ public class ConfigurationFetcher {
      * </ul>
      *
      * @param configuration the root object of the JSON file
-     * @return the set of relocations as Relocation
+     * @return The list of relocations
      */
-    public Set<Relocation> fetchRelocations(JsonObject configuration) {
-        Set<Relocation> fetchedRelocations = new HashSet<>();
+    public List<Relocation> fetchRelocations(JsonObject configuration) {
         JsonArray relocations = configuration.getArray("relocations");
+
         if (relocations != null) {
+            List<Relocation> fetchedRelocations = new ArrayList<>(relocations.size());
+
             for (int i = 0; i < relocations.size(); i++) {
                 JsonObject relocation = relocations.getObject(i);
                 
@@ -76,46 +82,98 @@ public class ConfigurationFetcher {
                 
                 fetchedRelocations.add(new Relocation(pattern, relocatedPattern));
             }
+
+            return Collections.unmodifiableList(fetchedRelocations);
         }
-        return fetchedRelocations;
+
+        return Collections.emptyList();
     }
-    
+
+    /**
+     * Fetch the excluded transitive dependencies from the JSON of a library. It can be omitted.
+     * If defined, they must be an array of objects that include the following properties:
+     * <ul>
+     *     <li>groupId: The groupId of the excluded dependency</li>
+     *     <li>artifactId: The artifactId excluded dependency</li>
+     * </ul>
+     *
+     * @param library The JsonObject of the library
+     * @return The list containing the excluded dependencies of the library
+     */
+    public List<ExcludedDependency> fetchExcludedTransitiveDependencies(JsonObject library) {
+        JsonArray excludedDependencies = library.getArray("excludedTransitiveDependencies");
+
+        if (excludedDependencies != null) {
+            List<ExcludedDependency> fetchedExcludedDependencies = new ArrayList<>(excludedDependencies.size());
+
+            for (int i = 0; i < excludedDependencies.size(); i++) {
+                JsonObject relocation = excludedDependencies.getObject(i);
+
+                String groupId = relocation.getString("groupId");
+
+                if (groupId == null) {
+                    throw new IllegalArgumentException("The groupId property is required for all excluded transitive dependencies");
+                }
+
+                String artifactId = relocation.getString("artifactId");
+
+                if (artifactId == null) {
+                    throw new IllegalArgumentException("The artifactId property is required for all excluded transitive dependencies");
+                }
+
+                fetchedExcludedDependencies.add(new ExcludedDependency(groupId, artifactId));
+            }
+
+            return Collections.unmodifiableList(fetchedExcludedDependencies);
+        }
+
+        return Collections.emptyList();
+    }
+
     /**
      * Fetch the libraries from the JSON file. It can be omitted from the JSON.
      * If defined, they must be an array of objects that include the following properties:
      * <ul>
-     *     <li>group: The groupId of the library</li>
-     *     <li>name: The artifactId of the library</li>
+     *     <li>groupId: The groupId of the library</li>
+     *     <li>artifactId: The artifactId of the library</li>
      *     <li>version: The version of the library</li>
      * </ul>
      * Optional properties:
      * <ul>
      *     <li>checksum: The SHA-256 checksum of the library, must be a base64 encoded string and may only be included if the library is a JAR</li>
+     *     <li>classifier: The artifact classifier of the library</li>
+     *     <li>isolatedLoad: Whether to load this library in an IsolatedClassLoader</li>
+     *     <li>loaderId: The loader ID of this library</li>
+     *     <li>repositories: An array of additional per-library repositories</li>
+     *     <li>relocations: An array of relocations to apply to this library</li>
+     *     <li>resolveTransitiveDependencies: Whether to resolve transitive dependencies</li>
+     *     <li>excludedTransitiveDependencies: An array of dependencies excluded during transitive dependencies resolution</li>
      * </ul>
      *
      * @param configuration the root object of the JSON file
-     * @param globalRelocations the set of global relocations to apply to all libraries
-     * @return the set of relocations as Relocation
+     * @param globalRelocations the list of global relocations to apply to all libraries
+     * @return The list of libraries fetched from the JSON file
      */
-    public Set<Library> fetchLibraries(JsonObject configuration, Set<Relocation> globalRelocations) {
-        Set<Library> fetchedLibraries = new HashSet<>();
+    public List<Library> fetchLibraries(JsonObject configuration, List<Relocation> globalRelocations) {
         JsonArray libraries = configuration.getArray("libraries");
         
         if (libraries != null) {
+            List<Library> fetchedLibraries = new ArrayList<>(libraries.size());
+
             for (int i = 0; i < libraries.size(); i++) {
                 JsonObject library = libraries.getObject(i);
                 Library.Builder libraryBuilder = Library.builder();
                 
-                String groupId = library.getString("group");
+                String groupId = library.getString("groupId");
                 
                 if (groupId == null) {
-                    throw new IllegalArgumentException("The group property is required for all libraries");
+                    throw new IllegalArgumentException("The groupId property is required for all libraries");
                 }
                 
-                String artifactId = library.getString("name");
+                String artifactId = library.getString("artifactId");
                 
                 if (artifactId == null) {
-                    throw new IllegalArgumentException("The name property is required for all libraries");
+                    throw new IllegalArgumentException("The artifactId property is required for all libraries");
                 }
                 
                 String artifactVersion = library.getString("version");
@@ -140,10 +198,18 @@ public class ConfigurationFetcher {
                 }
                 
                 libraryBuilder.isolatedLoad(library.getBoolean("isolatedLoad"));
-                
+
                 libraryBuilder.loaderId(library.getString("loaderId"));
+
+                libraryBuilder.classifier(library.getString("classifier"));
+
+                libraryBuilder.resolveTransitiveDependencies(library.getBoolean("resolveTransitiveDependencies"));
+
+                fetchExcludedTransitiveDependencies(library).forEach(libraryBuilder::excludeTransitiveDependency);
+
+                fetchRepositories(library).forEach(libraryBuilder::repository);
                 
-                Set<Relocation> relocations = fetchRelocations(library);
+                List<Relocation> relocations = fetchRelocations(library);
                 
                 // Apply relocation
                 for (Relocation relocation : relocations) {
@@ -157,7 +223,10 @@ public class ConfigurationFetcher {
                 
                 fetchedLibraries.add(libraryBuilder.build());
             }
+
+            return Collections.unmodifiableList(fetchedLibraries);
         }
-        return fetchedLibraries;
+
+        return Collections.emptyList();
     }
 }

@@ -199,6 +199,15 @@ public abstract class LibraryManager {
     }
 
     /**
+     * Gets the logger of this library manager.
+     *
+     * @return the logger
+     */
+    public Logger getLogger() {
+        return logger;
+    }
+
+    /**
      * Gets the currently added repositories used to resolve artifacts.
      * <p>
      * For each library this list is traversed to download artifacts after the
@@ -670,6 +679,7 @@ public abstract class LibraryManager {
      *
      * @param data the json file
      * @throws JsonParserException if the json file is corrupted
+     * @throws IllegalArgumentException if the json file is incorrect
      */
     public void configureFromJSON(InputStream data) throws JsonParserException {
         JsonObject root = JsonParser.object().from(data);
@@ -677,8 +687,8 @@ public abstract class LibraryManager {
         try {
             configurationFetcher.fetchVersion(root);
             Set<String> repositories = configurationFetcher.fetchRepositories(root);
-            Set<Relocation> globalRelocations = configurationFetcher.fetchRelocations(root);
-            Set<Library> libraries = configurationFetcher.fetchLibraries(root, globalRelocations);
+            List<Relocation> globalRelocations = configurationFetcher.fetchRelocations(root);
+            List<Library> libraries = configurationFetcher.fetchLibraries(root, globalRelocations);
             
             // Load repositories
             for (String repo : repositories) {
@@ -690,7 +700,7 @@ public abstract class LibraryManager {
                 loadLibrary(library);
             }
         } catch (IllegalArgumentException ex) {
-            logger.error(ex.getMessage());
+            throw new IllegalArgumentException("Incorrect JSON: " + ex.getMessage(), ex);
         }
     }
 
@@ -708,15 +718,15 @@ public abstract class LibraryManager {
      * Example: configureFromJSON("libby.json")
      *
      * @param fileName The name of the json file
+     * @throws IllegalArgumentException if the json file is incorrect
+     * @throws UnsupportedOperationException if the platform doesn't implement loading resources from the plugin file
      * @see #configureFromJSON(InputStream)
      */
     public void configureFromJSON(String fileName) {
         try {
             configureFromJSON(getPluginResourceAsInputStream(fileName));
         } catch (JsonParserException e) {
-            logger.error("Your " + fileName + " file is corrupted!", e);
-        } catch (UnsupportedOperationException e) {
-            logger.error("Loading resources from the plugin file is not implemented on this platform.", e);
+            throw new RuntimeException("Your " + fileName + " file is corrupted!", e);
         }
     }
 
