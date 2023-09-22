@@ -5,7 +5,9 @@ import com.alessiodp.libby.Util;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
+import static com.alessiodp.libby.Util.replaceWithDots;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -43,10 +45,16 @@ public class Relocation {
      * @param excludes         classes and resources to exclude
      */
     public Relocation(String pattern, String relocatedPattern, Collection<String> includes, Collection<String> excludes) {
-        this.includes = includes != null ? Collections.unmodifiableList(new LinkedList<>(includes)) : Collections.emptyList();
-        this.excludes = excludes != null ? Collections.unmodifiableList(new LinkedList<>(excludes)) : Collections.emptyList();
         this.pattern = replaceWithDots(requireNonNull(pattern, "pattern"));
         this.relocatedPattern = replaceWithDots(requireNonNull(relocatedPattern, "relocatedPattern"));
+        this.includes = includes != null ? Collections.unmodifiableSet(includes.stream()
+                .map(Util::replaceWithDots)
+                .collect(Collectors.toSet())
+        ) : Collections.emptySet();
+        this.excludes = excludes != null ? Collections.unmodifiableSet(excludes.stream()
+                .map(Util::replaceWithDots)
+                .collect(Collectors.toSet())
+        ) : Collections.emptySet();
     }
 
     /**
@@ -93,6 +101,28 @@ public class Relocation {
      */
     public Collection<String> getExcludes() {
         return excludes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Relocation that = (Relocation) o;
+
+        if (!pattern.equals(that.pattern)) return false;
+        if (!relocatedPattern.equals(that.relocatedPattern)) return false;
+        if (!includes.equals(that.includes)) return false;
+        return excludes.equals(that.excludes);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = pattern.hashCode();
+        result = 31 * result + relocatedPattern.hashCode();
+        result = 31 * result + includes.hashCode();
+        result = 31 * result + excludes.hashCode();
+        return result;
     }
 
     /**
