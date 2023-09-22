@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import static com.alessiodp.libby.Util.replaceWithDots;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -29,7 +30,7 @@ public class TransitiveDependencyHelper {
     /**
      * org.eclipse.aether.artifact.Artifact class name for reflections
      */
-    private static final String ARTIFACT_CLASS = "org{}eclipse{}aether{}artifact{}Artifact".replace("{}", ".");
+    private static final String ARTIFACT_CLASS = replaceWithDots("org{}eclipse{}aether{}artifact{}Artifact");
 
     /**
      * TransitiveDependencyCollector class instance, used in {@link #findTransitiveLibraries(Library)}

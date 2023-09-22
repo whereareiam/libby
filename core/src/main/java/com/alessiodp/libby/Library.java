@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import static com.alessiodp.libby.Util.replaceWithDots;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -122,8 +123,8 @@ public class Library {
                     Collection<ExcludedDependency> excludedTransitiveDependencies) {
 
         this.urls = urls != null ? Collections.unmodifiableList(new LinkedList<>(urls)) : Collections.emptyList();
-        this.groupId = requireNonNull(groupId, "groupId").replace("{}", ".");
-        this.artifactId = requireNonNull(artifactId, "artifactId").replace("{}", ".");
+        this.groupId = replaceWithDots(requireNonNull(groupId, "groupId"));
+        this.artifactId = replaceWithDots(requireNonNull(artifactId, "artifactId"));
         this.version = requireNonNull(version, "version");
         this.classifier = classifier;
         this.checksum = checksum;

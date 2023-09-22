@@ -1,5 +1,6 @@
 package com.alessiodp.libby.transitive;
 
+import static com.alessiodp.libby.Util.replaceWithDots;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -23,8 +24,8 @@ public class ExcludedDependency {
      * @param artifactId Maven artifact ID
      */
     public ExcludedDependency(String groupId, String artifactId) {
-        this.groupId = requireNonNull(groupId, "groupId").replace("{}", ".");
-        this.artifactId = requireNonNull(artifactId, "artifactId").replace("{}", ".");
+        this.groupId = replaceWithDots(requireNonNull(groupId, "groupId"));
+        this.artifactId = replaceWithDots(requireNonNull(artifactId, "artifactId"));
     }
 
     /**

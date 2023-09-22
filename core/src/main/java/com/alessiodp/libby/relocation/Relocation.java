@@ -1,5 +1,7 @@
 package com.alessiodp.libby.relocation;
 
+import com.alessiodp.libby.Util;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -41,10 +43,10 @@ public class Relocation {
      * @param excludes         classes and resources to exclude
      */
     public Relocation(String pattern, String relocatedPattern, Collection<String> includes, Collection<String> excludes) {
-        this.pattern = requireNonNull(pattern, "pattern").replace("{}", ".");
-        this.relocatedPattern = requireNonNull(relocatedPattern, "relocatedPattern").replace("{}", ".");
         this.includes = includes != null ? Collections.unmodifiableList(new LinkedList<>(includes)) : Collections.emptyList();
         this.excludes = excludes != null ? Collections.unmodifiableList(new LinkedList<>(excludes)) : Collections.emptyList();
+        this.pattern = replaceWithDots(requireNonNull(pattern, "pattern"));
+        this.relocatedPattern = replaceWithDots(requireNonNull(relocatedPattern, "relocatedPattern"));
     }
 
     /**

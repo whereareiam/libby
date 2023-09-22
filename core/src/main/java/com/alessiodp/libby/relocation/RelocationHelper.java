@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.alessiodp.libby.Util.replaceWithDots;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -25,12 +26,12 @@ public class RelocationHelper {
     /**
      * me.lucko.jarrelocator.JarRelocator class name for reflections
      */
-    private static final String JAR_RELOCATOR_CLASS = "me{}lucko{}jarrelocator{}JarRelocator".replace("{}", ".");
+    private static final String JAR_RELOCATOR_CLASS = replaceWithDots("me{}lucko{}jarrelocator{}JarRelocator");
 
     /**
      * me.lucko.jarrelocator.Relocation class name for reflections
      */
-    private static final String RELOCATION_CLASS = "me{}lucko{}jarrelocator{}Relocation".replace("{}", ".");
+    private static final String RELOCATION_CLASS = replaceWithDots("me{}lucko{}jarrelocator{}Relocation");
 
     /**
      * Reflected constructor for creating new jar relocator instances
