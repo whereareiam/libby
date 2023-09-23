@@ -30,7 +30,7 @@ public class Configuration {
     /**
      * The relocations to apply to every library.
      */
-    private final List<Relocation> globalRelocations;
+    private final Set<Relocation> globalRelocations;
 
     /**
      * The libraries to download and load.
@@ -45,11 +45,11 @@ public class Configuration {
      * @param globalRelocations the relocations to apply to every library
      * @param libraries the libraries to download and load
      */
-    public Configuration(Optional<Integer> version, Set<String> repositories, List<Relocation> globalRelocations, List<Library> libraries) {
+    public Configuration(Optional<Integer> version, Set<String> repositories, Set<Relocation> globalRelocations, List<Library> libraries) {
         this.version = requireNonNull(version, "version");
         version.ifPresent(ver -> requireNonNull(ver, "version.get()"));
         this.repositories = repositories != null ? Collections.unmodifiableSet(new HashSet<>(repositories)) : Collections.emptySet();
-        this.globalRelocations = globalRelocations != null ? Collections.unmodifiableList(new ArrayList<>(globalRelocations)) : Collections.emptyList();
+        this.globalRelocations = globalRelocations != null ? Collections.unmodifiableSet(new HashSet<>(globalRelocations)) : Collections.emptySet();
         this.libraries = libraries != null ? Collections.unmodifiableList(new ArrayList<>(libraries)) : Collections.emptyList();
     }
 
@@ -76,7 +76,7 @@ public class Configuration {
      *
      * @return The relocations to apply to every library.
      */
-    public List<Relocation> getGlobalRelocations() {
+    public Set<Relocation> getGlobalRelocations() {
         return globalRelocations;
     }
 

@@ -52,7 +52,7 @@ public class ConfigurationFetcherTest {
         assertTrue(repositories.contains("repo1"));
         assertTrue(repositories.contains("repo2"));
 
-        List<Relocation> globalRelocations = config.getGlobalRelocations();
+        Set<Relocation> globalRelocations = config.getGlobalRelocations();
         assertEquals(1, globalRelocations.size());
         Relocation globalRelocation = new Relocation("fake{}library{}1", "relocated{}fake{}library{}1");
         assertTrue(globalRelocations.contains(globalRelocation));

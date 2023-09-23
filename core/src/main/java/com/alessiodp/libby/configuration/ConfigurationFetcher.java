@@ -160,7 +160,7 @@ public class ConfigurationFetcher {
 
             Optional<Integer> version = fetchVersion(root);
             Set<String> repositories = fetchRepositories(root);
-            List<Relocation> globalRelocations = fetchRelocations(root);
+            Set<Relocation> globalRelocations = fetchRelocations(root);
             List<Library> libraries = fetchLibraries(root, globalRelocations);
 
             return new Configuration(version, repositories, globalRelocations, libraries);
@@ -227,14 +227,14 @@ public class ConfigurationFetcher {
      * </ul>
      *
      * @param configuration the root object of the JSON file
-     * @return The list of relocations
+     * @return The set of relocations
      */
     @SuppressWarnings("unchecked")
-    private List<Relocation> fetchRelocations(Map<String, Object> configuration) throws ReflectiveOperationException {
+    private Set<Relocation> fetchRelocations(Map<String, Object> configuration) throws ReflectiveOperationException {
         ArrayList<Object> relocations = getArray(configuration, "relocations");
 
         if (relocations != null) {
-            List<Relocation> fetchedRelocations = new ArrayList<>(relocations.size());
+            Set<Relocation> fetchedRelocations = new HashSet<>();
 
             for (int i = 0; i < relocations.size(); i++) {
                 Map<String, Object> relocation = getObject(relocations, i);
@@ -279,10 +279,10 @@ public class ConfigurationFetcher {
                 fetchedRelocations.add(new Relocation(pattern, relocatedPattern, (Collection<String>) includes, (Collection<String>) excludes));
             }
 
-            return Collections.unmodifiableList(fetchedRelocations);
+            return Collections.unmodifiableSet(fetchedRelocations);
         }
 
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 
     /**
@@ -294,13 +294,13 @@ public class ConfigurationFetcher {
      * </ul>
      *
      * @param library The JsonObject of the library
-     * @return The list containing the excluded dependencies of the library
+     * @return The set containing the excluded dependencies of the library
      */
-    private List<ExcludedDependency> fetchExcludedTransitiveDependencies(Map<String, Object> library) throws ReflectiveOperationException {
+    private Set<ExcludedDependency> fetchExcludedTransitiveDependencies(Map<String, Object> library) throws ReflectiveOperationException {
         ArrayList<Object> excludedDependencies = getArray(library, "excludedTransitiveDependencies");
 
         if (excludedDependencies != null) {
-            List<ExcludedDependency> fetchedExcludedDependencies = new ArrayList<>(excludedDependencies.size());
+            Set<ExcludedDependency> fetchedExcludedDependencies = new HashSet<>();
 
             for (int i = 0; i < excludedDependencies.size(); i++) {
                 Map<String, Object> excludedDependency = getObject(excludedDependencies, i);
@@ -325,10 +325,10 @@ public class ConfigurationFetcher {
                 fetchedExcludedDependencies.add(new ExcludedDependency(groupId, artifactId));
             }
 
-            return Collections.unmodifiableList(fetchedExcludedDependencies);
+            return Collections.unmodifiableSet(fetchedExcludedDependencies);
         }
 
-        return Collections.emptyList();
+        return Collections.emptySet();
     }
 
     /**
@@ -352,10 +352,10 @@ public class ConfigurationFetcher {
      * </ul>
      *
      * @param configuration the root object of the JSON file
-     * @param globalRelocations the list of global relocations to apply to all libraries
+     * @param globalRelocations the set of global relocations to apply to all libraries
      * @return The list of libraries fetched from the JSON file
      */
-    private List<Library> fetchLibraries(Map<String, Object> configuration, List<Relocation> globalRelocations) throws ReflectiveOperationException {
+    private List<Library> fetchLibraries(Map<String, Object> configuration, Set<Relocation> globalRelocations) throws ReflectiveOperationException {
         ArrayList<Object> libraries = getArray(configuration, "libraries");
 
         if (libraries != null) {
@@ -416,7 +416,7 @@ public class ConfigurationFetcher {
 
                 fetchRepositories(library).forEach(libraryBuilder::repository);
 
-                List<Relocation> relocations = fetchRelocations(library);
+                Set<Relocation> relocations = fetchRelocations(library);
 
                 // Apply relocation
                 for (Relocation relocation : relocations) {
