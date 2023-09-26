@@ -1,14 +1,15 @@
 package com.alessiodp.libby;
 
 import com.alessiodp.libby.classloader.IsolatedClassLoader;
+import com.alessiodp.libby.configuration.Configuration;
+import com.alessiodp.libby.configuration.ConfigurationException;
+import com.alessiodp.libby.configuration.ConfigurationFetcher;
+import com.alessiodp.libby.configuration.MalformedConfigurationException;
 import com.alessiodp.libby.logging.LogLevel;
 import com.alessiodp.libby.logging.Logger;
 import com.alessiodp.libby.relocation.Relocation;
 import com.alessiodp.libby.relocation.RelocationHelper;
 import com.alessiodp.libby.transitive.TransitiveDependencyHelper;
-import com.grack.nanojson.JsonObject;
-import com.grack.nanojson.JsonParser;
-import com.grack.nanojson.JsonParserException;
 import com.alessiodp.libby.logging.adapters.LogAdapter;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -89,22 +90,22 @@ public abstract class LibraryManager {
      * Lazily-initialized helper for transitive dependencies resolution
      */
     private TransitiveDependencyHelper transitiveDependencyHelper;
-    
+
+    /**
+     * Lazily-initialized helper used to fetch the JSON config
+     */
+    private ConfigurationFetcher configurationFetcher;
+
     /**
      * Global isolated class loader for libraries
      */
     private final IsolatedClassLoader globalIsolatedClassLoader = new IsolatedClassLoader();
-    
+
     /**
      * Map of isolated class loaders and theirs id
      */
     private final Map<String, IsolatedClassLoader> isolatedLibraries = new HashMap<>();
-    
-    /**
-     * Configuration fetcher used to fetch the JSON config
-     */
-    private final ConfigurationFetcher configurationFetcher = new ConfigurationFetcher();
-    
+
     /**
      * Creates a new library manager.
      *
@@ -669,45 +670,11 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Configures the current library manager from a json file.
-     * <p>
-     * This includes:
-     * <ul>
-     *     <li>Adding repositories</li>
-     *     <li>Adding and relocating libraries</li>
-     * </ul>
-     *
-     * @param data the json file
-     * @throws JsonParserException if the json file is corrupted
-     * @throws IllegalArgumentException if the json file is incorrect
-     */
-    public void configureFromJSON(InputStream data) throws JsonParserException {
-        JsonObject root = JsonParser.object().from(data);
-
-        try {
-            configurationFetcher.fetchVersion(root);
-            Set<String> repositories = configurationFetcher.fetchRepositories(root);
-            List<Relocation> globalRelocations = configurationFetcher.fetchRelocations(root);
-            List<Library> libraries = configurationFetcher.fetchLibraries(root, globalRelocations);
-            
-            // Load repositories
-            for (String repo : repositories) {
-                addRepository(repo);
-            }
-            
-            // Load libraries
-            for (Library library : libraries) {
-                loadLibrary(library);
-            }
-        } catch (IllegalArgumentException ex) {
-            throw new IllegalArgumentException("Incorrect JSON: " + ex.getMessage(), ex);
-        }
-    }
-
-    /**
      * Configures the current library manager from a libby.json file in the plugin classpath.
      *
-     * @see #configureFromJSON(InputStream)
+     * @throws ConfigurationException If the configuration contained an error
+     * @throws MalformedConfigurationException If the provided JSON file contained a syntactic error or couldn't be read
+     * @throws UnsupportedOperationException if the platform doesn't implement loading resources from the plugin file
      */
     public void configureFromJSON() {
         configureFromJSON("libby.json");
@@ -717,16 +684,39 @@ public abstract class LibraryManager {
      * Configures the current library manager from a file in the plugin classpath.
      * Example: configureFromJSON("libby.json")
      *
-     * @param fileName The name of the json file
-     * @throws IllegalArgumentException if the json file is incorrect
+     * @param fileName the name of the json file
+     * @throws ConfigurationException If the configuration contained an error
+     * @throws MalformedConfigurationException If the provided JSON file contained a syntactic error or couldn't be read
      * @throws UnsupportedOperationException if the platform doesn't implement loading resources from the plugin file
-     * @see #configureFromJSON(InputStream)
      */
     public void configureFromJSON(String fileName) {
-        try {
-            configureFromJSON(getPluginResourceAsInputStream(fileName));
-        } catch (JsonParserException e) {
-            throw new RuntimeException("Your " + fileName + " file is corrupted!", e);
+        configureFromJSON(getPluginResourceAsInputStream(fileName));
+    }
+
+    /**
+     * Configures the current library manager from a json file.
+     *
+     * @param data the json file
+     * @throws ConfigurationException If the configuration contained an error
+     * @throws MalformedConfigurationException If the provided JSON contained a syntactic error or couldn't be read
+     */
+    public void configureFromJSON(InputStream data) {
+        synchronized (this) {
+            if (configurationFetcher == null) {
+                configurationFetcher = new ConfigurationFetcher(this);
+            }
+        }
+
+        Configuration config = configurationFetcher.readJsonFile(data);
+
+        // Load repositories
+        for (String repo : config.getRepositories()) {
+            addRepository(repo);
+        }
+
+        // Load libraries
+        for (Library library : config.getLibraries()) {
+            loadLibrary(library);
         }
     }
 

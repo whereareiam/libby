@@ -32,6 +32,18 @@
         {
           "pattern": "fake{}library{}2",
           "relocatedPattern": "relocated{}fake{}library{}2"
+        },
+        {
+          "pattern": "fake{}library{}3",
+          "relocatedPattern": "relocated{}fake{}library{}3",
+          "includes": [
+            "include{}1",
+            "include{}2"
+          ],
+          "excludes": [
+            "exclude{}1",
+            "exclude{}2"
+          ]
         }
       ]
     }

@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import static com.alessiodp.libby.Util.replaceWithDots;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -28,7 +29,7 @@ public class URLClassLoaderHelper {
     /**
      * net.bytebuddy.agent.ByteBuddyAgent class name for reflections
      */
-    private static final String BYTE_BUDDY_AGENT_CLASS = "net{}bytebuddy{}agent{}ByteBuddyAgent".replace("{}", ".");
+    private static final String BYTE_BUDDY_AGENT_CLASS = replaceWithDots("net{}bytebuddy{}agent{}ByteBuddyAgent");
 
     /**
      * Unsafe class instance. Used in {@link #getPrivilegedMethodHandle(Method)}.
