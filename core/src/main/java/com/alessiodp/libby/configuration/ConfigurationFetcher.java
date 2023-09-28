@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.alessiodp.libby.Util.replaceWithDots;
@@ -158,7 +157,7 @@ public class ConfigurationFetcher {
                 throw new RuntimeException(e);
             }
 
-            Optional<Integer> version = fetchVersion(root);
+            Integer version = fetchVersion(root);
             Set<String> repositories = fetchRepositories(root);
             Set<Relocation> globalRelocations = fetchRelocations(root);
             List<Library> libraries = fetchLibraries(root, globalRelocations);
@@ -173,7 +172,7 @@ public class ConfigurationFetcher {
      * Fetch the version of the JSON file and, if exists, it must match the version of the parser
      *
      * @param configuration the root object of the JSON file
-     * @return the fetched version or -1 if not found
+     * @return the fetched version or null if not found
      */
     private Optional<Integer> fetchVersion(Map<String, Object> configuration) {
         Object version = configuration.get("version");
@@ -185,10 +184,10 @@ public class ConfigurationFetcher {
                 throw new ConfigurationException("The json file is version " + version + " but this version of libby only supports version " + CONFIGURATION_VERSION);
             }
 
-            return Optional.of(ver);
+            return ver;
         }
 
-        return Optional.empty();
+        return null;
     }
 
     /**

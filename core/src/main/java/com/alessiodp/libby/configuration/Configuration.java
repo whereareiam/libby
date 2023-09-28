@@ -7,10 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a Libby configuration loaded from a configuration file.
@@ -20,7 +17,8 @@ public class Configuration {
     /**
      * The (optional) version of the config.
      */
-    private final Optional<Integer> version;
+    @Nullable
+    private final Integer version;
 
     /**
      * The URL of maven repositories from which libraries will be downloaded.

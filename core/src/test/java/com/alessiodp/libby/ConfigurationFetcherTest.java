@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.alessiodp.libby.Util.replaceWithDots;
@@ -43,9 +42,9 @@ public class ConfigurationFetcherTest {
     public void testFromFile() throws Exception {
         Configuration config = configurationFetcher.readJsonFile(getClass().getClassLoader().getResourceAsStream("libby.json"));
 
-        Optional<Integer> version = config.getVersion();
-        assertTrue(version.isPresent());
-        assertEquals(0, version.get());
+        Integer version = config.getVersion();
+        assertNotNull(version);
+        assertEquals(0, version);
 
         Set<String> repositories = config.getRepositories();
         assertEquals(2, repositories.size());
