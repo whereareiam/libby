@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,7 +41,9 @@ public class ConfigurationFetcherTest {
 
     @Test
     public void testFromFile() throws Exception {
-        Configuration config = configurationFetcher.readJsonFile(getClass().getClassLoader().getResourceAsStream("libby.json"));
+        InputStream fileInputStream = getClass().getClassLoader().getResourceAsStream("libby.json");
+        assertNotNull(fileInputStream);
+        Configuration config = configurationFetcher.readJsonFile(fileInputStream);
 
         Integer version = config.getVersion();
         assertNotNull(version);
@@ -63,7 +66,7 @@ public class ConfigurationFetcherTest {
                 && l.getVersion().equals("1.0.0")
                 && !l.hasClassifier()
                 && l.isIsolatedLoad()
-                && l.getLoaderId().equals("isolatedLoader1")
+                && l.getLoaderId() != null && l.getLoaderId().equals("isolatedLoader1")
                 && l.resolveTransitiveDependencies()
                 && compareCollections(
                         l.getExcludedTransitiveDependencies(),

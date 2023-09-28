@@ -73,7 +73,7 @@ public class TransitiveDependencyHelper {
 
         final Class<?> transitiveDependencyCollectorClass;
         try {
-            transitiveDependencyCollectorClass = classLoader.defineClass(collectorClassName, getClass().getResourceAsStream(collectorClassPath));
+            transitiveDependencyCollectorClass = classLoader.defineClass(collectorClassName, requireNonNull(getClass().getResourceAsStream(collectorClassPath), "resourceCollectorClass"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
