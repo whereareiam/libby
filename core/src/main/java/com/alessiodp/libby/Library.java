@@ -89,7 +89,7 @@ public class Library {
     private final boolean resolveTransitiveDependencies;
 
     /**
-     * Transitive dependencies that would be excluded on transitive resolvement
+     * Transitive dependencies that would be excluded on transitive resolution
      */
     private final Collection<ExcludedDependency> excludedTransitiveDependencies;
 
@@ -106,7 +106,7 @@ public class Library {
      * @param relocations  jar relocations or null
      * @param isolatedLoad isolated load for this library
      * @param loaderId     the loader ID for this library
-     * @param resolveTransitiveDependencies transitive dependencies resolvement for this library
+     * @param resolveTransitiveDependencies transitive dependencies resolution for this library
      * @param excludedTransitiveDependencies excluded transitive dependencies or null
      */
     private Library(Collection<String> urls,
@@ -266,7 +266,7 @@ public class Library {
     /**
      * Gets the relative path to this library's relocated jar.
      *
-     * @return path to relocated artifact or null if has no relocations
+     * @return path to relocated artifact or null if it has no relocations
      */
     public String getRelocatedPath() {
         return relocatedPath;

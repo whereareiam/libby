@@ -79,7 +79,7 @@ class TransitiveDependencyCollector {
      * @param classifier   Maven artifact classifier. May be null
      * @param repositories Maven repositories that would be used for dependency resolvement
      * @return Transitive dependencies, exception otherwise
-     * @throws DependencyResolutionException thrown if dependency doesn't exists on provided repositories
+     * @throws DependencyResolutionException thrown if dependency doesn't exist on provided repositories
      */
     public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, String classifier, List<RemoteRepository> repositories) throws DependencyResolutionException {
         Artifact artifact = new DefaultArtifact(groupId, artifactId, classifier, "jar", version);
@@ -101,7 +101,7 @@ class TransitiveDependencyCollector {
      * @param classifier   Maven artifact classifier. May be null
      * @param repositories Maven repositories for transitive dependencies search
      * @return Transitive dependencies, exception otherwise
-     * @throws DependencyResolutionException thrown if dependency doesn't exists on provided repositories
+     * @throws DependencyResolutionException thrown if dependency doesn't exist on provided repositories
      * @see #findTransitiveDependencies(String, String, String, String, List)
      */
     public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, String classifier, Stream<String> repositories) throws DependencyResolutionException {

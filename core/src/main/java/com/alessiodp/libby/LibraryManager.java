@@ -276,7 +276,7 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Gets all of the possible download URLs for this library. Entries are
+     * Gets all the possible download URLs for this library. Entries are
      * ordered by direct download URLs first and then repository download URLs.
      * <br>This method also resolves SNAPSHOT artifacts URLs.
      *

@@ -54,7 +54,7 @@ public class TransitiveDependencyHelper {
 
     /**
      * Creates a new transitive dependency helper using the provided library manager to
-     * download the dependencies required for transitive dependency resolvement in runtime.
+     * download the dependencies required for transitive dependency resolution in runtime.
      *
      * @param libraryManager the library manager used to download dependencies
      * @param saveDirectory  the directory where all transitive dependencies would be saved
