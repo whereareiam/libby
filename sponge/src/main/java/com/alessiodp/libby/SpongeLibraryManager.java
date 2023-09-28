@@ -22,35 +22,35 @@ public class SpongeLibraryManager<T> extends LibraryManager {
     /**
      * Creates a new Sponge library manager.
      *
+     * @param plugin        the plugin to manage
      * @param logger        the plugin logger
      * @param dataDirectory plugin's data directory
-     * @param plugin        the plugin to manage
      */
-    public SpongeLibraryManager(Logger logger, Path dataDirectory, T plugin) {
-        this(logger, dataDirectory, plugin, "lib");
+    public SpongeLibraryManager(T plugin, Logger logger, Path dataDirectory) {
+        this(plugin, logger, dataDirectory, "lib");
     }
 
     /**
      * Creates a new Sponge library manager.
      *
+     * @param plugin        the plugin to manage
      * @param logger        the plugin logger
      * @param dataDirectory plugin's data directory
-     * @param plugin        the plugin to manage
      * @param directoryName download directory name
      */
-    public SpongeLibraryManager(Logger logger, Path dataDirectory, T plugin, String directoryName) {
-        this(new SpongeLogAdapter(logger), dataDirectory, plugin, directoryName);
+    public SpongeLibraryManager(T plugin, Logger logger, Path dataDirectory, String directoryName) {
+        this(plugin, new SpongeLogAdapter(logger), dataDirectory, directoryName);
     }
 
     /**
      * Creates a new Sponge library manager.
      *
+     * @param plugin        the plugin to manage
      * @param logAdapter    the log adapter to use instead of the plugin logger
      * @param dataDirectory plugin's data directory
-     * @param plugin        the plugin to manage
      * @param directoryName download directory name
      */
-    public SpongeLibraryManager(LogAdapter logAdapter, Path dataDirectory, T plugin, String directoryName) {
+    public SpongeLibraryManager(T plugin, LogAdapter logAdapter, Path dataDirectory, String directoryName) {
         super(logAdapter, dataDirectory, directoryName);
         classLoader = new SpongeClassLoaderHelper((plugin.getClass().getClassLoader()), this);
     }
