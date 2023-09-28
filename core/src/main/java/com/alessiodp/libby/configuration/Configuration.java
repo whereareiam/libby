@@ -2,6 +2,8 @@ package com.alessiodp.libby.configuration;
 
 import com.alessiodp.libby.Library;
 import com.alessiodp.libby.relocation.Relocation;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,16 +25,19 @@ public class Configuration {
     /**
      * The URL of maven repositories from which libraries will be downloaded.
      */
+    @NotNull
     private final Set<String> repositories;
 
     /**
      * The relocations to apply to every library.
      */
+    @NotNull
     private final Set<Relocation> globalRelocations;
 
     /**
      * The libraries to download and load.
      */
+    @NotNull
     private final List<Library> libraries;
 
     /**
@@ -43,9 +48,8 @@ public class Configuration {
      * @param globalRelocations the relocations to apply to every library
      * @param libraries the libraries to download and load
      */
-    public Configuration(Optional<Integer> version, Set<String> repositories, Set<Relocation> globalRelocations, List<Library> libraries) {
-        this.version = requireNonNull(version, "version");
-        version.ifPresent(ver -> requireNonNull(ver, "version.get()"));
+    public Configuration(@Nullable Integer version, @Nullable Set<String> repositories, @Nullable Set<Relocation> globalRelocations, @Nullable List<Library> libraries) {
+        this.version = version;
         this.repositories = repositories != null ? Collections.unmodifiableSet(new HashSet<>(repositories)) : Collections.emptySet();
         this.globalRelocations = globalRelocations != null ? Collections.unmodifiableSet(new HashSet<>(globalRelocations)) : Collections.emptySet();
         this.libraries = libraries != null ? Collections.unmodifiableList(new ArrayList<>(libraries)) : Collections.emptyList();
@@ -56,7 +60,8 @@ public class Configuration {
      *
      * @return The (optional) version of the config
      */
-    public Optional<Integer> getVersion() {
+    @Nullable
+    public Integer getVersion() {
         return version;
     }
 
@@ -65,6 +70,7 @@ public class Configuration {
      *
      * @return The URL of maven repositories from which libraries will be downloaded.
      */
+    @NotNull
     public Set<String> getRepositories() {
         return repositories;
     }
@@ -74,6 +80,7 @@ public class Configuration {
      *
      * @return The relocations to apply to every library.
      */
+    @NotNull
     public Set<Relocation> getGlobalRelocations() {
         return globalRelocations;
     }
@@ -84,6 +91,7 @@ public class Configuration {
      * @return The libraries to download and load.
      * @see #getGlobalRelocations()
      */
+    @NotNull
     public List<Library> getLibraries() {
         return libraries;
     }

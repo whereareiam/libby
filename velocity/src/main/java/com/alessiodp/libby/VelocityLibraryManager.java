@@ -3,6 +3,7 @@ package com.alessiodp.libby;
 import com.alessiodp.libby.logging.adapters.LogAdapter;
 import com.alessiodp.libby.logging.adapters.VelocityLogAdapter;
 import com.velocitypowered.api.plugin.PluginManager;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.io.InputStream;
@@ -17,12 +18,14 @@ public class VelocityLibraryManager<T> extends LibraryManager {
     /**
      * Velocity plugin manager used for adding files to the plugin's classpath
      */
+    @NotNull
     private final PluginManager pluginManager;
 
     /**
      * The plugin instance required by the plugin manager to add files to the
      * plugin's classpath
      */
+    @NotNull
     private final T plugin;
 
     /**
@@ -33,10 +36,10 @@ public class VelocityLibraryManager<T> extends LibraryManager {
      * @param pluginManager Velocity plugin manager
      * @param plugin        the plugin to manage
      */
-    public VelocityLibraryManager(T plugin,
-                                  Logger logger,
-                                  Path dataDirectory,
-                                  PluginManager pluginManager) {
+    public VelocityLibraryManager(@NotNull T plugin,
+                                  @NotNull Logger logger,
+                                  @NotNull Path dataDirectory,
+                                  @NotNull PluginManager pluginManager) {
         this(plugin, logger, dataDirectory, pluginManager, "lib");
     }
 
@@ -49,11 +52,11 @@ public class VelocityLibraryManager<T> extends LibraryManager {
      * @param plugin        the plugin to manage
      * @param directoryName download directory name
      */
-    public VelocityLibraryManager(T plugin,
-                                  Logger logger,
-                                  Path dataDirectory,
-                                  PluginManager pluginManager,
-                                  String directoryName) {
+    public VelocityLibraryManager(@NotNull T plugin,
+                                  @NotNull Logger logger,
+                                  @NotNull Path dataDirectory,
+                                  @NotNull PluginManager pluginManager,
+                                  @NotNull String directoryName) {
         this(plugin, new VelocityLogAdapter(logger), dataDirectory, pluginManager, directoryName);
     }
 
@@ -66,18 +69,18 @@ public class VelocityLibraryManager<T> extends LibraryManager {
      * @param plugin        the plugin to manage
      * @param directoryName download directory name
      */
-    public VelocityLibraryManager(T plugin,
-                                  LogAdapter logAdapter,
-                                  Path dataDirectory,
-                                  PluginManager pluginManager,
-                                  String directoryName) {
+    public VelocityLibraryManager(@NotNull T plugin,
+                                  @NotNull LogAdapter logAdapter,
+                                  @NotNull Path dataDirectory,
+                                  @NotNull PluginManager pluginManager,
+                                  @NotNull String directoryName) {
         super(logAdapter, dataDirectory, directoryName);
         this.pluginManager = requireNonNull(pluginManager, "pluginManager");
         this.plugin = requireNonNull(plugin, "plugin");
     }
 
     @Override
-    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
+    protected InputStream getPluginResourceAsInputStream(@NotNull String path) throws UnsupportedOperationException {
         return getClass().getClassLoader().getResourceAsStream(path);
     }
 
@@ -87,7 +90,7 @@ public class VelocityLibraryManager<T> extends LibraryManager {
      * @param file the file to add
      */
     @Override
-    protected void addToClasspath(Path file) {
+    protected void addToClasspath(@NotNull Path file) {
         pluginManager.addToClasspath(plugin, file);
     }
 }

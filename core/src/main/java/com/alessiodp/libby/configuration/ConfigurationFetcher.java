@@ -6,6 +6,8 @@ import com.alessiodp.libby.Repositories;
 import com.alessiodp.libby.classloader.IsolatedClassLoader;
 import com.alessiodp.libby.relocation.Relocation;
 import com.alessiodp.libby.transitive.ExcludedDependency;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -91,7 +93,7 @@ public class ConfigurationFetcher {
      *
      * @param libraryManager the library manager used to read the configuration
      */
-    public ConfigurationFetcher(LibraryManager libraryManager) {
+    public ConfigurationFetcher(@NotNull LibraryManager libraryManager) {
         requireNonNull(libraryManager, "libraryManager");
 
         IsolatedClassLoader classLoader = new IsolatedClassLoader();
@@ -145,7 +147,7 @@ public class ConfigurationFetcher {
      * @throws MalformedConfigurationException If the provided JSON contained a syntactic error or couldn't be read
      */
     @SuppressWarnings("unchecked")
-    public Configuration readJsonFile(InputStream data) {
+    public Configuration readJsonFile(@NotNull InputStream data) {
         try {
             Map<String, Object> root;
             try {
@@ -174,7 +176,7 @@ public class ConfigurationFetcher {
      * @param configuration the root object of the JSON file
      * @return the fetched version or null if not found
      */
-    private Optional<Integer> fetchVersion(Map<String, Object> configuration) {
+    private Integer fetchVersion(@NotNull Map<String, Object> configuration) {
         Object version = configuration.get("version");
 
         if (version instanceof Number) {
@@ -197,7 +199,7 @@ public class ConfigurationFetcher {
      * @param configuration the root object of the JSON file
      * @return the set of repositories as strings
      */
-    private Set<String> fetchRepositories(Map<String, Object> configuration) throws ReflectiveOperationException {
+    private Set<String> fetchRepositories(@NotNull Map<String, Object> configuration) throws ReflectiveOperationException {
         Set<String> repos = new HashSet<>();
         ArrayList<Object> repositories = getArray(configuration, "repositories");
         if (repositories != null) {
@@ -229,7 +231,7 @@ public class ConfigurationFetcher {
      * @return The set of relocations
      */
     @SuppressWarnings("unchecked")
-    private Set<Relocation> fetchRelocations(Map<String, Object> configuration) throws ReflectiveOperationException {
+    private Set<Relocation> fetchRelocations(@NotNull Map<String, Object> configuration) throws ReflectiveOperationException {
         ArrayList<Object> relocations = getArray(configuration, "relocations");
 
         if (relocations != null) {
@@ -295,7 +297,8 @@ public class ConfigurationFetcher {
      * @param library The JsonObject of the library
      * @return The set containing the excluded dependencies of the library
      */
-    private Set<ExcludedDependency> fetchExcludedTransitiveDependencies(Map<String, Object> library) throws ReflectiveOperationException {
+    @NotNull
+    private Set<ExcludedDependency> fetchExcludedTransitiveDependencies(@NotNull Map<String, Object> library) throws ReflectiveOperationException {
         ArrayList<Object> excludedDependencies = getArray(library, "excludedTransitiveDependencies");
 
         if (excludedDependencies != null) {
@@ -354,7 +357,7 @@ public class ConfigurationFetcher {
      * @param globalRelocations the set of global relocations to apply to all libraries
      * @return The list of libraries fetched from the JSON file
      */
-    private List<Library> fetchLibraries(Map<String, Object> configuration, Set<Relocation> globalRelocations) throws ReflectiveOperationException {
+    private List<Library> fetchLibraries(@NotNull Map<String, Object> configuration, @NotNull Set<Relocation> globalRelocations) throws ReflectiveOperationException {
         ArrayList<Object> libraries = getArray(configuration, "libraries");
 
         if (libraries != null) {
@@ -436,21 +439,24 @@ public class ConfigurationFetcher {
         return Collections.emptyList();
     }
 
-    private boolean getBoolean(Map<String, Object> jsonObject, String key) throws ReflectiveOperationException {
+    private boolean getBoolean(@NotNull Map<String, Object> jsonObject, @NotNull String key) throws ReflectiveOperationException {
         return (boolean) jsonObjectGetBoolean.invoke(jsonObject, key);
     }
 
-    private String getString(Map<String, Object> jsonObject, String key) throws ReflectiveOperationException {
+    @Nullable
+    private String getString(@NotNull Map<String, Object> jsonObject, @NotNull String key) throws ReflectiveOperationException {
         return (String) jsonObjectGetString.invoke(jsonObject, key);
     }
 
+    @Nullable
     @SuppressWarnings("unchecked")
-    private ArrayList<Object> getArray(Map<String, Object> jsonObject, String key) throws ReflectiveOperationException {
+    private ArrayList<Object> getArray(@NotNull Map<String, Object> jsonObject, @NotNull String key) throws ReflectiveOperationException {
         return (ArrayList<Object>) jsonObjectGetArray.invoke(jsonObject, key);
     }
 
+    @Nullable
     @SuppressWarnings("unchecked")
-    private Map<String, Object> getObject(ArrayList<Object> jsonArray, int index) throws ReflectiveOperationException {
+    private Map<String, Object> getObject(@NotNull ArrayList<Object> jsonArray, int index) throws ReflectiveOperationException {
         return (Map<String, Object>) jsonArrayGetObject.invoke(jsonArray, index);
     }
 }

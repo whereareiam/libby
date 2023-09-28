@@ -2,6 +2,7 @@ package com.alessiodp.libby.transitive;
 
 import com.alessiodp.libby.Library;
 import com.alessiodp.libby.Repositories;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents the libraries required for Maven transitive dependency resolution and related operations.
@@ -36,13 +37,14 @@ enum TransitiveLibraryResolutionDependency {
 
     private final String groupId, artifactId, version, checksum;
 
-    TransitiveLibraryResolutionDependency(String groupId, String artifactId, String version, String checksum) {
+    TransitiveLibraryResolutionDependency(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String checksum) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
         this.checksum = checksum;
     }
 
+    @NotNull
     public Library toLibrary() {
         return Library.builder()
                 .groupId(groupId)

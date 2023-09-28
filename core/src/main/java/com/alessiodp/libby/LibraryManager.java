@@ -11,6 +11,8 @@ import com.alessiodp.libby.relocation.Relocation;
 import com.alessiodp.libby.relocation.RelocationHelper;
 import com.alessiodp.libby.transitive.TransitiveDependencyHelper;
 import com.alessiodp.libby.logging.adapters.LogAdapter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -114,7 +116,7 @@ public abstract class LibraryManager {
      * @deprecated Use {@link LibraryManager#LibraryManager(LogAdapter, Path, String)}
      */
     @Deprecated
-    protected LibraryManager(LogAdapter logAdapter, Path dataDirectory) {
+    protected LibraryManager(@NotNull LogAdapter logAdapter, @NotNull Path dataDirectory) {
         logger = new Logger(requireNonNull(logAdapter, "logAdapter"));
         saveDirectory = requireNonNull(dataDirectory, "dataDirectory").toAbsolutePath().resolve("lib");
     }
@@ -126,7 +128,7 @@ public abstract class LibraryManager {
      * @param dataDirectory plugin's data directory
      * @param directoryName download directory name
      */
-    protected LibraryManager(LogAdapter logAdapter, Path dataDirectory, String directoryName) {
+    protected LibraryManager(@NotNull LogAdapter logAdapter, @NotNull Path dataDirectory, @NotNull String directoryName) {
         logger = new Logger(requireNonNull(logAdapter, "logAdapter"));
         saveDirectory = requireNonNull(dataDirectory, "dataDirectory").toAbsolutePath().resolve(requireNonNull(directoryName, "directoryName"));
     }
@@ -136,7 +138,7 @@ public abstract class LibraryManager {
      *
      * @param file the file to add
      */
-    protected abstract void addToClasspath(Path file);
+    protected abstract void addToClasspath(@NotNull Path file);
 
     /**
      * Adds a file to the isolated class loader
@@ -144,7 +146,7 @@ public abstract class LibraryManager {
      * @param library the library to add
      * @param file    the file to add
      */
-    protected void addToIsolatedClasspath(Library library, Path file) {
+    protected void addToIsolatedClasspath(@NotNull Library library, @NotNull Path file) {
         IsolatedClassLoader classLoader;
         String loaderId = library.getLoaderId();
         if (loaderId != null) {
@@ -160,6 +162,7 @@ public abstract class LibraryManager {
      *
      * @return the isolated class loader
      */
+    @NotNull
     public IsolatedClassLoader getGlobalIsolatedClassLoader() {
         return globalIsolatedClassLoader;
     }
@@ -170,7 +173,8 @@ public abstract class LibraryManager {
      * @param loaderId the id of the loader
      * @return the isolated class loader associated with the provided id
      */
-    public IsolatedClassLoader getIsolatedClassLoaderById(String loaderId) {
+    @Nullable
+    public IsolatedClassLoader getIsolatedClassLoaderById(@NotNull String loaderId) {
         return isolatedLibraries.get(loaderId);
     }
 
@@ -179,6 +183,7 @@ public abstract class LibraryManager {
      *
      * @return log level
      */
+    @NotNull
     public LogLevel getLogLevel() {
         return logger.getLevel();
     }
@@ -195,7 +200,7 @@ public abstract class LibraryManager {
      *
      * @param level the log level to set
      */
-    public void setLogLevel(LogLevel level) {
+    public void setLogLevel(@NotNull LogLevel level) {
         logger.setLevel(level);
     }
 
@@ -204,6 +209,7 @@ public abstract class LibraryManager {
      *
      * @return the logger
      */
+    @NotNull
     public Logger getLogger() {
         return logger;
     }
@@ -216,6 +222,7 @@ public abstract class LibraryManager {
      *
      * @return current repositories
      */
+    @NotNull
     public Collection<String> getRepositories() {
         List<String> urls;
         synchronized (repositories) {
@@ -233,7 +240,7 @@ public abstract class LibraryManager {
      *
      * @param url repository URL to add
      */
-    public void addRepository(String url) {
+    public void addRepository(@NotNull String url) {
         String repo = requireNonNull(url, "url").endsWith("/") ? url : url + '/';
         synchronized (repositories) {
             repositories.add(repo);
@@ -283,7 +290,8 @@ public abstract class LibraryManager {
      * @param library the library to resolve
      * @return download URLs
      */
-    public Collection<String> resolveLibrary(Library library) {
+    @NotNull
+    public Collection<String> resolveLibrary(@NotNull Library library) {
         Set<String> urls = new LinkedHashSet<>(requireNonNull(library, "library").getUrls());
         boolean snapshot = library.isSnapshot();
 
@@ -319,7 +327,8 @@ public abstract class LibraryManager {
      * @return The URl of the artifact of a snapshot library or null if no information could be gathered from the
      * provided repository
      */
-    private String resolveSnapshot(String repository, Library library) {
+    @Nullable
+    private String resolveSnapshot(@NotNull String repository, @NotNull Library library) {
         String url = requireNonNull(repository, "repository") + requireNonNull(library, "library").getPartialPath() + "maven-metadata.xml";
         try {
             URLConnection connection = new URL(requireNonNull(url, "url")).openConnection();
@@ -358,7 +367,8 @@ public abstract class LibraryManager {
      * provided inputStream
      * @throws IOException If any IO errors occur
      */
-    private String getURLFromMetadata(InputStream inputStream, Library library) throws IOException {
+    @Nullable
+    private String getURLFromMetadata(@NotNull InputStream inputStream, @NotNull Library library) throws IOException {
         requireNonNull(inputStream, "inputStream");
         requireNonNull(library, "library");
 
@@ -427,7 +437,7 @@ public abstract class LibraryManager {
      * @param url the URL to the library jar
      * @return downloaded jar as byte array or null if nothing was downloaded
      */
-    private byte[] downloadLibrary(String url) {
+    private byte[] downloadLibrary(@NotNull String url) {
         try {
             URLConnection connection = new URL(requireNonNull(url, "url")).openConnection();
 
@@ -492,7 +502,7 @@ public abstract class LibraryManager {
      * @return local file path to library
      * @see #loadLibrary(Library)
      */
-    public Path downloadLibrary(Library library) {
+    public Path downloadLibrary(@NotNull Library library) {
         Path file = saveDirectory.resolve(requireNonNull(library, "library").getPath());
         if (Files.exists(file)) {
             // Early return only if library isn't a snapshot, since snapshot libraries are always re-downloaded
@@ -573,7 +583,7 @@ public abstract class LibraryManager {
      * @return the relocated file
      * @see RelocationHelper#relocate(Path, Path, Collection)
      */
-    private Path relocate(Path in, String out, Collection<Relocation> relocations) {
+    private Path relocate(@NotNull Path in, @NotNull String out, @NotNull Collection<Relocation> relocations) {
         requireNonNull(in, "in");
         requireNonNull(out, "out");
         requireNonNull(relocations, "relocations");
@@ -617,7 +627,7 @@ public abstract class LibraryManager {
      * @throws NullPointerException if the provided library is null.
      * @see #loadLibrary(Library)
      */
-    private void resolveTransitiveLibraries(Library library) {
+    private void resolveTransitiveLibraries(@NotNull Library library) {
         requireNonNull(library, "library");
 
         synchronized (this) {
@@ -641,7 +651,7 @@ public abstract class LibraryManager {
      * @param library the library to load
      * @see #downloadLibrary(Library)
      */
-    public void loadLibrary(Library library) {
+    public void loadLibrary(@NotNull Library library) {
         Path file = downloadLibrary(requireNonNull(library, "library"));
         if (library.hasRelocations()) {
             file = relocate(file, library.getRelocatedPath(), library.getRelocations());
@@ -663,7 +673,7 @@ public abstract class LibraryManager {
      * @param libraries the libraries to load
      * @see #loadLibrary(Library)
      */
-    public void loadLibraries(Library... libraries) {
+    public void loadLibraries(@NotNull Library... libraries) {
         for (Library library : libraries) {
             loadLibrary(library);
         }
@@ -689,7 +699,7 @@ public abstract class LibraryManager {
      * @throws MalformedConfigurationException If the provided JSON file contained a syntactic error or couldn't be read
      * @throws UnsupportedOperationException if the platform doesn't implement loading resources from the plugin file
      */
-    public void configureFromJSON(String fileName) {
+    public void configureFromJSON(@NotNull String fileName) {
         configureFromJSON(getPluginResourceAsInputStream(fileName));
     }
 
@@ -700,7 +710,7 @@ public abstract class LibraryManager {
      * @throws ConfigurationException If the configuration contained an error
      * @throws MalformedConfigurationException If the provided JSON contained a syntactic error or couldn't be read
      */
-    public void configureFromJSON(InputStream data) {
+    public void configureFromJSON(@NotNull InputStream data) {
         synchronized (this) {
             if (configurationFetcher == null) {
                 configurationFetcher = new ConfigurationFetcher(this);
@@ -727,7 +737,8 @@ public abstract class LibraryManager {
      * @return input stream for the resource
      * @throws UnsupportedOperationException if the platform doesn't implement loading resources from the plugin file
      */
-    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
+    @Nullable
+    protected InputStream getPluginResourceAsInputStream(@NotNull String path) throws UnsupportedOperationException {
         throw new UnsupportedOperationException("Loading resources from the plugin file is not supported on this platform.");
     }
 }

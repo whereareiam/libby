@@ -1,6 +1,7 @@
 package com.alessiodp.libby.classloader;
 
 import com.alessiodp.libby.SpongeLibraryManager;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
 import java.net.URLClassLoader;
@@ -16,6 +17,7 @@ public class SpongeClassLoaderHelper {
     /**
      * The URLClassLoader helper of libby
      */
+    @NotNull
     private final URLClassLoaderHelper classLoader;
     
     /**
@@ -23,7 +25,7 @@ public class SpongeClassLoaderHelper {
      * @param pluginClassLoader the class loader of the plugin
      * @param libraryManager    the library manager used to download dependencies
      */
-    public SpongeClassLoaderHelper(ClassLoader pluginClassLoader, SpongeLibraryManager<?> libraryManager) {
+    public SpongeClassLoaderHelper(@NotNull ClassLoader pluginClassLoader, @NotNull SpongeLibraryManager<?> libraryManager) {
         requireNonNull(pluginClassLoader, "pluginClassLoader");
         requireNonNull(libraryManager, "libraryManager");
         
@@ -43,7 +45,7 @@ public class SpongeClassLoaderHelper {
      *
      * @param path the path to add
      */
-    public void addToClasspath(Path path) {
+    public void addToClasspath(@NotNull Path path) {
         requireNonNull(classLoader, "classLoader");
         classLoader.addToClasspath(path);
     }

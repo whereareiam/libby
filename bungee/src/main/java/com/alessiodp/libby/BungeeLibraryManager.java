@@ -4,6 +4,7 @@ import com.alessiodp.libby.classloader.URLClassLoaderHelper;
 import com.alessiodp.libby.logging.adapters.JDKLogAdapter;
 import com.alessiodp.libby.logging.adapters.LogAdapter;
 import net.md_5.bungee.api.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.net.URLClassLoader;
@@ -18,8 +19,10 @@ public class BungeeLibraryManager extends LibraryManager {
     /**
      * Plugin classpath helper
      */
+    @NotNull
     private final URLClassLoaderHelper classLoader;
 
+    @NotNull
     private final Plugin plugin;
 
     /**
@@ -27,7 +30,7 @@ public class BungeeLibraryManager extends LibraryManager {
      *
      * @param plugin the plugin to manage
      */
-    public BungeeLibraryManager(Plugin plugin) {
+    public BungeeLibraryManager(@NotNull Plugin plugin) {
         this(plugin, "lib");
     }
 
@@ -37,7 +40,7 @@ public class BungeeLibraryManager extends LibraryManager {
      * @param plugin the plugin to manage
      * @param directoryName download directory name
      */
-    public BungeeLibraryManager(Plugin plugin, String directoryName) {
+    public BungeeLibraryManager(@NotNull Plugin plugin, @NotNull String directoryName) {
         this(plugin, directoryName, new JDKLogAdapter(requireNonNull(plugin, "plugin").getLogger()));
     }
 
@@ -48,14 +51,14 @@ public class BungeeLibraryManager extends LibraryManager {
      * @param directoryName download directory name
      * @param logAdapter the log adapter to use
      */
-    public BungeeLibraryManager(Plugin plugin, String directoryName, LogAdapter logAdapter) {
+    public BungeeLibraryManager(@NotNull Plugin plugin, @NotNull String directoryName, @NotNull LogAdapter logAdapter) {
         super(logAdapter, plugin.getDataFolder().toPath(), directoryName);
         classLoader = new URLClassLoaderHelper((URLClassLoader) plugin.getClass().getClassLoader(), this);
         this.plugin = plugin;
     }
 
     @Override
-    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
+    protected InputStream getPluginResourceAsInputStream(@NotNull String path) throws UnsupportedOperationException {
         return plugin.getResourceAsStream(path);
     }
 
@@ -65,7 +68,7 @@ public class BungeeLibraryManager extends LibraryManager {
      * @param file the file to add
      */
     @Override
-    protected void addToClasspath(Path file) {
+    protected void addToClasspath(@NotNull Path file) {
         classLoader.addToClasspath(file);
     }
 }

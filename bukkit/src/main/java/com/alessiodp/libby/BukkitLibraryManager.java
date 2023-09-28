@@ -4,6 +4,7 @@ import com.alessiodp.libby.classloader.URLClassLoaderHelper;
 import com.alessiodp.libby.logging.adapters.JDKLogAdapter;
 import com.alessiodp.libby.logging.adapters.LogAdapter;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.net.URLClassLoader;
@@ -18,7 +19,9 @@ public class BukkitLibraryManager extends LibraryManager {
     /**
      * Plugin classpath helper
      */
+    @NotNull
     private final URLClassLoaderHelper classLoader;
+    @NotNull
     private final Plugin plugin;
 
     /**
@@ -26,7 +29,7 @@ public class BukkitLibraryManager extends LibraryManager {
      *
      * @param plugin the plugin to manage
      */
-    public BukkitLibraryManager(Plugin plugin) {
+    public BukkitLibraryManager(@NotNull Plugin plugin) {
         this(plugin, "lib");
     }
 
@@ -36,7 +39,7 @@ public class BukkitLibraryManager extends LibraryManager {
      * @param plugin the plugin to manage
      * @param directoryName download directory name
      */
-    public BukkitLibraryManager(Plugin plugin, String directoryName) {
+    public BukkitLibraryManager(@NotNull Plugin plugin, @NotNull String directoryName) {
         this(plugin, directoryName, new JDKLogAdapter(requireNonNull(plugin, "plugin").getLogger()));
     }
     
@@ -47,7 +50,7 @@ public class BukkitLibraryManager extends LibraryManager {
      * @param directoryName download directory name
      * @param logAdapter the log adapter to use
      */
-    public BukkitLibraryManager(Plugin plugin, String directoryName, LogAdapter logAdapter) {
+    public BukkitLibraryManager(@NotNull Plugin plugin, @NotNull String directoryName, @NotNull LogAdapter logAdapter) {
         super(logAdapter, plugin.getDataFolder().toPath(), directoryName);
         classLoader = new URLClassLoaderHelper((URLClassLoader) plugin.getClass().getClassLoader(), this);
         this.plugin = plugin;
@@ -59,12 +62,12 @@ public class BukkitLibraryManager extends LibraryManager {
      * @param file the file to add
      */
     @Override
-    protected void addToClasspath(Path file) {
+    protected void addToClasspath(@NotNull Path file) {
         classLoader.addToClasspath(file);
     }
 
     @Override
-    protected InputStream getPluginResourceAsInputStream(String path) {
+    protected InputStream getPluginResourceAsInputStream(@NotNull String path) {
         return plugin.getResource(path);
     }
 }

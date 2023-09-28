@@ -1,5 +1,7 @@
 package com.alessiodp.libby.configuration;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * This exception is thrown when an invalid configuration is loaded.
  */
@@ -10,7 +12,7 @@ public class ConfigurationException extends RuntimeException {
      *
      * @param message The error message.
      */
-    public ConfigurationException(String message) {
+    public ConfigurationException(@NotNull String message) {
         super(message);
     }
 
@@ -20,7 +22,7 @@ public class ConfigurationException extends RuntimeException {
      * @param message The error message.
      * @param cause The error that caused this error.
      */
-    public ConfigurationException(String message, Throwable cause) {
+    public ConfigurationException(@NotNull String message, @NotNull Throwable cause) {
         super(message, cause);
     }
 
@@ -29,7 +31,7 @@ public class ConfigurationException extends RuntimeException {
      *
      * @param cause The error that caused this error.
      */
-    public ConfigurationException(Throwable cause) {
+    public ConfigurationException(@NotNull Throwable cause) {
         super(cause);
     }
 }

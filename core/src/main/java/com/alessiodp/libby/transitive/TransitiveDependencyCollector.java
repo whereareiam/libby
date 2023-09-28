@@ -17,6 +17,7 @@ import org.eclipse.aether.resolution.DependencyResult;
 import org.eclipse.aether.supplier.RepositorySystemSupplier;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.ScopeDependencyFilter;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ class TransitiveDependencyCollector {
      *
      * @see #newRepositorySystem()
      */
+    @NotNull
     private final RepositorySystem repositorySystem = newRepositorySystem();
 
     /**
@@ -46,6 +48,7 @@ class TransitiveDependencyCollector {
      *
      * @see #newRepositorySystemSession(RepositorySystem)
      */
+    @NotNull
     private final RepositorySystemSession repositorySystemSession;
 
     /**
@@ -53,9 +56,10 @@ class TransitiveDependencyCollector {
      *
      * @see LocalRepository
      */
+    @NotNull
     private final Path saveDirectory;
 
-    public TransitiveDependencyCollector(Path saveDirectory) {
+    public TransitiveDependencyCollector(@NotNull Path saveDirectory) {
         this.saveDirectory = saveDirectory;
         this.repositorySystemSession = newRepositorySystemSession(repositorySystem);
     }
@@ -66,7 +70,8 @@ class TransitiveDependencyCollector {
      * @param url Maven repository url
      * @return New instance of {@link RemoteRepository}
      */
-    public static RemoteRepository newDefaultRepository(String url) {
+    @NotNull
+    public static RemoteRepository newDefaultRepository(@NotNull String url) {
         return new RemoteRepository.Builder(url, "default", url).build();
     }
 
@@ -81,7 +86,8 @@ class TransitiveDependencyCollector {
      * @return Transitive dependencies, exception otherwise
      * @throws DependencyResolutionException thrown if dependency doesn't exist on provided repositories
      */
-    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, String classifier, List<RemoteRepository> repositories) throws DependencyResolutionException {
+    @NotNull
+    public Collection<Artifact> findTransitiveDependencies(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String classifier, @NotNull List<RemoteRepository> repositories) throws DependencyResolutionException {
         Artifact artifact = new DefaultArtifact(groupId, artifactId, classifier, "jar", version);
 
         CollectRequest collectRequest = new CollectRequest(new Dependency(artifact, JavaScopes.COMPILE), repositories);
@@ -104,7 +110,8 @@ class TransitiveDependencyCollector {
      * @throws DependencyResolutionException thrown if dependency doesn't exist on provided repositories
      * @see #findTransitiveDependencies(String, String, String, String, List)
      */
-    public Collection<Artifact> findTransitiveDependencies(String groupId, String artifactId, String version, String classifier, Stream<String> repositories) throws DependencyResolutionException {
+    @NotNull
+    public Collection<Artifact> findTransitiveDependencies(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String classifier, @NotNull Stream<String> repositories) throws DependencyResolutionException {
         return findTransitiveDependencies(groupId, artifactId, version, classifier, repositories.map(TransitiveDependencyCollector::newDefaultRepository).collect(Collectors.toList()));
     }
 
@@ -114,6 +121,7 @@ class TransitiveDependencyCollector {
      * @return new session from {@link RepositorySystem}
      * @see MavenRepositorySystemUtils#newSession()
      */
+    @NotNull
     private RepositorySystemSession newRepositorySystemSession(RepositorySystem system) {
         DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
 
@@ -137,6 +145,7 @@ class TransitiveDependencyCollector {
      * @return New supplier repository system
      * @see RepositorySystemSupplier
      */
+    @NotNull
     private RepositorySystem newRepositorySystem() {
         return new RepositorySystemSupplier().get();
     }

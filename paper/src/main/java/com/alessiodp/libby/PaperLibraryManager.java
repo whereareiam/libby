@@ -4,6 +4,7 @@ import com.alessiodp.libby.classloader.URLClassLoaderHelper;
 import com.alessiodp.libby.logging.adapters.JDKLogAdapter;
 import com.alessiodp.libby.logging.adapters.LogAdapter;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -20,8 +21,10 @@ public class PaperLibraryManager extends LibraryManager {
     /**
      * Plugin classpath helper
      */
+    @NotNull
     private final URLClassLoaderHelper classLoader;
 
+    @NotNull
     private final Plugin plugin;
 
     /**
@@ -29,7 +32,7 @@ public class PaperLibraryManager extends LibraryManager {
      *
      * @param plugin the plugin to manage
      */
-    public PaperLibraryManager(Plugin plugin) {
+    public PaperLibraryManager(@NotNull Plugin plugin) {
         this(plugin, "lib");
     }
 
@@ -39,7 +42,7 @@ public class PaperLibraryManager extends LibraryManager {
      * @param plugin the plugin to manage
      * @param directoryName download directory name
      */
-    public PaperLibraryManager(Plugin plugin, String directoryName) {
+    public PaperLibraryManager(@NotNull Plugin plugin, @NotNull String directoryName) {
         this(plugin, directoryName, new JDKLogAdapter(requireNonNull(plugin, "plugin").getLogger()));
     }
 
@@ -50,7 +53,7 @@ public class PaperLibraryManager extends LibraryManager {
      * @param directoryName download directory name
      * @param logAdapter the log adapter to use
      */
-    public PaperLibraryManager(Plugin plugin, String directoryName, LogAdapter logAdapter) {
+    public PaperLibraryManager(@NotNull Plugin plugin, @NotNull String directoryName, @NotNull LogAdapter logAdapter) {
         super(logAdapter, plugin.getDataFolder().toPath(), directoryName);
         
         ClassLoader cl = plugin.getClass().getClassLoader();
@@ -95,12 +98,12 @@ public class PaperLibraryManager extends LibraryManager {
      * @param file the file to add
      */
     @Override
-    protected void addToClasspath(Path file) {
+    protected void addToClasspath(@NotNull Path file) {
         classLoader.addToClasspath(file);
     }
 
     @Override
-    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
+    protected InputStream getPluginResourceAsInputStream(@NotNull String path) throws UnsupportedOperationException {
         return plugin.getResource(path);
     }
 }

@@ -1,5 +1,7 @@
 package com.alessiodp.libby.transitive;
 
+import org.jetbrains.annotations.NotNull;
+
 import static com.alessiodp.libby.Util.replaceWithDots;
 import static java.util.Objects.requireNonNull;
 
@@ -10,11 +12,13 @@ public class ExcludedDependency {
     /**
      * Maven group ID
      */
+    @NotNull
     private final String groupId;
 
     /**
      * Maven artifact ID
      */
+    @NotNull
     private final String artifactId;
 
     /**
@@ -23,7 +27,7 @@ public class ExcludedDependency {
      * @param groupId    Maven group ID
      * @param artifactId Maven artifact ID
      */
-    public ExcludedDependency(String groupId, String artifactId) {
+    public ExcludedDependency(@NotNull String groupId, @NotNull String artifactId) {
         this.groupId = replaceWithDots(requireNonNull(groupId, "groupId"));
         this.artifactId = replaceWithDots(requireNonNull(artifactId, "artifactId"));
     }
@@ -33,6 +37,7 @@ public class ExcludedDependency {
      *
      * @return Maven group ID
      */
+    @NotNull
     public String getGroupId() {
         return groupId;
     }
@@ -42,6 +47,7 @@ public class ExcludedDependency {
      *
      * @return Maven artifact ID
      */
+    @NotNull
     public String getArtifactId() {
         return artifactId;
     }

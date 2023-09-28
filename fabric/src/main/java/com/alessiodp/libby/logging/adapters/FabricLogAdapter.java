@@ -1,6 +1,8 @@
 package com.alessiodp.libby.logging.adapters;
 
 import com.alessiodp.libby.logging.LogLevel;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import static java.util.Objects.requireNonNull;
@@ -12,6 +14,7 @@ public class FabricLogAdapter implements LogAdapter {
     /**
      * Fabric mod logger
      */
+    @NotNull
     private final Logger logger;
 
     /**
@@ -19,7 +22,7 @@ public class FabricLogAdapter implements LogAdapter {
      *
      * @param logger the plugin logger to wrap
      */
-    public FabricLogAdapter(Logger logger) {
+    public FabricLogAdapter(@NotNull Logger logger) {
         this.logger = requireNonNull(logger, "logger");
     }
 
@@ -30,7 +33,7 @@ public class FabricLogAdapter implements LogAdapter {
      * @param message the message to log
      */
     @Override
-    public void log(LogLevel level, String message) {
+    public void log(@NotNull LogLevel level, @Nullable String message) {
         switch (requireNonNull(level, "level")) {
             case DEBUG:
                 logger.debug(message);
@@ -56,7 +59,7 @@ public class FabricLogAdapter implements LogAdapter {
      * @param throwable the throwable to print
      */
     @Override
-    public void log(LogLevel level, String message, Throwable throwable) {
+    public void log(@NotNull LogLevel level, @Nullable String message, @Nullable Throwable throwable) {
         switch (requireNonNull(level, "level")) {
             case DEBUG:
                 logger.debug(message, throwable);

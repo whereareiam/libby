@@ -4,6 +4,7 @@ import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManager;
 import com.alessiodp.libby.Repositories;
 import com.alessiodp.libby.classloader.IsolatedClassLoader;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
@@ -54,7 +55,7 @@ public class RelocationHelper {
      *
      * @param libraryManager the library manager used to download dependencies
      */
-    public RelocationHelper(LibraryManager libraryManager) {
+    public RelocationHelper(@NotNull LibraryManager libraryManager) {
         requireNonNull(libraryManager, "libraryManager");
 
         IsolatedClassLoader classLoader = new IsolatedClassLoader();
@@ -117,7 +118,7 @@ public class RelocationHelper {
      * @param out         output jar
      * @param relocations relocations to apply
      */
-    public void relocate(Path in, Path out, Collection<Relocation> relocations) {
+    public void relocate(@NotNull Path in, @NotNull Path out, @NotNull Collection<Relocation> relocations) {
         requireNonNull(in, "in");
         requireNonNull(out, "out");
         requireNonNull(relocations, "relocations");

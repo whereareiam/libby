@@ -5,6 +5,7 @@ import com.alessiodp.libby.logging.adapters.LogAdapter;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.fabricmc.loader.impl.launch.FabricLauncherBase;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class FabricLibraryManager extends LibraryManager {
      * @param modId the id of the mod
      * @param logger the mod logger
      */
-    public FabricLibraryManager(String modId, Logger logger) {
+    public FabricLibraryManager(@NotNull String modId, @NotNull Logger logger) {
         this(modId, logger, "lib");
     }
     
@@ -40,7 +41,7 @@ public class FabricLibraryManager extends LibraryManager {
      * @param logger        the mod logger
      * @param directoryName download directory name
      */
-    public FabricLibraryManager(String modId, Logger logger, String directoryName) {
+    public FabricLibraryManager(@NotNull String modId, @NotNull Logger logger, @NotNull String directoryName) {
         this(modId, new FabricLogAdapter(logger), directoryName);
     }
     
@@ -51,7 +52,7 @@ public class FabricLibraryManager extends LibraryManager {
      * @param logAdapter    the log adapter to use instead of the mod logger
      * @param directoryName download directory name
      */
-    public FabricLibraryManager(String modId, LogAdapter logAdapter, String directoryName) {
+    public FabricLibraryManager(@NotNull String modId, @NotNull LogAdapter logAdapter, @NotNull String directoryName) {
         super(logAdapter, FabricLoader.getInstance().getConfigDir().resolve(modId), directoryName);
         modContainer = FabricLoader.getInstance().getModContainer(requireNonNull(modId, modId)).orElseThrow(() -> new NullPointerException("modContainer"));
     }
@@ -62,12 +63,12 @@ public class FabricLibraryManager extends LibraryManager {
      * @param file the file to add
      */
     @Override
-    protected void addToClasspath(Path file) {
+    protected void addToClasspath(@NotNull Path file) {
         FabricLauncherBase.getLauncher().addToClassPath(file);
     }
     
     @Override
-    protected InputStream getPluginResourceAsInputStream(String path) {
+    protected InputStream getPluginResourceAsInputStream(@NotNull String path) {
         try {
             return Files.newInputStream(requireNonNull(modContainer.findPath(path).orElse(null)));
         } catch (IOException e) {

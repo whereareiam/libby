@@ -1,5 +1,7 @@
 package com.alessiodp.libby.configuration;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * This exception is thrown when a configuration contains a syntactic error or couldn't be read.
  */
@@ -10,7 +12,7 @@ public class MalformedConfigurationException extends ConfigurationException {
      *
      * @param message The error message.
      */
-    public MalformedConfigurationException(String message) {
+    public MalformedConfigurationException(@NotNull String message) {
         super(message);
     }
 
@@ -20,7 +22,7 @@ public class MalformedConfigurationException extends ConfigurationException {
      * @param message The error message.
      * @param cause The error that caused this error.
      */
-    public MalformedConfigurationException(String message, Throwable cause) {
+    public MalformedConfigurationException(@NotNull String message, @NotNull Throwable cause) {
         super(message, cause);
     }
 
@@ -29,7 +31,7 @@ public class MalformedConfigurationException extends ConfigurationException {
      *
      * @param cause The error that caused this error.
      */
-    public MalformedConfigurationException(Throwable cause) {
+    public MalformedConfigurationException(@NotNull Throwable cause) {
         super(cause);
     }
 }

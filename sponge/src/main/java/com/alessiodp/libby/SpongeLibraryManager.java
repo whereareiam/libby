@@ -4,6 +4,7 @@ import com.alessiodp.libby.classloader.SpongeClassLoaderHelper;
 import com.alessiodp.libby.logging.adapters.LogAdapter;
 import com.alessiodp.libby.logging.adapters.SpongeLogAdapter;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -17,6 +18,7 @@ public class SpongeLibraryManager<T> extends LibraryManager {
     /**
      * Plugin classpath helper
      */
+    @NotNull
     private final SpongeClassLoaderHelper classLoader;
 
     /**
@@ -26,7 +28,7 @@ public class SpongeLibraryManager<T> extends LibraryManager {
      * @param logger        the plugin logger
      * @param dataDirectory plugin's data directory
      */
-    public SpongeLibraryManager(T plugin, Logger logger, Path dataDirectory) {
+    public SpongeLibraryManager(@NotNull T plugin, @NotNull Logger logger, @NotNull Path dataDirectory) {
         this(plugin, logger, dataDirectory, "lib");
     }
 
@@ -38,7 +40,7 @@ public class SpongeLibraryManager<T> extends LibraryManager {
      * @param dataDirectory plugin's data directory
      * @param directoryName download directory name
      */
-    public SpongeLibraryManager(T plugin, Logger logger, Path dataDirectory, String directoryName) {
+    public SpongeLibraryManager(@NotNull T plugin, @NotNull Logger logger, @NotNull Path dataDirectory, @NotNull String directoryName) {
         this(plugin, new SpongeLogAdapter(logger), dataDirectory, directoryName);
     }
 
@@ -50,13 +52,13 @@ public class SpongeLibraryManager<T> extends LibraryManager {
      * @param dataDirectory plugin's data directory
      * @param directoryName download directory name
      */
-    public SpongeLibraryManager(T plugin, LogAdapter logAdapter, Path dataDirectory, String directoryName) {
+    public SpongeLibraryManager(@NotNull T plugin, @NotNull LogAdapter logAdapter, @NotNull Path dataDirectory, @NotNull String directoryName) {
         super(logAdapter, dataDirectory, directoryName);
         classLoader = new SpongeClassLoaderHelper((plugin.getClass().getClassLoader()), this);
     }
 
     @Override
-    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
+    protected InputStream getPluginResourceAsInputStream(@NotNull String path) throws UnsupportedOperationException {
         return getClass().getClassLoader().getResourceAsStream(path);
     }
 
@@ -66,7 +68,7 @@ public class SpongeLibraryManager<T> extends LibraryManager {
      * @param file the file to add
      */
     @Override
-    protected void addToClasspath(Path file) {
+    protected void addToClasspath(@NotNull Path file) {
         requireNonNull(classLoader, "classLoader");
         classLoader.addToClasspath(file);
     }

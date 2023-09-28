@@ -1,6 +1,8 @@
 package com.alessiodp.libby.logging.adapters;
 
 import com.alessiodp.libby.logging.LogLevel;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,7 +23,7 @@ public class JDKLogAdapter implements LogAdapter {
      *
      * @param logger the JDK logger to wrap
      */
-    public JDKLogAdapter(Logger logger) {
+    public JDKLogAdapter(@NotNull Logger logger) {
         this.logger = requireNonNull(logger, "logger");
     }
 
@@ -32,7 +34,7 @@ public class JDKLogAdapter implements LogAdapter {
      * @param message the message to log
      */
     @Override
-    public void log(LogLevel level, String message) {
+    public void log(@NotNull LogLevel level, @Nullable String message) {
         switch (requireNonNull(level, "level")) {
             case DEBUG:
                 logger.log(Level.FINE, message);
@@ -58,7 +60,7 @@ public class JDKLogAdapter implements LogAdapter {
      * @param throwable the throwable to print
      */
     @Override
-    public void log(LogLevel level, String message, Throwable throwable) {
+    public void log(@NotNull LogLevel level, @Nullable String message, @Nullable Throwable throwable) {
         switch (requireNonNull(level, "level")) {
             case DEBUG:
                 logger.log(Level.FINE, message, throwable);

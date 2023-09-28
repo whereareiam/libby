@@ -1,6 +1,7 @@
 package com.alessiodp.libby;
 
 import com.alessiodp.libby.logging.adapters.JDKLogAdapter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class LibraryManagerMock extends LibraryManager {
     }
 
     @Override
-    protected void addToClasspath(Path file) {
+    protected void addToClasspath(@NotNull Path file) {
         loadedPaths.add(file.toAbsolutePath().toString());
     }
 

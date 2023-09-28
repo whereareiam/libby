@@ -1,6 +1,8 @@
 package com.alessiodp.libby.relocation;
 
 import com.alessiodp.libby.Util;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -19,21 +21,25 @@ public class Relocation {
     /**
      * Search pattern
      */
+    @NotNull
     private final String pattern;
 
     /**
      * Replacement pattern
      */
+    @NotNull
     private final String relocatedPattern;
 
     /**
      * Classes and resources to include
      */
+    @NotNull
     private final Collection<String> includes;
 
     /**
      * Classes and resources to exclude
      */
+    @NotNull
     private final Collection<String> excludes;
 
     /**
@@ -44,7 +50,7 @@ public class Relocation {
      * @param includes         classes and resources to include
      * @param excludes         classes and resources to exclude
      */
-    public Relocation(String pattern, String relocatedPattern, Collection<String> includes, Collection<String> excludes) {
+    public Relocation(@NotNull String pattern, @NotNull String relocatedPattern, @Nullable Collection<String> includes, @Nullable Collection<String> excludes) {
         this.pattern = replaceWithDots(requireNonNull(pattern, "pattern"));
         this.relocatedPattern = replaceWithDots(requireNonNull(relocatedPattern, "relocatedPattern"));
         this.includes = includes != null ? Collections.unmodifiableSet(includes.stream()
@@ -63,7 +69,7 @@ public class Relocation {
      * @param pattern          search pattern
      * @param relocatedPattern replacement pattern
      */
-    public Relocation(String pattern, String relocatedPattern) {
+    public Relocation(@NotNull String pattern, @NotNull String relocatedPattern) {
         this(pattern, relocatedPattern, null, null);
     }
 
@@ -72,6 +78,7 @@ public class Relocation {
      *
      * @return pattern to search
      */
+    @NotNull
     public String getPattern() {
         return pattern;
     }
@@ -81,6 +88,7 @@ public class Relocation {
      *
      * @return pattern to replace with
      */
+    @NotNull
     public String getRelocatedPattern() {
         return relocatedPattern;
     }
@@ -90,6 +98,7 @@ public class Relocation {
      *
      * @return classes and resources to include
      */
+    @NotNull
     public Collection<String> getIncludes() {
         return includes;
     }
@@ -99,6 +108,7 @@ public class Relocation {
      *
      * @return classes and resources to exclude
      */
+    @NotNull
     public Collection<String> getExcludes() {
         return excludes;
     }
@@ -130,6 +140,7 @@ public class Relocation {
      *
      * @return new relocation builder
      */
+    @NotNull
     public static Builder builder() {
         return new Builder();
     }
@@ -166,7 +177,8 @@ public class Relocation {
          * @param pattern pattern to search
          * @return this builder
          */
-        public Builder pattern(String pattern) {
+        @NotNull
+        public Builder pattern(@NotNull String pattern) {
             this.pattern = requireNonNull(pattern, "pattern");
             return this;
         }
@@ -177,7 +189,8 @@ public class Relocation {
          * @param relocatedPattern pattern to replace with
          * @return this builder
          */
-        public Builder relocatedPattern(String relocatedPattern) {
+        @NotNull
+        public Builder relocatedPattern(@NotNull String relocatedPattern) {
             this.relocatedPattern = requireNonNull(relocatedPattern, "relocatedPattern");
             return this;
         }
@@ -188,7 +201,8 @@ public class Relocation {
          * @param include class or resource to include
          * @return this builder
          */
-        public Builder include(String include) {
+        @NotNull
+        public Builder include(@NotNull String include) {
             includes.add(requireNonNull(include, "include"));
             return this;
         }
@@ -199,7 +213,8 @@ public class Relocation {
          * @param exclude class or resource to exclude
          * @return this builder
          */
-        public Builder exclude(String exclude) {
+        @NotNull
+        public Builder exclude(@NotNull String exclude) {
             excludes.add(requireNonNull(exclude, "exclude"));
             return this;
         }
@@ -209,6 +224,7 @@ public class Relocation {
          *
          * @return new relocation
          */
+        @NotNull
         public Relocation build() {
             return new Relocation(pattern, relocatedPattern, includes, excludes);
         }

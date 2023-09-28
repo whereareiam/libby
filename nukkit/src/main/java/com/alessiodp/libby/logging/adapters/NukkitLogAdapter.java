@@ -2,6 +2,8 @@ package com.alessiodp.libby.logging.adapters;
 
 import cn.nukkit.plugin.PluginLogger;
 import com.alessiodp.libby.logging.LogLevel;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
@@ -12,6 +14,7 @@ public class NukkitLogAdapter implements LogAdapter {
     /**
      * Nukkit plugin logger
      */
+    @NotNull
     private final PluginLogger logger;
 
     /**
@@ -19,7 +22,7 @@ public class NukkitLogAdapter implements LogAdapter {
      *
      * @param logger the plugin logger to wrap
      */
-    public NukkitLogAdapter(PluginLogger logger) {
+    public NukkitLogAdapter(@NotNull PluginLogger logger) {
         this.logger = requireNonNull(logger, "logger");
     }
 
@@ -30,7 +33,7 @@ public class NukkitLogAdapter implements LogAdapter {
      * @param message the message to log
      */
     @Override
-    public void log(LogLevel level, String message) {
+    public void log(@NotNull LogLevel level, @Nullable String message) {
         switch (requireNonNull(level, "level")) {
             case DEBUG:
                 logger.debug(message);
@@ -56,7 +59,7 @@ public class NukkitLogAdapter implements LogAdapter {
      * @param throwable the throwable to print
      */
     @Override
-    public void log(LogLevel level, String message, Throwable throwable) {
+    public void log(@NotNull LogLevel level, @Nullable String message, @Nullable Throwable throwable) {
         switch (requireNonNull(level, "level")) {
             case DEBUG:
                 logger.debug(message, throwable);

@@ -3,6 +3,7 @@ package com.alessiodp.libby.transitive;
 import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManager;
 import com.alessiodp.libby.classloader.IsolatedClassLoader;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -59,7 +60,7 @@ public class TransitiveDependencyHelper {
      * @param libraryManager the library manager used to download dependencies
      * @param saveDirectory  the directory where all transitive dependencies would be saved
      */
-    public TransitiveDependencyHelper(LibraryManager libraryManager, Path saveDirectory) {
+    public TransitiveDependencyHelper(@NotNull LibraryManager libraryManager, @NotNull Path saveDirectory) {
         requireNonNull(libraryManager, "libraryManager");
         this.libraryManager = libraryManager;
 
@@ -117,7 +118,8 @@ public class TransitiveDependencyHelper {
      * excluding the ones marked as excluded in the provided library.
      * @throws RuntimeException If there's any exception during the reflection-based operations.
      */
-    public Collection<Library> findTransitiveLibraries(Library library) {
+    @NotNull
+    public Collection<Library> findTransitiveLibraries(@NotNull Library library) {
         List<Library> transitiveLibraries = new ArrayList<>();
         Set<ExcludedDependency> excludedDependencies = new HashSet<>(library.getExcludedTransitiveDependencies());
 

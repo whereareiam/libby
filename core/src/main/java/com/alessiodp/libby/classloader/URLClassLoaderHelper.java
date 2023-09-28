@@ -3,6 +3,7 @@ package com.alessiodp.libby.classloader;
 import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManager;
 import com.alessiodp.libby.Repositories;
+import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandle;
@@ -68,7 +69,7 @@ public class URLClassLoaderHelper {
      * @param classLoader    the class loader to manage
      * @param libraryManager the library manager used to download dependencies
      */
-    public URLClassLoaderHelper(URLClassLoader classLoader, LibraryManager libraryManager) {
+    public URLClassLoaderHelper(@NotNull URLClassLoader classLoader, @NotNull LibraryManager libraryManager) {
         requireNonNull(libraryManager, "libraryManager");
         this.classLoader = requireNonNull(classLoader, "classLoader");
 
@@ -117,7 +118,7 @@ public class URLClassLoaderHelper {
      *
      * @param url the URL to add
      */
-    public void addToClasspath(URL url) {
+    public void addToClasspath(@NotNull URL url) {
         try {
             addURLMethodHandle.invokeWithArguments(requireNonNull(url, "url"));
         } catch (Throwable e) {
@@ -130,7 +131,7 @@ public class URLClassLoaderHelper {
      *
      * @param path the path to add
      */
-    public void addToClasspath(Path path) {
+    public void addToClasspath(@NotNull Path path) {
         try {
             addToClasspath(requireNonNull(path, "path").toUri().toURL());
         } catch (MalformedURLException e) {

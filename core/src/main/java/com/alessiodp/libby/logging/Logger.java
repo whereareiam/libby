@@ -1,6 +1,8 @@
 package com.alessiodp.libby.logging;
 
 import com.alessiodp.libby.logging.adapters.LogAdapter;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static java.util.Objects.requireNonNull;
 
@@ -24,7 +26,7 @@ public class Logger {
      *
      * @param adapter the adapter to wrap
      */
-    public Logger(LogAdapter adapter) {
+    public Logger(@NotNull LogAdapter adapter) {
         this.adapter = requireNonNull(adapter, "adapter");
     }
 
@@ -33,6 +35,7 @@ public class Logger {
      *
      * @return current log level
      */
+    @NotNull
     public LogLevel getLevel() {
         return level;
     }
@@ -42,7 +45,7 @@ public class Logger {
      *
      * @param level new log level
      */
-    public void setLevel(LogLevel level) {
+    public void setLevel(@NotNull LogLevel level) {
         this.level = requireNonNull(level, "level");
     }
 
@@ -56,7 +59,7 @@ public class Logger {
      * @param level the level to check
      * @return true if message can be logged, or false
      */
-    private boolean canLog(LogLevel level) {
+    private boolean canLog(@NotNull LogLevel level) {
         return requireNonNull(level, "level").compareTo(this.level) >= 0;
     }
 
@@ -73,7 +76,7 @@ public class Logger {
      * @see #warn(String)
      * @see #error(String)
      */
-    public void log(LogLevel level, String message) {
+    public void log(@NotNull LogLevel level, @Nullable String message) {
         if (canLog(level)) {
             adapter.log(level, message);
         }
@@ -93,7 +96,7 @@ public class Logger {
      * @see #warn(String, Throwable)
      * @see #error(String, Throwable)
      */
-    public void log(LogLevel level, String message, Throwable throwable) {
+    public void log(@NotNull LogLevel level, @Nullable String message, @Nullable Throwable throwable) {
         if (canLog(level)) {
             adapter.log(level, message, throwable);
         }
@@ -120,7 +123,7 @@ public class Logger {
      * @param message   the message to log
      * @param throwable the throwable to print
      */
-    public void debug(String message, Throwable throwable) {
+    public void debug(@Nullable String message, @Nullable Throwable throwable) {
         log(LogLevel.DEBUG, message, throwable);
     }
 
@@ -132,7 +135,7 @@ public class Logger {
      *
      * @param message the message to log
      */
-    public void info(String message) {
+    public void info(@Nullable String message) {
         log(LogLevel.INFO, message);
     }
 
@@ -145,7 +148,7 @@ public class Logger {
      * @param message   the message to log
      * @param throwable the throwable to print
      */
-    public void info(String message, Throwable throwable) {
+    public void info(@Nullable String message, @Nullable Throwable throwable) {
         log(LogLevel.INFO, message, throwable);
     }
 
@@ -157,7 +160,7 @@ public class Logger {
      *
      * @param message the message to log
      */
-    public void warn(String message) {
+    public void warn(@Nullable String message) {
         log(LogLevel.WARN, message);
     }
 
@@ -170,7 +173,7 @@ public class Logger {
      * @param message   the message to log
      * @param throwable the throwable to print
      */
-    public void warn(String message, Throwable throwable) {
+    public void warn(@Nullable String message, @Nullable Throwable throwable) {
         log(LogLevel.WARN, message, throwable);
     }
 
@@ -179,7 +182,7 @@ public class Logger {
      *
      * @param message the message to log
      */
-    public void error(String message) {
+    public void error(@Nullable String message) {
         log(LogLevel.ERROR, message);
     }
 
@@ -189,7 +192,7 @@ public class Logger {
      * @param message   message to log
      * @param throwable the throwable to print
      */
-    public void error(String message, Throwable throwable) {
+    public void error(@Nullable String message, @Nullable Throwable throwable) {
         log(LogLevel.ERROR, message, throwable);
     }
 }
