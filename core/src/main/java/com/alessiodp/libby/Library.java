@@ -154,7 +154,7 @@ public class Library {
         this.path = path + ".jar";
 
         this.repositories = repositories != null ? Collections.unmodifiableList(new LinkedList<>(repositories)) : Collections.emptyList();
-        relocatedPath = hasRelocations() ? path + "-relocated.jar" : null;
+        relocatedPath = hasRelocations() ? path + "-relocated-" + Math.abs(this.relocations.hashCode()) + ".jar" : null;
         this.isolatedLoad = isolatedLoad;
         this.loaderId = loaderId;
         this.resolveTransitiveDependencies = resolveTransitiveDependencies;
