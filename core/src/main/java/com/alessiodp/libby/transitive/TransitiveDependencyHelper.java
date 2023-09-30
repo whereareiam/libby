@@ -31,7 +31,7 @@ public class TransitiveDependencyHelper {
     /**
      * org.eclipse.aether.artifact.Artifact class name for reflections
      */
-    private static final String ARTIFACT_CLASS = replaceWithDots("org{}eclipse{}aether{}artifact{}Artifact");
+    private static final String ARTIFACT_CLASS = replaceWithDots("org.eclipse.aether.artifact.Artifact");
 
     /**
      * TransitiveDependencyCollector class instance, used in {@link #findTransitiveLibraries(Library)}
@@ -68,8 +68,9 @@ public class TransitiveDependencyHelper {
         String collectorClassName = "com.alessiodp.libby.transitive.TransitiveDependencyCollector";
         String collectorClassPath = '/' + collectorClassName.replace('.', '/') + ".class";
 
-        for (TransitiveLibraryResolutionDependency dependency : TransitiveLibraryResolutionDependency.values())
-            classLoader.addPath(libraryManager.downloadLibrary(dependency.toLibrary()));
+        for (TransitiveLibraryResolutionDependency dependency : TransitiveLibraryResolutionDependency.values()) {
+            classLoader.addPath(libraryManager.downloadAndRelocate(dependency.toLibrary()));
+        }
 
         final Class<?> transitiveDependencyCollectorClass;
         try {
