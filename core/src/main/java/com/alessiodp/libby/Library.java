@@ -569,7 +569,10 @@ public class Library {
          */
         @NotNull
         public Builder relocate(@NotNull Relocation relocation) {
-            relocations.add(requireNonNull(relocation, "relocation"));
+            requireNonNull(relocation, "relocation");
+            if (!relocation.getPattern().equals(relocation.getRelocatedPattern())) {
+                relocations.add(relocation);
+            }
             return this;
         }
 
