@@ -502,6 +502,7 @@ public abstract class LibraryManager {
      * @return local file path to library
      * @see #loadLibrary(Library)
      */
+    @NotNull
     public Path downloadLibrary(@NotNull Library library) {
         Path file = saveDirectory.resolve(requireNonNull(library, "library").getPath());
         if (Files.exists(file)) {
@@ -583,7 +584,8 @@ public abstract class LibraryManager {
      * @return the relocated file
      * @see RelocationHelper#relocate(Path, Path, Collection)
      */
-    private Path relocate(@NotNull Path in, @NotNull String out, @NotNull Collection<Relocation> relocations) {
+    @NotNull
+    public Path relocate(@NotNull Path in, @NotNull String out, @NotNull Collection<Relocation> relocations) {
         requireNonNull(in, "in");
         requireNonNull(out, "out");
         requireNonNull(relocations, "relocations");
@@ -620,6 +622,40 @@ public abstract class LibraryManager {
     }
 
     /**
+     * Downloads a library jar to the save directory if it doesn't already
+     * exist (snapshot libraries are always re-downloaded), apply all
+     * relocations and returns the local file path of the downloaded or
+     * relocated jar.
+     * <p>
+     * If the library has a checksum, it will be compared against the
+     * downloaded jar's checksum to verify the integrity of the download. If
+     * the checksums don't match, a warning is generated and the next download
+     * URL is attempted.
+     * <p>
+     * Checksum comparison is ignored if the library doesn't have a checksum
+     * or if the library jar already exists in the save directory.
+     * <p>
+     * Most of the time it is advised to use {@link #loadLibrary(Library)}
+     * instead of this method because this one is only concerned with
+     * downloading the jar and returning the local path. It's usually more
+     * desirable to download the jar and add it to the plugin's classpath in
+     * one operation.
+     *
+     * @param library the library to download
+     * @return local file path to library
+     * @see #downloadLibrary(Library)
+     * @see #relocate(Path, String, Collection)
+     */
+    @NotNull
+    public Path downloadAndRelocate(@NotNull Library library) {
+        Path file = downloadLibrary(requireNonNull(library, "library"));
+        if (library.hasRelocations()) {
+            file = relocate(file, library.getRelocatedPath(), library.getRelocations());
+        }
+        return file;
+    }
+
+    /**
      * Resolves and loads transitive libraries for a given library. This method ensures that
      * all libraries on which the provided library depends are properly loaded.
      *
@@ -652,10 +688,7 @@ public abstract class LibraryManager {
      * @see #downloadLibrary(Library)
      */
     public void loadLibrary(@NotNull Library library) {
-        Path file = downloadLibrary(requireNonNull(library, "library"));
-        if (library.hasRelocations()) {
-            file = relocate(file, library.getRelocatedPath(), library.getRelocations());
-        }
+        Path file = downloadAndRelocate(requireNonNull(library, "library"));
         if (library.resolveTransitiveDependencies()) {
             resolveTransitiveLibraries(library);
         }
