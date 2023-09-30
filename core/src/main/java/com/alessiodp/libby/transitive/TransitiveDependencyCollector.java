@@ -82,7 +82,7 @@ class TransitiveDependencyCollector {
      * @param artifactId   Maven artifact ID
      * @param version      Maven dependency version
      * @param classifier   Maven artifact classifier. May be null
-     * @param repositories Maven repositories that would be used for dependency resolvement
+     * @param repositories Maven repositories that would be used for dependency resolution
      * @return Transitive dependencies, exception otherwise
      * @throws DependencyResolutionException thrown if dependency doesn't exist on provided repositories
      */

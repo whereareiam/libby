@@ -586,9 +586,9 @@ public class Library {
         }
 
         /**
-         * Sets the transitive dependency resolvement for this library.
+         * Sets the transitive dependency resolution for this library.
          *
-         * @param resolveTransitiveDependencies the transitive dependency resolvement
+         * @param resolveTransitiveDependencies the transitive dependency resolution
          * @return this builder
          * @see #excludeTransitiveDependency(ExcludedDependency)
          */
