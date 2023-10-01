@@ -622,7 +622,7 @@ public abstract class LibraryManager {
             relocator.relocate(in, tmpOut, relocations);
             Files.move(tmpOut, file);
 
-            logger.info("Relocations applied to " + saveDirectory.getParent().relativize(in));
+            logger.info("Relocations applied to " + in.getFileName());
 
             return file;
         } catch (IOException e) {
@@ -668,7 +668,7 @@ public abstract class LibraryManager {
      * @see #downloadLibrary(Library)
      */
     public void loadLibrary(@NotNull Library library) {
-        Path file = downloadAndRelocate(requireNonNull(library, "library"));
+        logger.info("Loading library " + library.getArtifactId());
         Path file = downloadLibrary(requireNonNull(library, "library"));
         if (library.resolveTransitiveDependencies()) {
             resolveTransitiveLibraries(library);
