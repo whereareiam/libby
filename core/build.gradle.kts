@@ -1,8 +1,5 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     id("net.kyori.blossom") version "2.0.1"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 dependencies {
@@ -25,18 +22,4 @@ sourceSets {
             }
         }
     }
-}
-
-tasks.build {
-    finalizedBy("shadowJar")
-}
-
-tasks.withType<ShadowJar> {
-    archiveClassifier.set("")
-
-    dependencies {
-        include(dependency("com.grack:nanojson"))
-    }
-
-    relocate("com.grack.nanojson", "com.alessiodp.libby.nanojson")
 }
