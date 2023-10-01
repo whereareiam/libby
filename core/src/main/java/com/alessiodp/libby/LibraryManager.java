@@ -497,10 +497,14 @@ public abstract class LibraryManager {
      * downloading the jar and returning the local path. It's usually more
      * desirable to download the jar and add it to the plugin's classpath in
      * one operation.
+     * <p>
+     * Once the library is downloaded, relocations are applied automatically and
+     * its returned the path to the relocated jar.
      *
      * @param library the library to download
      * @return local file path to library
      * @see #loadLibrary(Library)
+     * @see #relocate(Path, String, Collection)
      */
     @NotNull
     public Path downloadLibrary(@NotNull Library library) {
@@ -508,6 +512,11 @@ public abstract class LibraryManager {
         if (Files.exists(file)) {
             // Early return only if library isn't a snapshot, since snapshot libraries are always re-downloaded
             if (!library.isSnapshot()) {
+                // Relocate the file
+                if (library.hasRelocations()) {
+                    file = relocate(file, library.getRelocatedPath(), library.getRelocations());
+                }
+
                 return file;
             }
 
@@ -559,6 +568,11 @@ public abstract class LibraryManager {
 
                 Files.write(out, bytes);
                 Files.move(out, file);
+
+                // Relocate the file
+                if (library.hasRelocations()) {
+                    file = relocate(file, library.getRelocatedPath(), library.getRelocations());
+                }
 
                 return file;
             }
@@ -622,40 +636,6 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Downloads a library jar to the save directory if it doesn't already
-     * exist (snapshot libraries are always re-downloaded), apply all
-     * relocations and returns the local file path of the downloaded or
-     * relocated jar.
-     * <p>
-     * If the library has a checksum, it will be compared against the
-     * downloaded jar's checksum to verify the integrity of the download. If
-     * the checksums don't match, a warning is generated and the next download
-     * URL is attempted.
-     * <p>
-     * Checksum comparison is ignored if the library doesn't have a checksum
-     * or if the library jar already exists in the save directory.
-     * <p>
-     * Most of the time it is advised to use {@link #loadLibrary(Library)}
-     * instead of this method because this one is only concerned with
-     * downloading the jar and returning the local path. It's usually more
-     * desirable to download the jar and add it to the plugin's classpath in
-     * one operation.
-     *
-     * @param library the library to download
-     * @return local file path to library
-     * @see #downloadLibrary(Library)
-     * @see #relocate(Path, String, Collection)
-     */
-    @NotNull
-    public Path downloadAndRelocate(@NotNull Library library) {
-        Path file = downloadLibrary(requireNonNull(library, "library"));
-        if (library.hasRelocations()) {
-            file = relocate(file, library.getRelocatedPath(), library.getRelocations());
-        }
-        return file;
-    }
-
-    /**
      * Resolves and loads transitive libraries for a given library. This method ensures that
      * all libraries on which the provided library depends are properly loaded.
      *
@@ -689,6 +669,7 @@ public abstract class LibraryManager {
      */
     public void loadLibrary(@NotNull Library library) {
         Path file = downloadAndRelocate(requireNonNull(library, "library"));
+        Path file = downloadLibrary(requireNonNull(library, "library"));
         if (library.resolveTransitiveDependencies()) {
             resolveTransitiveLibraries(library);
         }

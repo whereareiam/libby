@@ -69,7 +69,7 @@ public class TransitiveDependencyHelper {
         String collectorClassPath = '/' + collectorClassName.replace('.', '/') + ".class";
 
         for (TransitiveLibraryResolutionDependency dependency : TransitiveLibraryResolutionDependency.values()) {
-            classLoader.addPath(libraryManager.downloadAndRelocate(dependency.toLibrary()));
+            classLoader.addPath(libraryManager.downloadLibrary(dependency.toLibrary()));
         }
 
         final Class<?> transitiveDependencyCollectorClass;
