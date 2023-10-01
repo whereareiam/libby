@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * An immutable representation of a Maven artifact that can be downloaded,
- * relocated and then loaded into a plugin's classpath at runtime.
+ * relocated and then loaded into a classloader classpath at runtime.
  *
  * @see #builder()
  */

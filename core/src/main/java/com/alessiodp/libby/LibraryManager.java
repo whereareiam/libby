@@ -51,24 +51,24 @@ import java.util.Set;
 import static java.util.Objects.requireNonNull;
 
 /**
- * A runtime dependency manager for plugins.
+ * A runtime dependency manager for java applications.
  * <p>
  * The library manager can resolve a dependency jar through the configured
  * Maven repositories, download it into a local cache, relocate it and then
- * load it into the plugin's classpath.
+ * load it into the classloader classpath.
  * <p>
  * Transitive dependencies for a library aren't downloaded automatically and
  * must be explicitly loaded like every other library.
  * <p>
  * It's recommended that libraries are relocated to prevent any namespace
  * conflicts with different versions of the same library bundled with other
- * plugins or maybe even bundled with the server itself.
+ * java applications or maybe even bundled with the server itself.
  *
  * @see Library
  */
 public abstract class LibraryManager {
     /**
-     * Wrapped plugin logger
+     * Wrapped logger
      */
     protected final Logger logger;
 
@@ -111,8 +111,8 @@ public abstract class LibraryManager {
     /**
      * Creates a new library manager.
      *
-     * @param logAdapter    plugin logging adapter
-     * @param dataDirectory plugin's data directory
+     * @param logAdapter    logging adapter
+     * @param dataDirectory data directory
      * @deprecated Use {@link LibraryManager#LibraryManager(LogAdapter, Path, String)}
      */
     @Deprecated
@@ -124,8 +124,8 @@ public abstract class LibraryManager {
     /**
      * Creates a new library manager.
      *
-     * @param logAdapter    plugin logging adapter
-     * @param dataDirectory plugin's data directory
+     * @param logAdapter    logging adapter
+     * @param dataDirectory data directory
      * @param directoryName download directory name
      */
     protected LibraryManager(@NotNull LogAdapter logAdapter, @NotNull Path dataDirectory, @NotNull String directoryName) {
@@ -134,7 +134,7 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Adds a file to the plugin's classpath.
+     * Adds a file to the classloader classpath.
      *
      * @param file the file to add
      */
@@ -495,7 +495,7 @@ public abstract class LibraryManager {
      * Most of the time it is advised to use {@link #loadLibrary(Library)}
      * instead of this method because this one is only concerned with
      * downloading the jar and returning the local path. It's usually more
-     * desirable to download the jar and add it to the plugin's classpath in
+     * desirable to download the jar and add it to the classloader's classpath in
      * one operation.
      * <p>
      * Once the library is downloaded, relocations are applied automatically and
@@ -658,7 +658,7 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Loads a library jar into the plugin's classpath. If the library jar
+     * Loads a library jar into the classloader classpath. If the library jar
      * doesn't exist locally, it will be downloaded.
      * <p>
      * If the provided library has any relocations, they will be applied to
@@ -682,7 +682,7 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Loads multiple libraries into the plugin's classpath.
+     * Loads multiple libraries into the classloader classpath.
      *
      * @param libraries the libraries to load
      * @see #loadLibrary(Library)
@@ -694,7 +694,7 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Configures the current library manager from a libby.json file in the plugin classpath.
+     * Configures the current library manager from a libby.json file in the classloader classpath.
      *
      * @throws ConfigurationException If the configuration contained an error
      * @throws MalformedConfigurationException If the provided JSON file contained a syntactic error or couldn't be read
@@ -704,7 +704,7 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Configures the current library manager from a file in the plugin classpath.
+     * Configures the current library manager from a file in the classloader classpath.
      * Example: configureFromJSON("libby.json")
      *
      * @param fileName the name of the json file

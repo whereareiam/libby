@@ -15,7 +15,7 @@ import static java.util.Objects.requireNonNull;
 /**
  * Relocations are used to describe a search and replace pattern for renaming
  * packages in a library jar for the purpose of preventing namespace conflicts
- * with other plugins that bundle their own version of the same library.
+ * with other java applications that bundle their own version of the same library.
  */
 public class Relocation {
     /**
