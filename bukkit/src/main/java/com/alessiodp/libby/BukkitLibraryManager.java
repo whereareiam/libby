@@ -67,7 +67,7 @@ public class BukkitLibraryManager extends LibraryManager {
     }
 
     @Override
-    protected InputStream getPluginResourceAsInputStream(@NotNull String path) {
+    protected InputStream getResourceAsStream(@NotNull String path) {
         return plugin.getResource(path);
     }
 }

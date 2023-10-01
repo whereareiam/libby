@@ -57,11 +57,6 @@ public class BungeeLibraryManager extends LibraryManager {
         this.plugin = plugin;
     }
 
-    @Override
-    protected InputStream getPluginResourceAsInputStream(@NotNull String path) throws UnsupportedOperationException {
-        return plugin.getResourceAsStream(path);
-    }
-
     /**
      * Adds a file to the Bungee plugin's classpath.
      *
@@ -70,5 +65,10 @@ public class BungeeLibraryManager extends LibraryManager {
     @Override
     protected void addToClasspath(@NotNull Path file) {
         classLoader.addToClasspath(file);
+    }
+
+    @Override
+    protected InputStream getResourceAsStream(@NotNull String path) {
+        return plugin.getResourceAsStream(path);
     }
 }

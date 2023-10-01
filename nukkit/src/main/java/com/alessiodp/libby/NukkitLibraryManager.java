@@ -68,7 +68,7 @@ public class NukkitLibraryManager extends LibraryManager {
     }
 
     @Override
-    protected InputStream getPluginResourceAsInputStream(@NotNull String path) throws UnsupportedOperationException {
+    protected InputStream getResourceAsStream(@NotNull String path) {
         return plugin.getResource(path);
     }
 }

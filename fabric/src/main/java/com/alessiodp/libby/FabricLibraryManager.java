@@ -68,7 +68,7 @@ public class FabricLibraryManager extends LibraryManager {
     }
     
     @Override
-    protected InputStream getPluginResourceAsInputStream(@NotNull String path) {
+    protected InputStream getResourceAsStream(@NotNull String path) {
         try {
             return Files.newInputStream(requireNonNull(modContainer.findPath(path).orElse(null)));
         } catch (IOException e) {

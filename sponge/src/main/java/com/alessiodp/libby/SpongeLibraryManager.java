@@ -57,11 +57,6 @@ public class SpongeLibraryManager<T> extends LibraryManager {
         classLoader = new SpongeClassLoaderHelper((plugin.getClass().getClassLoader()), this);
     }
 
-    @Override
-    protected InputStream getPluginResourceAsInputStream(@NotNull String path) throws UnsupportedOperationException {
-        return getClass().getClassLoader().getResourceAsStream(path);
-    }
-
     /**
      * Adds a file to the Sponge plugin's classpath.
      *
@@ -71,5 +66,10 @@ public class SpongeLibraryManager<T> extends LibraryManager {
     protected void addToClasspath(@NotNull Path file) {
         requireNonNull(classLoader, "classLoader");
         classLoader.addToClasspath(file);
+    }
+
+    @Override
+    protected InputStream getResourceAsStream(@NotNull String path) {
+        return getClass().getClassLoader().getResourceAsStream(path);
     }
 }

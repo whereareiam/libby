@@ -717,7 +717,6 @@ public abstract class LibraryManager {
      *
      * @throws ConfigurationException If the configuration contained an error
      * @throws MalformedConfigurationException If the provided JSON file contained a syntactic error or couldn't be read
-     * @throws UnsupportedOperationException if the platform doesn't implement loading resources from the plugin file
      */
     public void configureFromJSON() {
         configureFromJSON("libby.json");
@@ -730,10 +729,9 @@ public abstract class LibraryManager {
      * @param fileName the name of the json file
      * @throws ConfigurationException If the configuration contained an error
      * @throws MalformedConfigurationException If the provided JSON file contained a syntactic error or couldn't be read
-     * @throws UnsupportedOperationException if the platform doesn't implement loading resources from the plugin file
      */
     public void configureFromJSON(@NotNull String fileName) {
-        configureFromJSON(getPluginResourceAsInputStream(fileName));
+        configureFromJSON(requireNonNull(getResourceAsStream(fileName), "resourceAsStream"));
     }
 
     /**
@@ -764,14 +762,13 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Gets an input stream for a resource in the plugin file.
+     * Returns an input stream for reading the specified resource.
      *
      * @param path the path to the resource
      * @return input stream for the resource
-     * @throws UnsupportedOperationException if the platform doesn't implement loading resources from the plugin file
      */
     @Nullable
-    protected InputStream getPluginResourceAsInputStream(@NotNull String path) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Loading resources from the plugin file is not supported on this platform.");
+    protected InputStream getResourceAsStream(@NotNull String path) {
+        return getClass().getClassLoader().getResourceAsStream(path);
     }
 }

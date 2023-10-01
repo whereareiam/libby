@@ -79,11 +79,6 @@ public class VelocityLibraryManager<T> extends LibraryManager {
         this.plugin = requireNonNull(plugin, "plugin");
     }
 
-    @Override
-    protected InputStream getPluginResourceAsInputStream(@NotNull String path) throws UnsupportedOperationException {
-        return getClass().getClassLoader().getResourceAsStream(path);
-    }
-
     /**
      * Adds a file to the Velocity plugin's classpath.
      *
@@ -92,5 +87,10 @@ public class VelocityLibraryManager<T> extends LibraryManager {
     @Override
     protected void addToClasspath(@NotNull Path file) {
         pluginManager.addToClasspath(plugin, file);
+    }
+
+    @Override
+    protected InputStream getResourceAsStream(@NotNull String path) {
+        return getClass().getClassLoader().getResourceAsStream(path);
     }
 }
