@@ -60,7 +60,7 @@ public class Library {
     /**
      * Binary SHA-256 checksum for this library's jar file
      */
-    private final byte[] checksum;
+    private final byte @Nullable [] checksum;
 
     /**
      * Jar relocations to apply
@@ -130,7 +130,7 @@ public class Library {
                     @NotNull String artifactId,
                     @NotNull String version,
                     @Nullable String classifier,
-                    byte[] checksum,
+                    byte @Nullable [] checksum,
                     @Nullable Collection<Relocation> relocations,
                     boolean isolatedLoad,
                     @Nullable String loaderId,
@@ -235,7 +235,7 @@ public class Library {
      *
      * @return checksum or null
      */
-    public byte[] getChecksum() {
+    public byte @Nullable [] getChecksum() {
         return checksum;
     }
 
@@ -521,8 +521,8 @@ public class Library {
          * @return this builder
          */
         @NotNull
-        public Builder checksum(byte[] checksum) {
-            this.checksum = requireNonNull(checksum, "checksum");
+        public Builder checksum(byte @Nullable [] checksum) {
+            this.checksum = checksum;
             return this;
         }
 
@@ -533,8 +533,8 @@ public class Library {
          * @return this builder
          */
         @NotNull
-        public Builder checksum(@NotNull String checksum) {
-            return checksum(Base64.getDecoder().decode(requireNonNull(checksum, "checksum")));
+        public Builder checksum(@Nullable String checksum) {
+            return checksum != null ? checksum(Base64.getDecoder().decode(checksum)) : this;
         }
 
         /**
