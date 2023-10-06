@@ -8,6 +8,7 @@ setOf(
     "nukkit",
     "paper",
     "sponge",
+    "standalone",
     "velocity"
 ).forEach {
     subProject(it)
