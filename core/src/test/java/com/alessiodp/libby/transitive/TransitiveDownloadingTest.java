@@ -8,10 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -65,8 +62,12 @@ public class TransitiveDownloadingTest {
      * @param excludedDependencies Optionally excluded more dependencies
      */
     private void checkDownloadedDependencies(TransitiveLibraryResolutionDependency... excludedDependencies) {
+        Set<TransitiveLibraryResolutionDependency> excluded = new HashSet<>();
         // Always exclude javax.inject since it is excluded by maven-resolver-supplier
-        Set<TransitiveLibraryResolutionDependency> excluded = EnumSet.of(TransitiveLibraryResolutionDependency.JAVAX_INJECT, excludedDependencies);
+        excluded.add(TransitiveLibraryResolutionDependency.JAVAX_INJECT);
+        // Always exclude slf4j-nop since it is not included in maven-resolver-supplier
+        excluded.add(TransitiveLibraryResolutionDependency.SLF4J_NOP);
+        excluded.addAll(Arrays.asList(excludedDependencies));
 
         List<String> loaded = libraryManager.getLoaded();
         // Assert that the correct amount of libraries has been loaded

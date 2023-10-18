@@ -29,6 +29,7 @@ enum TransitiveLibraryResolutionDependency {
     COMMONS_LANG3("org{}apache{}commons", "commons-lang3", "3.12.0", "2RnZBEhsA3+NGTQS2gyS4iqfokIwudZ6V4VcXDHH6U4"),
     MAVEN_BUILDER_SUPPORT("org{}apache{}maven", "maven-builder-support", "3.9.4", "hpRvsGyyBVFVObk7AFw7uSi6PQ0UCvaAecxMyBUSUJY"),
     SLF4J_API("org{}slf4j", "slf4j-api", "1.7.36", "0+9XXj5JeWeNwBvx3M5RAhSTtNEft/G+itmCh3wWocA"),
+    SLF4J_NOP("org{}slf4j", "slf4j-nop", "1.7.36", "whSViweBbLRBKzDHvb1DCP/ca6KoN2e486kinL2SdNY="),
     MAVEN_RESOLVER_PROVIDER("org{}apache{}maven", "maven-resolver-provider", "3.9.4", "upvxL9L6RXgCNbthu/fkWTxg10HwCOCJuZkp6Ma1iqk"),
     MAVEN_MODEL("org{}apache{}maven", "maven-model", "3.9.4", "eTHcjdqHju9GmI2f0HxK3jyRiS1/syCMdCy5RXE1uxU"),
     MAVEN_REPOSITORY_METADATA("org{}apache{}maven", "maven-repository-metadata", "3.9.4", "HVwzk6o5+AeDf7BY14rI0KKHrfGfS6atUHA1Os9hsIE"),
