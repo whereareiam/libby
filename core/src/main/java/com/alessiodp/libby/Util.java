@@ -7,6 +7,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public final class Util {
 
+    private Util() {
+        throw new UnsupportedOperationException("Util class.");
+    }
+
     /**
      * Replaces the "{}" inside the provided string with a dot.
      *
@@ -18,7 +22,19 @@ public final class Util {
         return str.replace("{}", ".");
     }
 
-    private Util() {
-        throw new UnsupportedOperationException("Util class.");
+    /**
+     * Convert a String of hex character to a byte array
+     *
+     * @param string The string to convert
+     * @return The byte array
+     */
+    public static byte[] hexStringToByteArray(String string) {
+        int len = string.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(string.charAt(i), 16) << 4)
+                    + Character.digit(string.charAt(i+1), 16));
+        }
+        return data;
     }
 }
