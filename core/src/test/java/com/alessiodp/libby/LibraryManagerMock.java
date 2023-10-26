@@ -16,7 +16,6 @@ import java.util.logging.Logger;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LibraryManagerMock extends LibraryManager {
-
     private final List<String> loadedPaths = new ArrayList<>();
 
     public LibraryManagerMock() throws IOException {

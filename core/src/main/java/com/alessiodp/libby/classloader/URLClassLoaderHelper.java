@@ -1,63 +1,24 @@
 package com.alessiodp.libby.classloader;
 
-import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManager;
-import com.alessiodp.libby.Repositories;
 import org.jetbrains.annotations.NotNull;
-import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import static com.alessiodp.libby.Util.replaceWithDots;
 import static java.util.Objects.requireNonNull;
 
 /**
  * A reflection-based wrapper around {@link URLClassLoader} for adding URLs to
  * the classpath.
  */
-public class URLClassLoaderHelper {
-    /**
-     * net.bytebuddy.agent.ByteBuddyAgent class name for reflections
-     */
-    private static final String BYTE_BUDDY_AGENT_CLASS = replaceWithDots("net{}bytebuddy{}agent{}ByteBuddyAgent");
-
-    /**
-     * Unsafe class instance. Used in {@link #getPrivilegedMethodHandle(Method)}.
-     */
-    private static final Unsafe theUnsafe;
-
-    static {
-        Unsafe unsafe = null; // Used to make theUnsafe field final
-
-        // getDeclaredField("theUnsafe") is not used to avoid breakage on JVMs with changed field name
-        for (Field f : Unsafe.class.getDeclaredFields()) {
-            try {
-                if (f.getType() == Unsafe.class && Modifier.isStatic(f.getModifiers())) {
-                    f.setAccessible(true);
-                    unsafe = (Unsafe) f.get(null);
-                }
-            } catch (Exception ignored) {
-            }
-        }
-        theUnsafe = unsafe;
-    }
-
-    /**
-     * The class loader being managed by this helper.
-     */
-    private final URLClassLoader classLoader;
-
+public class URLClassLoaderHelper extends ClassLoaderHelper {
     /**
      * A reflected method in {@link URLClassLoader}, when invoked adds a URL to the classpath.
      */
@@ -70,16 +31,15 @@ public class URLClassLoaderHelper {
      * @param libraryManager the library manager used to download dependencies
      */
     public URLClassLoaderHelper(@NotNull URLClassLoader classLoader, @NotNull LibraryManager libraryManager) {
+        super(classLoader);
         requireNonNull(libraryManager, "libraryManager");
-        this.classLoader = requireNonNull(classLoader, "classLoader");
 
         try {
             Method addURLMethod = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
 
             try {
                 openUrlClassLoaderModule();
-            } catch (Exception ignored) {
-            }
+            } catch (Exception ignored) {}
 
             try {
                 addURLMethod.setAccessible(true);
@@ -87,16 +47,34 @@ public class URLClassLoaderHelper {
                 // InaccessibleObjectException has been added in Java 9
                 if (exception.getClass().getName().equals("java.lang.reflect.InaccessibleObjectException")) {
                     // It is Java 9+, try to open java.net package
-                    if (theUnsafe != null)
+                    if (theUnsafe != null) {
                         try {
                             addURLMethodHandle = getPrivilegedMethodHandle(addURLMethod).bindTo(classLoader);
                             return; // We're done
-                        } catch (Exception ignored) {
-                            addURLMethodHandle = null; // Just to be sure the field is set to null
-                        }
+                        } catch (Exception ignored) {}
+                    }
                     // Cannot use privileged MethodHandles.Lookup, trying with java agent
                     try {
-                        addOpensWithAgent(libraryManager);
+                        initInstrumentation(libraryManager, (instrumentation) -> {
+                            // This is effectively calling:
+                            //
+                            // instrumentation.redefineModule(
+                            //     URLClassLoader.class.getModule(),
+                            //     Collections.emptySet(),
+                            //     Collections.emptyMap(),
+                            //     Collections.singletonMap("java.net", Collections.singleton(getClass().getModule())),
+                            //     Collections.emptySet(),
+                            //     Collections.emptyMap()
+                            // );
+                            try {
+                                Method redefineModule = instrumentation.getClass().getDeclaredMethod("redefineModule", Class.forName("java.lang.Module"), Set.class, Map.class, Map.class, Set.class, Map.class);
+                                Method getModule = Class.class.getDeclaredMethod("getModule");
+                                Map<String, Set<?>> toOpen = Collections.singletonMap("java.net", Collections.singleton(getModule.invoke(getClass())));
+                                redefineModule.invoke(instrumentation, getModule.invoke(URLClassLoader.class), Collections.emptySet(), Collections.emptyMap(), toOpen, Collections.emptySet(), Collections.emptyMap());
+                            } catch (Exception e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
                         addURLMethod.setAccessible(true);
                     } catch (Exception e) {
                         // Cannot access at all
@@ -107,35 +85,18 @@ public class URLClassLoaderHelper {
                     throw new RuntimeException("Cannot set accessible URLClassLoader#addURL(URL)", exception);
                 }
             }
-            this.addURLMethodHandle = MethodHandles.lookup().unreflect(addURLMethod).bindTo(classLoader);
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+            addURLMethodHandle = MethodHandles.lookup().unreflect(addURLMethod).bindTo(classLoader);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    /**
-     * Adds a URL to the class loader's classpath.
-     *
-     * @param url the URL to add
-     */
+    @Override
     public void addToClasspath(@NotNull URL url) {
         try {
             addURLMethodHandle.invokeWithArguments(requireNonNull(url, "url"));
         } catch (Throwable e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * Adds a path to the class loader's classpath.
-     *
-     * @param path the path to add
-     */
-    public void addToClasspath(@NotNull Path path) {
-        try {
-            addToClasspath(requireNonNull(path, "path").toUri().toURL());
-        } catch (MalformedURLException e) {
-            throw new IllegalArgumentException(e);
         }
     }
 
@@ -163,77 +124,5 @@ public class URLClassLoaderHelper {
         Object thisModule = getModuleMethod.invoke(URLClassLoaderHelper.class);
 
         addOpensMethod.invoke(urlClassLoaderModule, URLClassLoader.class.getPackage().getName(), thisModule);
-    }
-
-    private MethodHandle getPrivilegedMethodHandle(Method method) throws Exception {
-        // Try to get a MethodHandle to URLClassLoader#addURL.
-        // The Unsafe class is used to get a privileged MethodHandles.Lookup instance.
-
-        // Looking for MethodHandles.Lookup#IMPL_LOOKUP private static field
-        // getDeclaredField("IMPL_LOOKUP") is not used to avoid breakage on JVMs with changed field name
-        for (Field trustedLookup : MethodHandles.Lookup.class.getDeclaredFields()) {
-            if (trustedLookup.getType() != MethodHandles.Lookup.class || !Modifier.isStatic(trustedLookup.getModifiers()) || trustedLookup.isSynthetic())
-                continue;
-
-            try {
-                MethodHandles.Lookup lookup = (MethodHandles.Lookup) theUnsafe.getObject(theUnsafe.staticFieldBase(trustedLookup), theUnsafe.staticFieldOffset(trustedLookup));
-                return lookup.unreflect(method);
-            } catch (Exception ignored) {
-                // Unreflect went wrong, trying the next field
-            }
-        }
-
-        // Every field has been tried
-        throw new RuntimeException("Cannot get privileged method handle.");
-    }
-
-    private void addOpensWithAgent(LibraryManager libraryManager) throws Exception {
-        // To open URLClassLoader's module we need permissions.
-        // Try to add a java agent at runtime (specifically, ByteBuddy's agent) and use it to open the module,
-        // since java agents should have such permission.
-
-        // Download ByteBuddy's agent and load it through an IsolatedClassLoader
-        IsolatedClassLoader isolatedClassLoader = new IsolatedClassLoader();
-        try {
-            isolatedClassLoader.addPath(libraryManager.downloadLibrary(
-                Library.builder()
-                       .groupId("net{}bytebuddy")
-                       .artifactId("byte-buddy-agent")
-                       .version("1.12.1")
-                       .checksum("mcCtBT9cljUEniB5ESpPDYZMfVxEs1JRPllOiWTP+bM=")
-                       .repository(Repositories.MAVEN_CENTRAL)
-                       .build()
-            ));
-
-            Class<?> byteBuddyAgent = isolatedClassLoader.loadClass(BYTE_BUDDY_AGENT_CLASS);
-
-            // This is effectively calling:
-            //
-            // Instrumentation instrumentation = ByteBuddyAgent.install();
-            // instrumentation.redefineModule(
-            //     URLClassLoader.class.getModule(),
-            //     Collections.emptySet(),
-            //     Collections.emptyMap(),
-            //     Collections.singletonMap("java.net", Collections.singleton(getClass().getModule())),
-            //     Collections.emptySet(),
-            //     Collections.emptyMap()
-            // );
-            //
-            // For more information see https://docs.oracle.com/en/java/javase/16/docs/api/java.instrument/java/lang/instrument/Instrumentation.html
-            //
-            // We use reflection since we build against Java 8.
-
-            Object instrumentation = byteBuddyAgent.getDeclaredMethod("install").invoke(null);
-            Class<?> instrumentationClass = Class.forName("java.lang.instrument.Instrumentation");
-            Method redefineModule = instrumentationClass.getDeclaredMethod("redefineModule", Class.forName("java.lang.Module"), Set.class, Map.class, Map.class, Set.class, Map.class);
-            Method getModule = Class.class.getDeclaredMethod("getModule");
-            Map<String, Set<?>> toOpen = Collections.singletonMap("java.net", Collections.singleton(getModule.invoke(getClass())));
-            redefineModule.invoke(instrumentation, getModule.invoke(URLClassLoader.class), Collections.emptySet(), Collections.emptyMap(), toOpen, Collections.emptySet(), Collections.emptyMap());
-        } finally {
-            try {
-                isolatedClassLoader.close();
-            } catch (Exception ignored) {
-            }
-        }
     }
 }
