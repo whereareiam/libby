@@ -1,5 +1,7 @@
 package com.alessiodp.libby;
 
+import com.alessiodp.libby.classloader.ClassLoaderHelper;
+import com.alessiodp.libby.classloader.SystemClassLoaderHelper;
 import com.alessiodp.libby.classloader.URLClassLoaderHelper;
 import com.alessiodp.libby.logging.adapters.LogAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -15,7 +17,7 @@ public class StandaloneLibraryManager extends LibraryManager {
      * Standalone classpath helper
      */
     @NotNull
-    private final URLClassLoaderHelper classLoader;
+    private final ClassLoaderHelper classLoaderHelper;
 
     /**
      * Creates a new Standalone library manager using the classloader of the current class.
@@ -24,8 +26,7 @@ public class StandaloneLibraryManager extends LibraryManager {
      * @param dataDirectory data directory
      */
     public StandaloneLibraryManager(@NotNull LogAdapter logAdapter, @NotNull Path dataDirectory) {
-        super(logAdapter, dataDirectory, "lib");
-        classLoader = new URLClassLoaderHelper((URLClassLoader) getClass().getClassLoader(), this);
+        this(logAdapter, dataDirectory, "lib");
     }
 
     /**
@@ -37,11 +38,18 @@ public class StandaloneLibraryManager extends LibraryManager {
      */
     public StandaloneLibraryManager(@NotNull LogAdapter logAdapter, @NotNull Path dataDirectory, @NotNull String directoryName) {
         super(logAdapter, dataDirectory, directoryName);
-        classLoader = new URLClassLoaderHelper((URLClassLoader) getClass().getClassLoader(), this);
+        ClassLoader classLoader = getClass().getClassLoader();
+        if (classLoader instanceof URLClassLoader) {
+            classLoaderHelper = new URLClassLoaderHelper((URLClassLoader) classLoader, this);
+        } else if (classLoader == ClassLoader.getSystemClassLoader()) {
+            classLoaderHelper = new SystemClassLoaderHelper(classLoader, this);
+        } else {
+            throw new RuntimeException("Unsupported class loader: " + classLoader.getClass().getName());
+        }
     }
 
     @Override
     protected void addToClasspath(@NotNull Path file) {
-        classLoader.addToClasspath(file);
+        classLoaderHelper.addToClasspath(file);
     }
 }
