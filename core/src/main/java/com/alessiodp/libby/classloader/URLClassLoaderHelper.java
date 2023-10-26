@@ -122,8 +122,8 @@ public class URLClassLoaderHelper extends ClassLoaderHelper {
         //
         // For more information see https://docs.oracle.com/en/java/javase/16/docs/api/java.instrument/java/lang/instrument/Instrumentation.html
         try {
-            Method redefineModule = instrumentation.getClass().getDeclaredMethod("redefineModule", Class.forName("java.lang.Module"), Set.class, Map.class, Map.class, Set.class, Map.class);
-            Method getModule = Class.class.getDeclaredMethod("getModule");
+            Method redefineModule = Instrumentation.class.getMethod("redefineModule", Class.forName("java.lang.Module"), Set.class, Map.class, Map.class, Set.class, Map.class);
+            Method getModule = Class.class.getMethod("getModule");
             Map<String, Set<?>> toOpen = Collections.singletonMap("java.net", Collections.singleton(getModule.invoke(getClass())));
             redefineModule.invoke(instrumentation, getModule.invoke(URLClassLoader.class), Collections.emptySet(), Collections.emptyMap(), toOpen, Collections.emptySet(), Collections.emptyMap());
         } catch (Exception e) {
