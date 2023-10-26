@@ -7,9 +7,15 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -46,6 +52,19 @@ public class StandaloneTest {
         if (exitCode != 0) {
             failFormatted(testProcess, exitCode);
         }
+    }
+
+    @Test
+    public void standaloneWithURLClassLoader() throws Exception {
+        URL testJarURL = Paths.get(LibbyTestProperties.TEST_JAR).toUri().toURL();
+        URLClassLoader loader = new URLClassLoader(new URL[]{testJarURL}, ClassLoader.getSystemClassLoader().getParent());
+
+        Class<?> standaloneTestMainClass = loader.loadClass(StandaloneTestMain.class.getName());
+        assertNotSame(StandaloneTestMain.class, standaloneTestMainClass);
+        standaloneTestMainClass.getMethod("main", String[].class).invoke(null, (Object) new String[0]);
+
+        assertThrows(ClassNotFoundException.class, () -> Class.forName(TestUtils.STRING_UTILS_CLASS));
+        assertNotNull(loader.loadClass(TestUtils.STRING_UTILS_CLASS));
     }
 
     private void failFormatted(Process testProcess, int exitCode) throws IOException {
