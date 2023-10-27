@@ -142,12 +142,11 @@ public abstract class ClassLoaderHelper {
             // This is effectively calling:
             //
             // Instrumentation instrumentation = ByteBuddyAgent.install();
+            // consumer.accept(instrumentation);
             //
-            // For more information see https://docs.oracle.com/en/java/javase/16/docs/api/java.instrument/java/lang/instrument/Instrumentation.html
-            //
-            // We use reflection since we build against Java 8.
+            // For more information see https://docs.oracle.com/javase/8/docs/api/java/lang/instrument/Instrumentation.html
 
-            Instrumentation instrumentation = (Instrumentation) byteBuddyAgent.getDeclaredMethod("install").invoke(null);
+            Instrumentation instrumentation = (Instrumentation) byteBuddyAgent.getMethod("install").invoke(null);
             consumer.accept(instrumentation);
         } finally {
             try {

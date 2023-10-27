@@ -3,6 +3,7 @@ package com.alessiodp.libby.classloader;
 import com.alessiodp.libby.LibraryManager;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.instrument.Instrumentation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
@@ -55,26 +56,7 @@ public class URLClassLoaderHelper extends ClassLoaderHelper {
                     }
                     // Cannot use privileged MethodHandles.Lookup, trying with java agent
                     try {
-                        initInstrumentation(libraryManager, (instrumentation) -> {
-                            // This is effectively calling:
-                            //
-                            // instrumentation.redefineModule(
-                            //     URLClassLoader.class.getModule(),
-                            //     Collections.emptySet(),
-                            //     Collections.emptyMap(),
-                            //     Collections.singletonMap("java.net", Collections.singleton(getClass().getModule())),
-                            //     Collections.emptySet(),
-                            //     Collections.emptyMap()
-                            // );
-                            try {
-                                Method redefineModule = instrumentation.getClass().getDeclaredMethod("redefineModule", Class.forName("java.lang.Module"), Set.class, Map.class, Map.class, Set.class, Map.class);
-                                Method getModule = Class.class.getDeclaredMethod("getModule");
-                                Map<String, Set<?>> toOpen = Collections.singletonMap("java.net", Collections.singleton(getModule.invoke(getClass())));
-                                redefineModule.invoke(instrumentation, getModule.invoke(URLClassLoader.class), Collections.emptySet(), Collections.emptyMap(), toOpen, Collections.emptySet(), Collections.emptyMap());
-                            } catch (Exception e) {
-                                throw new RuntimeException(e);
-                            }
-                        });
+                        initInstrumentation(libraryManager, this::addOpensWithAgent);
                         addURLMethod.setAccessible(true);
                     } catch (Exception e) {
                         // Cannot access at all
@@ -124,5 +106,28 @@ public class URLClassLoaderHelper extends ClassLoaderHelper {
         Object thisModule = getModuleMethod.invoke(URLClassLoaderHelper.class);
 
         addOpensMethod.invoke(urlClassLoaderModule, URLClassLoader.class.getPackage().getName(), thisModule);
+    }
+
+    private void addOpensWithAgent(@NotNull Instrumentation instrumentation) {
+        // This is effectively calling:
+        //
+        // instrumentation.redefineModule(
+        //     URLClassLoader.class.getModule(),
+        //     Collections.emptySet(),
+        //     Collections.emptyMap(),
+        //     Collections.singletonMap("java.net", Collections.singleton(getClass().getModule())),
+        //     Collections.emptySet(),
+        //     Collections.emptyMap()
+        // );
+        //
+        // For more information see https://docs.oracle.com/en/java/javase/16/docs/api/java.instrument/java/lang/instrument/Instrumentation.html
+        try {
+            Method redefineModule = Instrumentation.class.getMethod("redefineModule", Class.forName("java.lang.Module"), Set.class, Map.class, Map.class, Set.class, Map.class);
+            Method getModule = Class.class.getMethod("getModule");
+            Map<String, Set<?>> toOpen = Collections.singletonMap("java.net", Collections.singleton(getModule.invoke(getClass())));
+            redefineModule.invoke(instrumentation, getModule.invoke(URLClassLoader.class), Collections.emptySet(), Collections.emptyMap(), toOpen, Collections.emptySet(), Collections.emptyMap());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
