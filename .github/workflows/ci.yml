@@ -33,7 +33,7 @@ jobs:
       - name: Build with Gradle
         run: |
           if [ "${{ matrix.java-version }}" -lt "17" ]; then
-            ./gradlew build -x libby-paper:build
+            ./gradlew build -i -x libby-paper:build
           else
-            ./gradlew build
+            ./gradlew build -i
           fi
