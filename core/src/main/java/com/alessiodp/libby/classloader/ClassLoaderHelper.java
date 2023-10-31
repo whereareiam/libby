@@ -166,4 +166,12 @@ public abstract class ClassLoaderHelper {
             } catch (Exception ignored) {}
         }
     }
+
+    protected boolean canUseUnsafe() {
+        return !Boolean.parseBoolean(System.getProperty("libby.classloaders.unsafeDisabled")) && !Boolean.parseBoolean(System.getenv("LIBBY_CLASSLOADERS_UNSAFE_DISABLED"));
+    }
+
+    protected boolean canUseJavaAgent() {
+        return !Boolean.parseBoolean(System.getProperty("libby.classloaders.javaAgentDisabled")) && !Boolean.parseBoolean(System.getenv("LIBBY_CLASSLOADERS_JAVA_AGENT_DISABLED"));
+    }
 }
