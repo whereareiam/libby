@@ -26,7 +26,7 @@ public class SystemClassLoaderHelper extends ClassLoaderHelper {
     /**
      * Creates a new SystemClassLoader helper.
      *
-     * @param classLoader    the class loader to manage
+     * @param classLoader the class loader to manage
      * @param libraryManager the library manager used to download dependencies
      */
     public SystemClassLoaderHelper(ClassLoader classLoader, @NotNull LibraryManager libraryManager) {
@@ -35,35 +35,16 @@ public class SystemClassLoaderHelper extends ClassLoaderHelper {
 
         try {
             Method appendMethod = classLoader.getClass().getDeclaredMethod("appendToClassPathForInstrumentation", String.class);
-
-            try {
-                appendMethod.setAccessible(true);
-            } catch (Exception exception) {
-                // InaccessibleObjectException has been added in Java 9
-                if (exception.getClass().getName().equals("java.lang.reflect.InaccessibleObjectException")) {
-                    // It is Java 9+, try to open jdk.internal.loader package
-                    if (theUnsafe != null) {
-                        try {
-                            appendMethodHandle = getPrivilegedMethodHandle(appendMethod).bindTo(classLoader);
-                            return; // We're done
-                        } catch (Exception ignored) {}
+            setMethodAccessible(libraryManager, appendMethod, classLoader.getClass().getName() + "#appendToClassPathForInstrumentation(String)",
+                    methodHandle -> {
+                        appendMethodHandle = methodHandle;
+                    },
+                    instrumentation -> {
+                        appendInstrumentation = instrumentation;
                     }
-                    // Cannot use privileged MethodHandles.Lookup, trying with java agent
-                    try {
-                        initInstrumentation(libraryManager, (instrumentation) -> {
-                            appendInstrumentation = instrumentation;
-                        });
-                    } catch (Exception e) {
-                        // Cannot access at all
-                        libraryManager.getLogger().error("Cannot access " + classLoader.getClass().getName() + "#appendToClassPathForInstrumentation(String)");
-                        throw new RuntimeException("Cannot access " + classLoader.getClass().getName() + "#appendToClassPathForInstrumentation(String)", e);
-                    }
-                } else {
-                    throw new RuntimeException("Cannot set accessible " + classLoader.getClass().getName() + "#appendToClassPathForInstrumentation(String) method in the class loader", exception);
-                }
-            }
+            );
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Couldn't initialize SystemClassLoaderHelper", e);
         }
     }
 
