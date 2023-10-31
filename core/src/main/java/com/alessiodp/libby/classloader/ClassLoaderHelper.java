@@ -52,6 +52,11 @@ public abstract class ClassLoaderHelper {
     }
 
     /**
+     * Cached {@link Instrumentation} instance. Used by {@link #initInstrumentation(LibraryManager, Consumer)}.
+     */
+    private static volatile Instrumentation cachedInstrumentation;
+
+    /**
      * The class loader being managed by this helper.
      */
     protected final ClassLoader classLoader;
@@ -120,6 +125,12 @@ public abstract class ClassLoaderHelper {
      * @throws Exception if an error occurs
      */
     protected void initInstrumentation(LibraryManager libraryManager, Consumer<Instrumentation> consumer) throws Exception {
+        Instrumentation instr = cachedInstrumentation;
+        if (instr != null) {
+            consumer.accept(instr);
+            return;
+        }
+
         // To open the class-loader's module we need permissions.
         // Try to add a java agent at runtime (specifically, ByteBuddy's agent) and use it to open the module,
         // since java agents should have such permission.
@@ -147,6 +158,7 @@ public abstract class ClassLoaderHelper {
             // For more information see https://docs.oracle.com/javase/8/docs/api/java/lang/instrument/Instrumentation.html
 
             Instrumentation instrumentation = (Instrumentation) byteBuddyAgent.getMethod("install").invoke(null);
+            cachedInstrumentation = instrumentation;
             consumer.accept(instrumentation);
         } finally {
             try {
