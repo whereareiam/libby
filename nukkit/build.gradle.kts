@@ -6,5 +6,5 @@ repositories {
 dependencies {
     api(project(":libby-core"))
 
-    implementation("cn.nukkit:nukkit:1.0-SNAPSHOT")
+    compileOnly("cn.nukkit:nukkit:1.0-SNAPSHOT")
 }
