@@ -80,33 +80,33 @@ public abstract class LibraryManager {
     /**
      * Maven repositories used to resolve artifacts
      */
-    private final Set<String> repositories = new LinkedHashSet<>();
+    protected final Set<String> repositories = new LinkedHashSet<>();
 
     /**
      * Lazily-initialized relocation helper that uses reflection to call into
      * Luck's Jar Relocator
      */
-    private RelocationHelper relocator;
+    protected RelocationHelper relocator;
 
     /**
      * Lazily-initialized helper for transitive dependencies resolution
      */
-    private TransitiveDependencyHelper transitiveDependencyHelper;
+    protected TransitiveDependencyHelper transitiveDependencyHelper;
 
     /**
      * Lazily-initialized helper used to fetch the JSON config
      */
-    private ConfigurationFetcher configurationFetcher;
+    protected ConfigurationFetcher configurationFetcher;
 
     /**
      * Global isolated class loader for libraries
      */
-    private final IsolatedClassLoader globalIsolatedClassLoader = new IsolatedClassLoader();
+    protected final IsolatedClassLoader globalIsolatedClassLoader = new IsolatedClassLoader();
 
     /**
      * Map of isolated class loaders and theirs id
      */
-    private final Map<String, IsolatedClassLoader> isolatedLibraries = new HashMap<>();
+    protected final Map<String, IsolatedClassLoader> isolatedLibraries = new HashMap<>();
 
     /**
      * Creates a new library manager.
@@ -328,7 +328,7 @@ public abstract class LibraryManager {
      * provided repository
      */
     @Nullable
-    private String resolveSnapshot(@NotNull String repository, @NotNull Library library) {
+    protected String resolveSnapshot(@NotNull String repository, @NotNull Library library) {
         String url = requireNonNull(repository, "repository") + requireNonNull(library, "library").getPartialPath() + "maven-metadata.xml";
         try {
             URLConnection connection = new URL(requireNonNull(url, "url")).openConnection();
@@ -368,7 +368,7 @@ public abstract class LibraryManager {
      * @throws IOException If any IO errors occur
      */
     @Nullable
-    private String getURLFromMetadata(@NotNull InputStream inputStream, @NotNull Library library) throws IOException {
+    protected String getURLFromMetadata(@NotNull InputStream inputStream, @NotNull Library library) throws IOException {
         requireNonNull(inputStream, "inputStream");
         requireNonNull(library, "library");
 
@@ -437,7 +437,7 @@ public abstract class LibraryManager {
      * @param url the URL to the library jar
      * @return downloaded jar as byte array or null if nothing was downloaded
      */
-    private byte[] downloadLibrary(@NotNull String url) {
+    protected byte[] downloadLibrary(@NotNull String url) {
         try {
             URLConnection connection = new URL(requireNonNull(url, "url")).openConnection();
 
@@ -643,7 +643,7 @@ public abstract class LibraryManager {
      * @throws NullPointerException if the provided library is null.
      * @see #loadLibrary(Library)
      */
-    private void resolveTransitiveLibraries(@NotNull Library library) {
+    protected void resolveTransitiveLibraries(@NotNull Library library) {
         requireNonNull(library, "library");
 
         synchronized (this) {
