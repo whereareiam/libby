@@ -1,6 +1,10 @@
 # Libby (AlessioDP)
 
-## [Changes in this fork](https://github.com/AlessioDP/libby/blob/master/CHANGELOG.md)
+## [Changes in this fork](./CHANGELOG.md)
+
+## 2.0.0 Beta
+
+A beta version of the 2.0.0 update is available on the `gradle` branch, with many changes and improvements. [Try it out!](https://github.com/AlessioDP/libby/tree/gradle#usage)
 
 # Libby
 
