@@ -1,6 +1,6 @@
 # Libby (AlessioDP)
 
-## [Changes in this fork](https://github.com/AlessioDP/libby/blob/master/CHANGELOG.md)
+## [Changes in this fork](./CHANGELOG.md)
 
 # Libby
 
