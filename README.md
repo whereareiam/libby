@@ -26,16 +26,16 @@ who self-host their plugins on servers with limited bandwidth.
 
 Firstly, add the maven artifact to your `pom.xml`
 ```xml
-<!-- Libby (AlessioDP) Repository -->
+<!-- Maven Central Snapshots Repository -->
 <repository>
-  <id>AlessioDP</id>
-  <url>https://repo.alessiodp.com/releases/</url>
+  <id>maven-snapshots</id>
+  <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
 </repository>
 
 <dependency>
-    <groupId>net.byteflux</groupId>
+    <groupId>com.alessiodp.libby</groupId>
     <artifactId>libby-bukkit</artifactId> <!-- Replace bukkit if you're using another platform -->
-    <version>1.3.0</version>
+    <version>2.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -47,8 +47,8 @@ Remember to **always** relocate Libby to avoid conflicts
     <configuration>
         <relocations>
             <relocation>
-                <pattern>net.byteflux.libby</pattern>
-                <shadedPattern>yourPackage.libs.net.byteflux.libby</shadedPattern>
+                <pattern>com.alessiodp.libby</pattern>
+                <shadedPattern>yourPackage.libs.com.alessiodp.libby</shadedPattern>
             </relocation>
         </relocations>
     </configuration>
