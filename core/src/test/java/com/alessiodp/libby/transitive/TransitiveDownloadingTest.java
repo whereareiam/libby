@@ -28,6 +28,15 @@ public class TransitiveDownloadingTest {
             .resolveTransitiveDependencies(true)
             .excludeTransitiveDependency(EXCLUDED_LIBRARY.getGroupId(), EXCLUDED_LIBRARY.getArtifactId())
             .build();
+    private static final Library BUNGEECORD = Library.builder()
+            .groupId("net{}md-5")
+            .artifactId("bungeecord-api")
+            .version("1.20-R0.2-SNAPSHOT")
+            .repository("https://oss.sonatype.org/content/repositories/snapshots")
+            .isolatedLoad(true)
+            .loaderId("bungeecord")
+            .resolveTransitiveDependencies(true)
+            .build();
 
     private LibraryManagerMock libraryManager;
 
@@ -47,6 +56,13 @@ public class TransitiveDownloadingTest {
         libraryManager.loadLibrary(MAVEN_RESOLVER_SUPPLIER);
 
         checkDownloadedDependencies();
+    }
+
+    @Test
+    public void snapshotLibraryTransitiveLoad() throws Exception {
+        libraryManager.loadLibrary(BUNGEECORD);
+
+        assertNotNull(libraryManager.getIsolatedClassLoaderById("bungeecord").loadClass("net.md_5.bungee.api.ProxyServer"));
     }
 
     @Test
