@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -34,6 +35,13 @@ import java.util.stream.Stream;
  * @see <a href=https://github.com/apache/maven-resolver>maven-resolver</a>.
  */
 class TransitiveDependencyCollector {
+
+    /**
+     * Counter used to generate ids for repositories
+     *
+     * @see #newDefaultRepository(String)
+     */
+    private static final AtomicInteger ID_GENERATOR = new AtomicInteger();
 
     /**
      * Maven repository system
@@ -72,7 +80,7 @@ class TransitiveDependencyCollector {
      */
     @NotNull
     public static RemoteRepository newDefaultRepository(@NotNull String url) {
-        return new RemoteRepository.Builder(url, "default", url).build();
+        return new RemoteRepository.Builder("repo" + ID_GENERATOR.getAndIncrement(), "default", url).build();
     }
 
     /**
