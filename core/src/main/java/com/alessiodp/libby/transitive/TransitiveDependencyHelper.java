@@ -46,7 +46,7 @@ public class TransitiveDependencyHelper {
     /**
      * Reflected getter methods of Artifact class
      */
-    private final Method artifactGetGroupIdMethod, artifactGetArtifactIdMethod, artifactGetVersionMethod, artifactGetClassifierMethod;
+    private final Method artifactGetGroupIdMethod, artifactGetArtifactIdMethod, artifactGetBaseVersionMethod, artifactGetClassifierMethod;
 
     /**
      * LibraryManager instance, used in {@link #findTransitiveLibraries(Library)}
@@ -93,8 +93,8 @@ public class TransitiveDependencyHelper {
             artifactGetGroupIdMethod = artifactClass.getMethod("getGroupId");
             // org.eclipse.aether.artifact.Artifact#getArtifactId()
             artifactGetArtifactIdMethod = artifactClass.getMethod("getArtifactId");
-            // org.eclipse.aether.artifact.Artifact#getVersion()
-            artifactGetVersionMethod = artifactClass.getMethod("getVersion");
+            // org.eclipse.aether.artifact.Artifact#getBaseVersion()
+            artifactGetBaseVersionMethod = artifactClass.getMethod("getBaseVersion");
             // org.eclipse.aether.artifact.Artifact#getClassifier()
             artifactGetClassifierMethod = artifactClass.getMethod("getClassifier");
         } catch (ReflectiveOperationException e) {
@@ -141,7 +141,7 @@ public class TransitiveDependencyHelper {
             for (Object artifact : artifacts) {
                 String groupId = (String) artifactGetGroupIdMethod.invoke(artifact);
                 String artifactId = (String) artifactGetArtifactIdMethod.invoke(artifact);
-                String version = (String) artifactGetVersionMethod.invoke(artifact);
+                String version = (String) artifactGetBaseVersionMethod.invoke(artifact);
                 String classifier = (String) artifactGetClassifierMethod.invoke(artifact);
 
                 if (library.getGroupId().equals(groupId) && library.getArtifactId().equals(artifactId))
