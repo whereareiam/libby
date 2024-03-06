@@ -22,7 +22,7 @@ public class TestUtils {
             .groupId("org{}apache{}commons")
             .artifactId("commons-lang3")
             .version("3.13.0")
-            .checksum("gvUoz3GMejwvMPxbx4TjxqChCxdgXa254WyC7eEeYGQ=")
+            .checksumFromBase64("gvUoz3GMejwvMPxbx4TjxqChCxdgXa254WyC7eEeYGQ=")
             .build();
     public static final Library APACHE_COMMONS_LANG3_ISOLATED = Library.builder()
             .groupId(APACHE_COMMONS_LANG3.getGroupId())
