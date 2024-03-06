@@ -8,6 +8,7 @@ import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.collection.CollectRequest;
 import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.repository.ArtifactRepository;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.aether.resolution.ArtifactResult;
@@ -18,12 +19,15 @@ import org.eclipse.aether.supplier.RepositorySystemSupplier;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.ScopeDependencyFilter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.nio.file.Path;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -91,11 +95,11 @@ class TransitiveDependencyCollector {
      * @param version      Maven dependency version
      * @param classifier   Maven artifact classifier. May be null
      * @param repositories Maven repositories that would be used for dependency resolution
-     * @return Transitive dependencies, exception otherwise
+     * @return Transitive dependencies paired with their repository url, exception otherwise
      * @throws DependencyResolutionException thrown if dependency doesn't exist on provided repositories
      */
     @NotNull
-    public Collection<Artifact> findTransitiveDependencies(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String classifier, @NotNull List<RemoteRepository> repositories) throws DependencyResolutionException {
+    public Collection<Entry<Artifact, @Nullable String>> findTransitiveDependencies(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String classifier, @NotNull List<RemoteRepository> repositories) throws DependencyResolutionException {
         Artifact artifact = new DefaultArtifact(groupId, artifactId, classifier, "jar", version);
 
         CollectRequest collectRequest = new CollectRequest(new Dependency(artifact, JavaScopes.COMPILE), repositories);
@@ -103,7 +107,18 @@ class TransitiveDependencyCollector {
 
         DependencyResult dependencyResult = repositorySystem.resolveDependencies(repositorySystemSession, dependencyRequest);
 
-        return dependencyResult.getArtifactResults().stream().filter(ArtifactResult::isResolved).map(ArtifactResult::getArtifact).collect(Collectors.toList());
+        return dependencyResult.getArtifactResults()
+                .stream()
+                .filter(ArtifactResult::isResolved)
+                .map(artifactResult -> {
+                    ArtifactRepository repo = artifactResult.getRepository();
+                    String url = null;
+                    if (repo instanceof RemoteRepository) {
+                        url = ((RemoteRepository) repo).getUrl();
+                    }
+                    return new SimpleEntry<>(artifactResult.getArtifact(), url);
+                })
+                .collect(Collectors.toList());
     }
 
     /**
@@ -114,12 +129,12 @@ class TransitiveDependencyCollector {
      * @param version      Maven artifact version
      * @param classifier   Maven artifact classifier. May be null
      * @param repositories Maven repositories for transitive dependencies search
-     * @return Transitive dependencies, exception otherwise
+     * @return Transitive dependencies paired with their repository url, exception otherwise
      * @throws DependencyResolutionException thrown if dependency doesn't exist on provided repositories
      * @see #findTransitiveDependencies(String, String, String, String, List)
      */
     @NotNull
-    public Collection<Artifact> findTransitiveDependencies(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String classifier, @NotNull Stream<String> repositories) throws DependencyResolutionException {
+    public Collection<Entry<Artifact, @Nullable String>> findTransitiveDependencies(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String classifier, @NotNull Stream<String> repositories) throws DependencyResolutionException {
         return findTransitiveDependencies(groupId, artifactId, version, classifier, repositories.map(TransitiveDependencyCollector::newDefaultRepository).collect(Collectors.toList()));
     }
 

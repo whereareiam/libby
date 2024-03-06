@@ -5,12 +5,13 @@ import com.alessiodp.libby.relocation.Relocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 
+import static com.alessiodp.libby.Util.craftPartialPath;
+import static com.alessiodp.libby.Util.craftPath;
 import static com.alessiodp.libby.Util.hexStringToByteArray;
 import static com.alessiodp.libby.Util.replaceWithDots;
 import static java.util.Objects.requireNonNull;
@@ -146,13 +147,8 @@ public class Library {
         this.checksum = checksum;
         this.relocations = relocations != null ? Collections.unmodifiableList(new LinkedList<>(relocations)) : Collections.emptyList();
 
-        this.partialPath = this.groupId.replace('.', '/') + '/' + this.artifactId + '/' + version + '/';
-        String path = this.partialPath + this.artifactId + '-' + version;
-        if (hasClassifier()) {
-            path += '-' + classifier;
-        }
-
-        this.path = path + ".jar";
+        this.partialPath = craftPartialPath(this.artifactId, this.groupId, version);
+        this.path = craftPath(this.partialPath, this.artifactId, this.version, this.classifier);
 
         this.repositories = repositories != null ? Collections.unmodifiableList(new LinkedList<>(repositories)) : Collections.emptyList();
         relocatedPath = hasRelocations() ? path + "-relocated-" + Math.abs(this.relocations.hashCode()) + ".jar" : null;

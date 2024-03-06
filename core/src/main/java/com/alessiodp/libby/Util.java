@@ -1,6 +1,7 @@
 package com.alessiodp.libby;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Libby's utility class.
@@ -28,7 +29,7 @@ public final class Util {
      * @param string The string to convert
      * @return The byte array
      */
-    public static byte[] hexStringToByteArray(String string) {
+    public static byte[] hexStringToByteArray(@NotNull String string) {
         int len = string.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
@@ -36,5 +37,38 @@ public final class Util {
                     + Character.digit(string.charAt(i+1), 16));
         }
         return data;
+    }
+
+    /**
+     * Constructs the partial path of a {@link Library} given its artifactId, groupId and version.
+     *
+     * @param artifactId The artifactId of the library.
+     * @param groupId The groupId of the library.
+     * @param version The version of the library.
+     * @return The partial path of the library.
+     * @see Library#getPartialPath()
+     */
+    @NotNull
+    public static String craftPartialPath(@NotNull String artifactId, @NotNull String groupId, @NotNull String version) {
+        return groupId.replace('.', '/') + '/' + artifactId + '/' + version + '/';
+    }
+
+    /**
+     * Constructs the path of a {@link Library} given its partialPath, artifactId, version and classifier.
+     *
+     * @param partialPath The partialPath of the library.
+     * @param artifactId The artifactId of the library.
+     * @param version The version of the library.
+     * @param classifier The classifier of the library. May be null.
+     * @return The path of the library.
+     * @see Library#getPath()
+     */
+    @NotNull
+    public static String craftPath(@NotNull String partialPath, @NotNull String artifactId, @NotNull String version, @Nullable String classifier) {
+        String path = partialPath + artifactId + '-' + version;
+        if (classifier != null && !classifier.isEmpty()) {
+            path += '-' + classifier;
+        }
+        return path + ".jar";
     }
 }

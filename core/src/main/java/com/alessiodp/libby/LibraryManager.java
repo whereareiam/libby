@@ -424,11 +424,7 @@ public abstract class LibraryManager {
             version = version.substring(0, version.length() - "-SNAPSHOT".length());
         }
 
-        String url = library.getPartialPath() + library.getArtifactId() + '-' + version + '-' + timestamp + '-' + buildNumber;
-        if (library.hasClassifier()) {
-            url += '-' + library.getClassifier();
-        }
-        return url + ".jar";
+        return Util.craftPath(library.getPartialPath(), library.getArtifactId(), version + '-' + timestamp + '-' + buildNumber, library.getClassifier());
     }
 
     /**
