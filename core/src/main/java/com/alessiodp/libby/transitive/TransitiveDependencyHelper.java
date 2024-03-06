@@ -2,8 +2,10 @@ package com.alessiodp.libby.transitive;
 
 import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManager;
+import com.alessiodp.libby.Util;
 import com.alessiodp.libby.classloader.IsolatedClassLoader;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -14,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -46,7 +49,7 @@ public class TransitiveDependencyHelper {
     /**
      * Reflected getter methods of Artifact class
      */
-    private final Method artifactGetGroupIdMethod, artifactGetArtifactIdMethod, artifactGetVersionMethod, artifactGetClassifierMethod;
+    private final Method artifactGetGroupIdMethod, artifactGetArtifactIdMethod, artifactGetVersionMethod, artifactGetBaseVersionMethod, artifactGetClassifierMethod;
 
     /**
      * LibraryManager instance, used in {@link #findTransitiveLibraries(Library)}
@@ -95,6 +98,8 @@ public class TransitiveDependencyHelper {
             artifactGetArtifactIdMethod = artifactClass.getMethod("getArtifactId");
             // org.eclipse.aether.artifact.Artifact#getVersion()
             artifactGetVersionMethod = artifactClass.getMethod("getVersion");
+            // org.eclipse.aether.artifact.Artifact#getBaseVersion()
+            artifactGetBaseVersionMethod = artifactClass.getMethod("getBaseVersion");
             // org.eclipse.aether.artifact.Artifact#getClassifier()
             artifactGetClassifierMethod = artifactClass.getMethod("getClassifier");
         } catch (ReflectiveOperationException e) {
@@ -111,7 +116,7 @@ public class TransitiveDependencyHelper {
      * </p>
      * <p>
      * Note: The method merges the repositories from both the library manager and the given library
-     * for dependency resolution. And clones all relocations into transitive libraries.
+     * for dependency resolution. It also clones all relocations into transitive libraries.
      * </p>
      *
      * @param library The primary library for which transitive dependencies need to be found.
@@ -132,16 +137,20 @@ public class TransitiveDependencyHelper {
 
         Stream<String> repositories = Stream.of(globalRepositories, libraryRepositories).flatMap(Collection::stream);
         try {
-            Collection<?> artifacts = (Collection<?>) resolveTransitiveDependenciesMethod.invoke(transitiveDependencyCollectorObject,
+            Collection<?> resolvedArtifacts = (Collection<?>) resolveTransitiveDependenciesMethod.invoke(transitiveDependencyCollectorObject,
                 library.getGroupId(),
                 library.getArtifactId(),
                 library.getVersion(),
                 library.getClassifier(),
                 repositories);
-            for (Object artifact : artifacts) {
+            for (Object resolved : resolvedArtifacts) {
+                Entry<?, ?> resolvedEntry = (Entry<?, ?>) resolved;
+                Object artifact = resolvedEntry.getKey();
+                @Nullable String repository = (String) resolvedEntry.getValue();
+
                 String groupId = (String) artifactGetGroupIdMethod.invoke(artifact);
                 String artifactId = (String) artifactGetArtifactIdMethod.invoke(artifact);
-                String version = (String) artifactGetVersionMethod.invoke(artifact);
+                String baseVersion = (String) artifactGetBaseVersionMethod.invoke(artifact);
                 String classifier = (String) artifactGetClassifierMethod.invoke(artifact);
 
                 if (library.getGroupId().equals(groupId) && library.getArtifactId().equals(artifactId))
@@ -153,7 +162,7 @@ public class TransitiveDependencyHelper {
                 Library.Builder libraryBuilder = Library.builder()
                                                         .groupId(groupId)
                                                         .artifactId(artifactId)
-                                                        .version(version)
+                                                        .version(baseVersion)
                                                         .isolatedLoad(library.isIsolatedLoad())
                                                         .loaderId(library.getLoaderId());
 
@@ -162,7 +171,30 @@ public class TransitiveDependencyHelper {
                 }
 
                 library.getRelocations().forEach(libraryBuilder::relocate);
-                library.getRepositories().forEach(libraryBuilder::repository);
+
+                if (repository != null) {
+                    // Construct direct download URL
+
+                    // Add ending "/" if missing
+                    if (!repository.endsWith("/")) {
+                        repository = repository + '/';
+                    }
+
+                    // TODO Uncomment the line below once LibraryManager#resolveLibrary stops resolving snapshots
+                    //      for every repository before trying direct URLs
+                    // Make sure the repository is added as fallback if the dependency isn't found at the constructed URL
+                    // libraryBuilder.repository(repository);
+
+                    // For snapshots, getVersion() returns version-timestamp-buildNumber instead of version-SNAPSHOT
+                    String version = (String) artifactGetVersionMethod.invoke(artifact);
+
+                    String partialPath = Util.craftPartialPath(artifactId, groupId, baseVersion);
+                    String path = Util.craftPath(partialPath, artifactId, version, classifier);
+
+                    libraryBuilder.url(repository + path);
+                } else {
+                    library.getRepositories().forEach(libraryBuilder::repository);
+                }
 
                 transitiveLibraries.add(libraryBuilder.build());
             }
