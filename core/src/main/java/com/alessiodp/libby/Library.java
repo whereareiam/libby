@@ -224,7 +224,7 @@ public class Library {
      * @return true if library has classifier, false otherwise
      */
     public boolean hasClassifier() {
-        return classifier != null;
+        return classifier != null && !classifier.isEmpty();
     }
 
     /**
