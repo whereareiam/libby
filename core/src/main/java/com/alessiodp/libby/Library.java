@@ -528,25 +528,25 @@ public class Library {
         }
 
         /**
-         * Sets the Base64 hexadecimal bytes encoded SHA-256 checksum for this library.
-         *
-         * @param checksum Base64 binary encoded SHA-256 checksum
-         * @return this builder
-         */
-        @NotNull
-        public Builder checksum(@Nullable String checksum) {
-            return checksum != null ? checksum(Base64.getDecoder().decode(checksum)) : this;
-        }
-
-        /**
          * Sets the SHA-256 checksum for this library.
          *
          * @param checksum SHA-256 checksum
          * @return this builder
          */
         @NotNull
-        public Builder checksumFromSha256(@Nullable String checksum) {
+        public Builder checksum(@Nullable String checksum) {
             return checksum != null ? checksum(hexStringToByteArray(checksum)) : this;
+        }
+
+        /**
+         * Sets the Base64 hexadecimal bytes encoded SHA-256 checksum for this library.
+         *
+         * @param checksum Base64 binary encoded SHA-256 checksum
+         * @return this builder
+         */
+        @NotNull
+        public Builder checksumFromBase64(@Nullable String checksum) {
+            return checksum != null ? checksum(Base64.getDecoder().decode(checksum)) : this;
         }
 
         /**

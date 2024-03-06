@@ -104,7 +104,7 @@ public class ConfigurationFetcher {
                         .groupId("com{}grack")
                         .artifactId("nanojson")
                         .version("1.8")
-                        .checksum("qyhAVZM8LYvqhGQrbmW2aHV4hRzn+2flPCV98wAimJo=")
+                        .checksumFromBase64("qyhAVZM8LYvqhGQrbmW2aHV4hRzn+2flPCV98wAimJo=")
                         .repository(Repositories.MAVEN_CENTRAL)
                         .build()
         ));
@@ -343,7 +343,8 @@ public class ConfigurationFetcher {
      * </ul>
      * Optional properties:
      * <ul>
-     *     <li>checksum: The SHA-256 checksum of the library, must be a base64 encoded string and may only be included if the library is a JAR</li>
+     *     <li>checksum: The SHA-256 checksum of the library, may only be included if the library is a JAR</li>
+     *     <li>checksumFromBase64: The SHA-256 checksum of the library, must be a base64 encoded string and may only be included if the library is a JAR</li>
      *     <li>classifier: The artifact classifier of the library</li>
      *     <li>isolatedLoad: Whether to load this library in an IsolatedClassLoader</li>
      *     <li>loaderId: The loader ID of this library</li>
@@ -399,8 +400,14 @@ public class ConfigurationFetcher {
                 String checksum = getString(library, "checksum");
 
                 if (checksum != null) {
+                    libraryBuilder.checksum(checksum);
+                }
+
+                String checksumFromBase64 = getString(library, "checksumFromBase64");
+
+                if (checksumFromBase64 != null) {
                     try {
-                        libraryBuilder.checksum(checksum);
+                        libraryBuilder.checksumFromBase64(checksumFromBase64);
                     } catch (IllegalArgumentException ignored) {
                         throw new ConfigurationException("The checksum property must be a valid base64 encoded SHA-256 checksum");
                     }

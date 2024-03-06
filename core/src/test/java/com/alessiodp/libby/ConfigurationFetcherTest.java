@@ -26,7 +26,6 @@ public class ConfigurationFetcherTest {
     private LibraryManagerMock libraryManager;
     private ConfigurationFetcher configurationFetcher;
 
-
     @BeforeEach
     public void setUp() throws Exception {
         libraryManager = new LibraryManagerMock();
@@ -123,7 +122,7 @@ public class ConfigurationFetcherTest {
         assertTrue(ex.getMessage().contains("version property"));
 
         // Invalid checksum
-        ex = assertThrows(ConfigurationException.class, () -> parseAndRead("{\"libraries\":[{\"groupId\":\"\",\"artifactId\":\"\",\"version\":\"\",\"checksum\":\"invalid-checksum\"}]}"));
+        ex = assertThrows(ConfigurationException.class, () -> parseAndRead("{\"libraries\":[{\"groupId\":\"\",\"artifactId\":\"\",\"version\":\"\",\"checksumFromBase64\":\"invalid-checksum\"}]}"));
         assertTrue(ex.getMessage().contains("valid base64"));
     }
 
