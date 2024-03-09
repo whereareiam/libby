@@ -4,12 +4,7 @@ import com.alessiodp.libby.Library;
 import com.alessiodp.libby.Repositories;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Represents the libraries required for Maven transitive dependency resolution and related operations.
- * <p>
- * This class bundles Maven Resolver Supplier, Maven Resolver Provider and their transitive dependencies.
- */
-enum TransitiveLibraryResolutionDependency {
+enum MavenResolverDependencies {
     MAVEN_RESOLVER_SUPPLIER("org{}apache{}maven{}resolver", "maven-resolver-supplier", "1.9.15", "BNncFRDRqBBHWixE0DYfFydh7h9bc3mhC/MBr5WD448"),
     MAVEN_RESOLVER_API("org{}apache{}maven{}resolver", "maven-resolver-api", "1.9.15", "1Ugp1gooJ7uXYxK9u/YnlR5hMpJ2LuFGFAxRqn3OYL4"),
     MAVEN_RESOLVER_UTIL("org{}apache{}maven{}resolver", "maven-resolver-util", "1.9.15", "z9Gnzg0gpWHtZrI18lpvwa5A/f8Zr6k1GrCpZNTlVm8"),
@@ -38,7 +33,7 @@ enum TransitiveLibraryResolutionDependency {
 
     private final String groupId, artifactId, version, checksum;
 
-    TransitiveLibraryResolutionDependency(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String checksum) {
+    MavenResolverDependencies(@NotNull String groupId, @NotNull String artifactId, @NotNull String version, @NotNull String checksum) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
@@ -53,11 +48,6 @@ enum TransitiveLibraryResolutionDependency {
                 .version(version)
                 .checksumFromBase64(checksum)
                 .repository(Repositories.MAVEN_CENTRAL)
-                // Relocate all packages used in Libby to avoid conflicts
-                .relocate("org{}eclipse{}aether{}util", "org.eclipse.aether.util") // maven-resolver-util
-                .relocate("org{}eclipse{}aether", "org.eclipse.aether") // maven-resolver-api
-                .relocate("org{}apache{}maven{}repository{}internal", "org.apache.maven.repository.internal") // maven-resolver-provider
-
                 .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.alessiodp.libby.transitive;
 
+import com.alessiodp.libby.LibbyTestProperties;
 import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManagerMock;
 import com.alessiodp.libby.TestUtils;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +22,7 @@ public class TransitiveDownloadingTest {
             .version("1.9.15")
             .resolveTransitiveDependencies(true)
             .build();
-    private static final Library EXCLUDED_LIBRARY = TransitiveLibraryResolutionDependency.MAVEN_RESOLVER_API.toLibrary();
+    private static final Library EXCLUDED_LIBRARY = MavenResolverDependencies.MAVEN_RESOLVER_API.toLibrary();
     private static final Library MAVEN_RESOLVER_SUPPLIER_WITH_EXCLUDED = Library.builder()
             .groupId(MAVEN_RESOLVER_SUPPLIER.getGroupId())
             .artifactId(MAVEN_RESOLVER_SUPPLIER.getArtifactId())
@@ -33,6 +35,7 @@ public class TransitiveDownloadingTest {
             .artifactId("bungeecord-api")
             .version("1.20-R0.2-SNAPSHOT")
             .repository("https://oss.sonatype.org/content/repositories/snapshots")
+            .repository("https://hub.spigotmc.org/nexus/content/groups/public/")
             .isolatedLoad(true)
             .loaderId("bungeecord")
             .resolveTransitiveDependencies(true)
@@ -43,6 +46,8 @@ public class TransitiveDownloadingTest {
     @BeforeEach
     public void setUp() throws Exception {
         libraryManager = new LibraryManagerMock();
+        // Local repo set up by gradle for libby-maven-resolver
+        libraryManager.addRepository(Paths.get(LibbyTestProperties.LIBBY_MAVEN_RESOLVER_REPO).toUri().toString());
         libraryManager.addMavenCentral();
     }
 
@@ -69,29 +74,29 @@ public class TransitiveDownloadingTest {
     public void transitiveWithExcludedLoad() {
         libraryManager.loadLibrary(MAVEN_RESOLVER_SUPPLIER_WITH_EXCLUDED);
 
-        checkDownloadedDependencies(TransitiveLibraryResolutionDependency.MAVEN_RESOLVER_API);
+        checkDownloadedDependencies(MavenResolverDependencies.MAVEN_RESOLVER_API);
     }
 
     /**
-     * Compares the libraries required by maven-resolver-supplier with the ones declared in {@link TransitiveLibraryResolutionDependency}.
+     * Compares the libraries required by maven-resolver-supplier with the ones declared in {@link MavenResolverDependencies}.
      *
      * @param excludedDependencies Optionally excluded more dependencies
      */
-    private void checkDownloadedDependencies(TransitiveLibraryResolutionDependency... excludedDependencies) {
-        Set<TransitiveLibraryResolutionDependency> excluded = new HashSet<>();
+    private void checkDownloadedDependencies(MavenResolverDependencies... excludedDependencies) {
+        Set<MavenResolverDependencies> excluded = new HashSet<>();
         // Always exclude javax.inject since it is excluded by maven-resolver-supplier
-        excluded.add(TransitiveLibraryResolutionDependency.JAVAX_INJECT);
+        excluded.add(MavenResolverDependencies.JAVAX_INJECT);
         // Always exclude slf4j-nop since it is not included in maven-resolver-supplier
-        excluded.add(TransitiveLibraryResolutionDependency.SLF4J_NOP);
+        excluded.add(MavenResolverDependencies.SLF4J_NOP);
         excluded.addAll(Arrays.asList(excludedDependencies));
 
         List<String> loaded = libraryManager.getLoaded();
         // Assert that the correct amount of libraries has been loaded
-        assertEquals(TransitiveLibraryResolutionDependency.values().length - excluded.size(), loaded.size());
+        assertEquals(MavenResolverDependencies.values().length - excluded.size(), loaded.size());
 
-        Arrays.stream(TransitiveLibraryResolutionDependency.values())
+        Arrays.stream(MavenResolverDependencies.values())
                 .filter(dep -> !excluded.contains(dep))
-                .map(TransitiveLibraryResolutionDependency::toLibrary)
+                .map(MavenResolverDependencies::toLibrary)
                 .forEach(dep -> {
                     Path path = libraryManager.getSaveDirectory().resolve(dep.getPath()).toAbsolutePath();
                     assertTrue(loaded.contains(path.toString()));

@@ -1,5 +1,6 @@
 package com.alessiodp.libby.transitive;
 
+import com.alessiodp.libby.LibbyProperties;
 import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManager;
 import com.alessiodp.libby.Util;
@@ -7,7 +8,6 @@ import com.alessiodp.libby.classloader.IsolatedClassLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
@@ -32,9 +32,14 @@ import static java.util.Objects.requireNonNull;
 public class TransitiveDependencyHelper {
 
     /**
+     * com.alessiodp.libby.transitive.TransitiveDependencyCollector class name for reflections
+     */
+    private static final String TRANSITIVE_DEPENDENCY_COLLECTOR_CLASS = replaceWithDots("com{}alessiodp{}libby{}transitive{}TransitiveDependencyCollector");
+
+    /**
      * org.eclipse.aether.artifact.Artifact class name for reflections
      */
-    private static final String ARTIFACT_CLASS = replaceWithDots("org.eclipse.aether.artifact.Artifact");
+    private static final String ARTIFACT_CLASS = replaceWithDots("org{}eclipse{}aether{}artifact{}Artifact");
 
     /**
      * TransitiveDependencyCollector class instance, used in {@link #findTransitiveLibraries(Library)}
@@ -68,21 +73,17 @@ public class TransitiveDependencyHelper {
         this.libraryManager = libraryManager;
 
         IsolatedClassLoader classLoader = new IsolatedClassLoader();
-        String collectorClassName = "com.alessiodp.libby.transitive.TransitiveDependencyCollector";
-        String collectorClassPath = '/' + collectorClassName.replace('.', '/') + ".class";
 
-        for (TransitiveLibraryResolutionDependency dependency : TransitiveLibraryResolutionDependency.values()) {
-            classLoader.addPath(libraryManager.downloadLibrary(dependency.toLibrary()));
-        }
-
-        final Class<?> transitiveDependencyCollectorClass;
-        try {
-            transitiveDependencyCollectorClass = classLoader.defineClass(collectorClassName, requireNonNull(getClass().getResourceAsStream(collectorClassPath), "resourceCollectorClass"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        classLoader.addPath(libraryManager.downloadLibrary(Library.builder()
+                .groupId("com{}alessiodp{}libby")
+                .artifactId("libby-maven-resolver")
+                .version(LibbyProperties.VERSION)
+                .checksumFromBase64(LibbyProperties.LIBBY_MAVEN_RESOLVER_CHECKSUM)
+                .build()
+        ));
 
         try {
+            Class<?> transitiveDependencyCollectorClass = classLoader.loadClass(TRANSITIVE_DEPENDENCY_COLLECTOR_CLASS);
             Class<?> artifactClass = classLoader.loadClass(ARTIFACT_CLASS);
 
             // com.alessiodp.libby.TransitiveDependencyCollector(Path)

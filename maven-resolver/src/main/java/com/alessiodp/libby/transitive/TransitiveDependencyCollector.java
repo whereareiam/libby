@@ -38,7 +38,7 @@ import java.util.stream.Stream;
  *
  * @see <a href=https://github.com/apache/maven-resolver>maven-resolver</a>.
  */
-class TransitiveDependencyCollector {
+public class TransitiveDependencyCollector {
 
     /**
      * Counter used to generate ids for repositories
@@ -71,6 +71,11 @@ class TransitiveDependencyCollector {
     @NotNull
     private final Path saveDirectory;
 
+    /**
+     * Creates a new {@code TransitiveDependencyCollector}.
+     *
+     * @param saveDirectory The download directory name
+     */
     public TransitiveDependencyCollector(@NotNull Path saveDirectory) {
         this.saveDirectory = saveDirectory;
         this.repositorySystemSession = newRepositorySystemSession(repositorySystem);
