@@ -9,7 +9,11 @@ dependencies {
     implementation("org.apache.maven.resolver:maven-resolver-supplier:1.9.18")
 }
 
-val shadowJar = tasks.withType<ShadowJar> {
+tasks.withType<ShadowJar> {
     archiveClassifier.set("")
     minimize()
+}
+
+tasks.build {
+    finalizedBy("shadowJar")
 }
