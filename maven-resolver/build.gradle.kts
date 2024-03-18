@@ -14,6 +14,6 @@ tasks.withType<ShadowJar> {
     minimize()
 }
 
-tasks.build {
+tasks.jar {
     finalizedBy("shadowJar")
 }
