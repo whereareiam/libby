@@ -1,6 +1,5 @@
 import groovy.xml.MarkupBuilder
 import java.security.MessageDigest
-import java.text.SimpleDateFormat
 import java.util.Base64
 
 plugins {
@@ -55,7 +54,6 @@ tasks.named("generateJavaTemplates") {
 }
 
 fun setupCopy() {
-    val file = libbyMavenResolverJar.map { it.asFile }
     val version = project.version.toString()
     val partialPath = "${project.group.toString().replace('.', '/')}/libby-maven-resolver/${version}"
     val mainFolder = libbyMavenResolverRepo.dir(partialPath)
@@ -69,13 +67,13 @@ fun setupCopy() {
         return
     }
 
-    // Generate snapshot's maven-metadata.xml
-    val timestamp = file.map { SimpleDateFormat("yyyyMMdd.HHmmss").format(it.lastModified()) }
+    // Generate snapshot's maven-metadata-local.xml
     copyLibbyMavenResolver {
         doFirst {
-            mainFolder.file("maven-metadata.xml").asFile.printWriter().use {
+            mainFolder.file("maven-metadata-local.xml").asFile.printWriter(Charsets.UTF_8).use {
                 val builder = MarkupBuilder(it)
                 builder.doubleQuotes = true
+                builder.mkp.xmlDeclaration(mapOf("version" to "1.0", "encoding" to "UTF-8"))
                 builder.withGroovyBuilder {
                     "metadata"("modelVersion" to "1.1.0") {
                         "groupId"(project.group.toString())
@@ -83,21 +81,12 @@ fun setupCopy() {
                         "version"(version)
                         "versioning"() {
                             "snapshot"() {
-                                "timestamp"(timestamp.get())
-                                "buildNumber"("1")
+                                "localCopy"(true)
                             }
                         }
                     }
                 }
             }
-        }
-    }
-
-    // Rename copied file
-    val newVer = timestamp.map { version.substring(0, version.length - "-SNAPSHOT".length) + '-' + it + "-1" }
-    return copyLibbyMavenResolver {
-        rename {
-            "libby-maven-resolver-${newVer.get()}.jar"
         }
     }
 }
