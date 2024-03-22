@@ -329,7 +329,8 @@ public abstract class LibraryManager {
      */
     @Nullable
     protected String resolveSnapshot(@NotNull String repository, @NotNull Library library) {
-        String url = requireNonNull(repository, "repository") + requireNonNull(library, "library").getPartialPath() + "maven-metadata.xml";
+        String mavenMetadata = repository.startsWith("file") ? "maven-metadata-local.xml" : "maven-metadata.xml";
+        String url = requireNonNull(repository, "repository") + requireNonNull(library, "library").getPartialPath() + mavenMetadata;
         try {
             URLConnection connection = new URL(requireNonNull(url, "url")).openConnection();
 
@@ -372,7 +373,7 @@ public abstract class LibraryManager {
         requireNonNull(inputStream, "inputStream");
         requireNonNull(library, "library");
 
-        String timestamp, buildNumber;
+        String version = library.getVersion();
         try {
             // This reads the maven-metadata.xml file and gets the snapshot info from the <snapshot> tag.
             // Example tag:
@@ -394,37 +395,42 @@ public abstract class LibraryManager {
             if (snapshot.getNodeType() != Node.ELEMENT_NODE) {
                 return null;
             }
-            Node timestampNode = ((Element) snapshot).getElementsByTagName("timestamp").item(0);
-            if (timestampNode == null || timestampNode.getNodeType() != Node.ELEMENT_NODE) {
-                return null;
+            Node localCopyNode = ((Element) snapshot).getElementsByTagName("localCopy").item(0);
+            if (localCopyNode == null || localCopyNode.getNodeType() != Node.ELEMENT_NODE) {
+                // Resolve with snapshot number instead of base name
+                Node timestampNode = ((Element) snapshot).getElementsByTagName("timestamp").item(0);
+                if (timestampNode == null || timestampNode.getNodeType() != Node.ELEMENT_NODE) {
+                    return null;
+                }
+                Node buildNumberNode = ((Element) snapshot).getElementsByTagName("buildNumber").item(0);
+                if (buildNumberNode == null || buildNumberNode.getNodeType() != Node.ELEMENT_NODE) {
+                    return null;
+                }
+                Node timestampChild = timestampNode.getFirstChild();
+                if (timestampChild == null || timestampChild.getNodeType() != Node.TEXT_NODE) {
+                    return null;
+                }
+                Node buildNumberChild = buildNumberNode.getFirstChild();
+                if (buildNumberChild == null || buildNumberChild.getNodeType() != Node.TEXT_NODE) {
+                    return null;
+                }
+                String timestamp = timestampChild.getNodeValue();
+                String buildNumber = buildNumberChild.getNodeValue();
+
+                version = library.getVersion();
+                // Call .substring(...) only on versions ending in "-SNAPSHOT".
+                // It should never happen that a snapshot version doesn't end in "-SNAPSHOT", but better be sure
+                if (version.endsWith("-SNAPSHOT")) {
+                    version = version.substring(0, version.length() - "-SNAPSHOT".length());
+                }
+
+                version = version + '-' + timestamp + '-' + buildNumber;
             }
-            Node buildNumberNode = ((Element) snapshot).getElementsByTagName("buildNumber").item(0);
-            if (buildNumberNode == null || buildNumberNode.getNodeType() != Node.ELEMENT_NODE) {
-                return null;
-            }
-            Node timestampChild = timestampNode.getFirstChild();
-            if (timestampChild == null || timestampChild.getNodeType() != Node.TEXT_NODE) {
-                return null;
-            }
-            Node buildNumberChild = buildNumberNode.getFirstChild();
-            if (buildNumberChild == null || buildNumberChild.getNodeType() != Node.TEXT_NODE) {
-                return null;
-            }
-            timestamp = timestampChild.getNodeValue();
-            buildNumber = buildNumberChild.getNodeValue();
         } catch (ParserConfigurationException | SAXException e) {
             logger.debug("Invalid maven-metadata.xml", e);
             return null;
         }
-
-        String version = library.getVersion();
-        // Call .substring(...) only on versions ending in "-SNAPSHOT".
-        // It should never happen that a snapshot version doesn't end in "-SNAPSHOT", but better be sure
-        if (version.endsWith("-SNAPSHOT")) {
-            version = version.substring(0, version.length() - "-SNAPSHOT".length());
-        }
-
-        return Util.craftPath(library.getPartialPath(), library.getArtifactId(), version + '-' + timestamp + '-' + buildNumber, library.getClassifier());
+        return Util.craftPath(library.getPartialPath(), library.getArtifactId(), version, library.getClassifier());
     }
 
     /**

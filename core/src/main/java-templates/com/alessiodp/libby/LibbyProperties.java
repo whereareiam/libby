@@ -13,4 +13,9 @@ public class LibbyProperties {
      * User agent string to use when downloading libraries
      */
     public static final String HTTP_USER_AGENT = "libby/" + VERSION;
+
+    /**
+     * Checksum of libby-maven-resolver jar
+     */
+    public static final String LIBBY_MAVEN_RESOLVER_CHECKSUM = "{{ libbyMavenResolverChecksum }}";
 }
