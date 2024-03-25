@@ -1,6 +1,5 @@
 package com.alessiodp.libby.transitive;
 
-import com.alessiodp.libby.LibbyProperties;
 import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManager;
 import com.alessiodp.libby.Util;
@@ -25,16 +24,16 @@ import static java.util.Objects.requireNonNull;
 
 /**
  * A reflection-based helper for resolving transitive dependencies. It automatically
- * downloads Maven Resolver Supplier, Maven Resolver Provider and their transitive dependencies to resolve transitive dependencies.
+ * downloads Libby Maven Resolver to resolve transitive dependencies.
  *
- * @see <a href="https://github.com/apache/maven-resolver">Apache Maven Artifact Resolver</a>
+ * @see <a href="https://github.com/AlessioDP/libby-maven-resolver">Libby Maven Resolver</a>
  */
 public class TransitiveDependencyHelper {
 
     /**
-     * com.alessiodp.libby.transitive.TransitiveDependencyCollector class name for reflections
+     * com.alessiodp.libby.maven.resolver.TransitiveDependencyCollector class name for reflections
      */
-    private static final String TRANSITIVE_DEPENDENCY_COLLECTOR_CLASS = replaceWithDots("com{}alessiodp{}libby{}transitive{}TransitiveDependencyCollector");
+    private static final String TRANSITIVE_DEPENDENCY_COLLECTOR_CLASS = replaceWithDots("com{}alessiodp{}libby{}maven{}resolver{}TransitiveDependencyCollector");
 
     /**
      * org.eclipse.aether.artifact.Artifact class name for reflections
@@ -75,10 +74,10 @@ public class TransitiveDependencyHelper {
         IsolatedClassLoader classLoader = new IsolatedClassLoader();
 
         classLoader.addPath(libraryManager.downloadLibrary(Library.builder()
-                .groupId("com{}alessiodp{}libby")
+                .groupId("com{}alessiodp{}libby{}maven{}resolver")
                 .artifactId("libby-maven-resolver")
-                .version(LibbyProperties.VERSION)
-                .checksumFromBase64(LibbyProperties.LIBBY_MAVEN_RESOLVER_CHECKSUM)
+                .version("1.0.0")
+                .checksumFromBase64("aMujUbcaxqGkNX5LNIwNzJTffn3MH6DrZKzXcu67+Qc=")
                 .build()
         ));
 
@@ -86,11 +85,11 @@ public class TransitiveDependencyHelper {
             Class<?> transitiveDependencyCollectorClass = classLoader.loadClass(TRANSITIVE_DEPENDENCY_COLLECTOR_CLASS);
             Class<?> artifactClass = classLoader.loadClass(ARTIFACT_CLASS);
 
-            // com.alessiodp.libby.TransitiveDependencyCollector(Path)
+            // com.alessiodp.libby.maven.resolver.TransitiveDependencyCollector(Path)
             Constructor<?> constructor = transitiveDependencyCollectorClass.getConstructor(Path.class);
             constructor.setAccessible(true);
             transitiveDependencyCollectorObject = constructor.newInstance(saveDirectory);
-            // com.alessiodp.libby.TransitiveDependencyCollector#findTransitiveDependencies(String, String, String, String, Stream<String>)
+            // com.alessiodp.libby.maven.resolver.TransitiveDependencyCollector#findTransitiveDependencies(String, String, String, String, Stream<String>)
             resolveTransitiveDependenciesMethod = transitiveDependencyCollectorClass.getMethod("findTransitiveDependencies", String.class, String.class, String.class, String.class, Stream.class);
             resolveTransitiveDependenciesMethod.setAccessible(true);
             // org.eclipse.aether.artifact.Artifact#getGroupId()

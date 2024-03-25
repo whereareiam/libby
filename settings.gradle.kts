@@ -5,7 +5,6 @@ setOf(
     "bungee",
     "core",
     "fabric",
-    "maven-resolver",
     "nukkit",
     "paper",
     "sponge",

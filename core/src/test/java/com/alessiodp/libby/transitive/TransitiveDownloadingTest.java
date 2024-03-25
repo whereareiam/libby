@@ -1,6 +1,5 @@
 package com.alessiodp.libby.transitive;
 
-import com.alessiodp.libby.LibbyTestProperties;
 import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManagerMock;
 import com.alessiodp.libby.TestUtils;
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,8 +44,7 @@ public class TransitiveDownloadingTest {
     @BeforeEach
     public void setUp() throws Exception {
         libraryManager = new LibraryManagerMock();
-        // Local repo set up by gradle for libby-maven-resolver
-        libraryManager.addRepository(Paths.get(LibbyTestProperties.LIBBY_MAVEN_RESOLVER_REPO).toUri().toString());
+        libraryManager.addRepository("https://repo.alessiodp.com/releases");
         libraryManager.addMavenCentral();
     }
 
