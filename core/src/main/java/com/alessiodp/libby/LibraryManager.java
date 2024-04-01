@@ -47,6 +47,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.Objects.requireNonNull;
 
@@ -107,6 +109,11 @@ public abstract class LibraryManager {
      * Map of isolated class loaders and theirs id
      */
     protected final Map<String, IsolatedClassLoader> isolatedLibraries = new HashMap<>();
+    
+    /**
+     * Repository resolution mode for libraries
+     */
+    protected RepositoryResolutionMode repositoryResolutionMode = RepositoryResolutionMode.DEFAULT;
 
     /**
      * Creates a new library manager.
@@ -283,6 +290,24 @@ public abstract class LibraryManager {
     }
 
     /**
+     * Get the repository resolution mode.
+     *
+     * @return the repository resolution mode
+     */
+    public RepositoryResolutionMode getRepositoryResolutionMode() {
+        return repositoryResolutionMode;
+    }
+    
+    /**
+     * Set the repository resolution mode.
+     *
+     * @param repositoryResolutionMode the repository resolution mode
+     */
+    public void setRepositoryResolutionMode(RepositoryResolutionMode repositoryResolutionMode) {
+        this.repositoryResolutionMode = repositoryResolutionMode;
+    }
+    
+    /**
      * Gets all the possible download URLs for this library. Entries are
      * ordered by direct download URLs first and then repository download URLs.
      * <br>This method also resolves SNAPSHOT artifacts URLs.
@@ -294,19 +319,9 @@ public abstract class LibraryManager {
     public Collection<String> resolveLibrary(@NotNull Library library) {
         Set<String> urls = new LinkedHashSet<>(requireNonNull(library, "library").getUrls());
         boolean snapshot = library.isSnapshot();
+        Collection<String> repos = resolveRepositories(library);
 
-        // Try from library-declared repos first
-        for (String repository : library.getRepositories()) {
-            if (snapshot) {
-                String url = resolveSnapshot(repository, library);
-                if (url != null)
-                    urls.add(repository + url);
-            } else {
-                urls.add(repository + library.getPath());
-            }
-        }
-
-        for (String repository : getRepositories()) {
+        for (String repository : repos) {
             if (snapshot) {
                 String url = resolveSnapshot(repository, library);
                 if (url != null)
@@ -317,6 +332,36 @@ public abstract class LibraryManager {
         }
 
         return Collections.unmodifiableSet(urls);
+    }
+    
+    /**
+     * Resolves the repository URLs for this library.
+     *
+     * @param library the library to resolve repositories for
+     * @return the resolved repositories
+     */
+    protected Collection<String> resolveRepositories(@NotNull Library library) {
+        switch (getRepositoryResolutionMode()) {
+            case GLOBAL_FIRST:
+                return Stream.of(
+                        getRepositories(),
+                        library.getRepositories(),
+                        library.getFallbackRepositories()
+                ).flatMap(Collection::stream).collect(Collectors.toCollection(LinkedHashSet::new));
+            case LIBRARY_FIRST:
+                return Stream.of(
+                        library.getRepositories(),
+                        library.getFallbackRepositories(),
+                        getRepositories()
+                ).flatMap(Collection::stream).collect(Collectors.toCollection(LinkedHashSet::new));
+            case DEFAULT:
+            default:
+                return Stream.of(
+                        library.getRepositories(),
+                        getRepositories(),
+                        library.getFallbackRepositories()
+                ).flatMap(Collection::stream).collect(Collectors.toCollection(LinkedHashSet::new));
+        }
     }
 
     /**

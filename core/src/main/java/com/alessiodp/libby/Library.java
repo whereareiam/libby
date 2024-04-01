@@ -34,6 +34,12 @@ public class Library {
      */
     @NotNull
     private final Collection<String> repositories;
+    
+    /**
+     * Fallback repository URLs for this library
+     */
+    @NotNull
+    private final Collection<String> fallbackRepositories;
 
     /**
      * Maven group ID
@@ -128,6 +134,7 @@ public class Library {
      */
     private Library(@Nullable Collection<String> urls,
                     @Nullable Collection<String> repositories,
+                    @Nullable Collection<String> fallbackRepositories,
                     @NotNull String groupId,
                     @NotNull String artifactId,
                     @NotNull String version,
@@ -151,6 +158,7 @@ public class Library {
         this.path = craftPath(this.partialPath, this.artifactId, this.version, this.classifier);
 
         this.repositories = repositories != null ? Collections.unmodifiableList(new LinkedList<>(repositories)) : Collections.emptyList();
+        this.fallbackRepositories = fallbackRepositories != null ? Collections.unmodifiableList(new LinkedList<>(fallbackRepositories)) : Collections.emptyList();
         relocatedPath = hasRelocations() ? path + "-relocated-" + Math.abs(this.relocations.hashCode()) + ".jar" : null;
         this.isolatedLoad = isolatedLoad;
         this.loaderId = loaderId;
@@ -169,13 +177,23 @@ public class Library {
     }
 
     /**
-     * Gets the repositories URLs for this library.
+     * Gets the repository URLs for this library.
      *
-     * @return repositories URLs
+     * @return repository URLs
      */
     @NotNull
     public Collection<String> getRepositories() {
         return repositories;
+    }
+    
+    /**
+     * Gets the fallback repository URLs for this library.
+     *
+     * @return fallback repository URLs
+     */
+    @NotNull
+    public Collection<String> getFallbackRepositories() {
+        return fallbackRepositories;
     }
 
     /**
@@ -380,6 +398,11 @@ public class Library {
          * Repository URLs for this library
          */
         private final Collection<String> repositories = new LinkedList<>();
+        
+        /**
+         * Fallback repository URLs for this library
+         */
+        private final Collection<String> fallbackRepositories = new LinkedList<>();
 
         /**
          * Maven group ID
@@ -454,6 +477,18 @@ public class Library {
         @NotNull
         public Builder repository(@NotNull String url) {
             repositories.add(requireNonNull(url, "repository").endsWith("/") ? url : url + '/');
+            return this;
+        }
+        
+        /**
+         * Adds a fallback repository URL for this library. See {@link #repository(String)}.
+         *
+         * @param url fallback repository URL
+         * @return this builder
+         */
+        @NotNull
+        public Builder fallbackRepository(@NotNull String url) {
+            fallbackRepositories.add(requireNonNull(url, "fallbackRepository").endsWith("/") ? url : url + '/');
             return this;
         }
 
@@ -642,7 +677,7 @@ public class Library {
          */
         @NotNull
         public Library build() {
-            return new Library(urls, repositories, groupId, artifactId, version, classifier, checksum, relocations, isolatedLoad, loaderId, resolveTransitiveDependencies, excludedTransitiveDependencies);
+            return new Library(urls, repositories, fallbackRepositories, groupId, artifactId, version, classifier, checksum, relocations, isolatedLoad, loaderId, resolveTransitiveDependencies, excludedTransitiveDependencies);
         }
     }
 }
