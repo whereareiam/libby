@@ -2,6 +2,7 @@ package com.alessiodp.libby.transitive;
 
 import com.alessiodp.libby.Library;
 import com.alessiodp.libby.LibraryManager;
+import com.alessiodp.libby.Repositories;
 import com.alessiodp.libby.Util;
 import com.alessiodp.libby.classloader.IsolatedClassLoader;
 import org.jetbrains.annotations.NotNull;
@@ -78,6 +79,7 @@ public class TransitiveDependencyHelper {
                 .artifactId("libby-maven-resolver")
                 .version("1.0.0")
                 .checksumFromBase64("aMujUbcaxqGkNX5LNIwNzJTffn3MH6DrZKzXcu67+Qc=")
+                .repository(Repositories.MAVEN_CENTRAL)
                 .build()
         ));
 
