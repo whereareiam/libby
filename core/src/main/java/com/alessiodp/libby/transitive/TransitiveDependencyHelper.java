@@ -77,9 +77,10 @@ public class TransitiveDependencyHelper {
         classLoader.addPath(libraryManager.downloadLibrary(Library.builder()
                 .groupId("com{}alessiodp{}libby{}maven{}resolver")
                 .artifactId("libby-maven-resolver")
-                .version("1.0.0")
-                .checksumFromBase64("aMujUbcaxqGkNX5LNIwNzJTffn3MH6DrZKzXcu67+Qc=")
+                .version("1.0.1")
+                .checksumFromBase64("EmsSUwjtqSeYTt8WEw7LPI/5Yz8bWSxf23XcdLEM7dk=")
                 .repository(Repositories.MAVEN_CENTRAL)
+                .repository("https://repo.alessiodp.com/releases")
                 .build()
         ));
 
