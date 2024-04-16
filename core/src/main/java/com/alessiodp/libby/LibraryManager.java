@@ -340,7 +340,7 @@ public abstract class LibraryManager {
      * @param library the library to resolve repositories for
      * @return the resolved repositories
      */
-    protected Collection<String> resolveRepositories(@NotNull Library library) {
+    public Collection<String> resolveRepositories(@NotNull Library library) {
         switch (getRepositoryResolutionMode()) {
             case GLOBAL_FIRST:
                 return Stream.of(

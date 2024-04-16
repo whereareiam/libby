@@ -67,7 +67,7 @@ public class RelocationHelper {
                    .artifactId("asm-commons")
                    .version("9.2")
                    .checksumFromBase64("vkzlMTiiOLtSLNeBz5Hzulzi9sqT7GLUahYqEnIl4KY=")
-                   .repository(Repositories.MAVEN_CENTRAL)
+                   .fallbackRepository(Repositories.MAVEN_CENTRAL)
                    .build()
         ));
 
@@ -78,7 +78,7 @@ public class RelocationHelper {
                    .artifactId("asm")
                    .version("9.2")
                    .checksumFromBase64("udT+TXGTjfOIOfDspCqqpkz4sxPWeNoDbwyzyhmbR/U=")
-                   .repository(Repositories.MAVEN_CENTRAL)
+                   .fallbackRepository(Repositories.MAVEN_CENTRAL)
                    .build()
         ));
 
@@ -89,7 +89,7 @@ public class RelocationHelper {
                    .artifactId("jar-relocator")
                    .version("1.7")
                    .checksumFromBase64("b30RhOF6kHiHl+O5suNLh/+eAr1iOFEFLXhwkHHDu4I=")
-                   .repository(Repositories.MAVEN_CENTRAL)
+                   .fallbackRepository(Repositories.MAVEN_CENTRAL)
                    .build()
         ));
 

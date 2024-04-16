@@ -79,8 +79,8 @@ public class TransitiveDependencyHelper {
                 .artifactId("libby-maven-resolver")
                 .version("1.0.1")
                 .checksumFromBase64("EmsSUwjtqSeYTt8WEw7LPI/5Yz8bWSxf23XcdLEM7dk=")
-                .repository(Repositories.MAVEN_CENTRAL)
-                .repository("https://repo.alessiodp.com/releases")
+                .fallbackRepository(Repositories.MAVEN_CENTRAL)
+                .fallbackRepository("https://repo.alessiodp.com/releases")
                 .build()
         ));
 
@@ -134,11 +134,12 @@ public class TransitiveDependencyHelper {
 
         Collection<String> globalRepositories = libraryManager.getRepositories();
         Collection<String> libraryRepositories = library.getRepositories();
-        if (globalRepositories.isEmpty() && libraryRepositories.isEmpty()) {
+        Collection<String> libraryFallbackRepositories = library.getFallbackRepositories();
+        if (globalRepositories.isEmpty() && libraryRepositories.isEmpty() && libraryFallbackRepositories.isEmpty()) {
             throw new IllegalArgumentException("No repositories have been added before resolving transitive dependencies");
         }
 
-        Stream<String> repositories = Stream.of(globalRepositories, libraryRepositories).flatMap(Collection::stream);
+        Stream<String> repositories = libraryManager.resolveRepositories(library).stream();
         try {
             Collection<?> resolvedArtifacts = (Collection<?>) resolveTransitiveDependenciesMethod.invoke(transitiveDependencyCollectorObject,
                 library.getGroupId(),
@@ -186,7 +187,7 @@ public class TransitiveDependencyHelper {
                     // TODO Uncomment the line below once LibraryManager#resolveLibrary stops resolving snapshots
                     //      for every repository before trying direct URLs
                     // Make sure the repository is added as fallback if the dependency isn't found at the constructed URL
-                    // libraryBuilder.repository(repository);
+                    // libraryBuilder.fallbackRepository(repository);
 
                     // For snapshots, getVersion() returns version-timestamp-buildNumber instead of version-SNAPSHOT
                     String version = (String) artifactGetVersionMethod.invoke(artifact);
@@ -197,6 +198,7 @@ public class TransitiveDependencyHelper {
                     libraryBuilder.url(repository + path);
                 } else {
                     library.getRepositories().forEach(libraryBuilder::repository);
+                    library.getFallbackRepositories().forEach(libraryBuilder::fallbackRepository);
                 }
 
                 transitiveLibraries.add(libraryBuilder.build());

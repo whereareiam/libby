@@ -304,7 +304,7 @@ public abstract class ClassLoaderHelper {
                             .artifactId("byte-buddy-agent")
                             .version("1.12.1")
                             .checksumFromBase64("mcCtBT9cljUEniB5ESpPDYZMfVxEs1JRPllOiWTP+bM=")
-                            .repository(Repositories.MAVEN_CENTRAL)
+                            .fallbackRepository(Repositories.MAVEN_CENTRAL)
                             .build()
             ));
 
