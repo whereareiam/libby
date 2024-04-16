@@ -160,7 +160,7 @@ public class ConfigurationFetcher {
             }
 
             Integer version = fetchVersion(root);
-            Set<String> repositories = fetchRepositories(root);
+            Set<String> repositories = fetchRepositories(root, false);
             Set<Relocation> globalRelocations = fetchRelocations(root);
             List<Library> libraries = fetchLibraries(root, globalRelocations);
 
@@ -197,11 +197,12 @@ public class ConfigurationFetcher {
      * If defined, it must be an array of string representing the repository URLs.
      *
      * @param configuration the root object of the JSON file
+     * @param fallbackRepo {@code true} to fetch "fallbackRepositories" instead of "repositories"
      * @return the set of repositories as strings
      */
-    private Set<String> fetchRepositories(@NotNull Map<String, Object> configuration) throws ReflectiveOperationException {
+    private Set<String> fetchRepositories(@NotNull Map<String, Object> configuration, boolean fallbackRepo) throws ReflectiveOperationException {
         Set<String> repos = new HashSet<>();
-        ArrayList<Object> repositories = getArray(configuration, "repositories");
+        ArrayList<Object> repositories = getArray(configuration, fallbackRepo ? "fallbackRepositories" : "repositories");
         if (repositories != null) {
             for (Object repository : repositories) {
                 if (repository instanceof String) {
@@ -423,7 +424,9 @@ public class ConfigurationFetcher {
 
                 fetchExcludedTransitiveDependencies(library).forEach(libraryBuilder::excludeTransitiveDependency);
 
-                fetchRepositories(library).forEach(libraryBuilder::repository);
+                fetchRepositories(library, false).forEach(libraryBuilder::repository);
+
+                fetchRepositories(library, true).forEach(libraryBuilder::fallbackRepository);
 
                 Set<Relocation> relocations = fetchRelocations(library);
 

@@ -78,6 +78,10 @@ public class ConfigurationFetcherTest {
                         "libraryRepo2/"
                    )
                 && compareCollections(
+                        l.getFallbackRepositories(),
+                        "fallbackRepo/" // Add a '/' at the end since it is added by the Library builder
+                )
+                && compareCollections(
                         l.getRelocations(),
                         globalRelocation // Global
                    )
