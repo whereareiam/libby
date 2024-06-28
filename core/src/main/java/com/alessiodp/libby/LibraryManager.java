@@ -715,7 +715,7 @@ public abstract class LibraryManager {
      * @see #downloadLibrary(Library)
      */
     public void loadLibrary(@NotNull Library library) {
-        logger.info("Loading library " + library.getArtifactId());
+        logger.info("Loading library " + library);
         Path file = downloadLibrary(requireNonNull(library, "library"));
         if (library.resolveTransitiveDependencies()) {
             resolveTransitiveLibraries(library);
