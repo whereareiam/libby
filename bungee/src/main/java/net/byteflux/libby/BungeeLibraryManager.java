@@ -4,7 +4,6 @@ import net.byteflux.libby.classloader.URLClassLoaderHelper;
 import net.byteflux.libby.logging.adapters.JDKLogAdapter;
 import net.md_5.bungee.api.plugin.Plugin;
 
-import java.io.InputStream;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 
@@ -18,8 +17,6 @@ public class BungeeLibraryManager extends LibraryManager {
      * Plugin classpath helper
      */
     private final URLClassLoaderHelper classLoader;
-
-    private final Plugin plugin;
 
     /**
      * Creates a new Bungee library manager.
@@ -39,12 +36,6 @@ public class BungeeLibraryManager extends LibraryManager {
     public BungeeLibraryManager(Plugin plugin, String directoryName) {
         super(new JDKLogAdapter(requireNonNull(plugin, "plugin").getLogger()), plugin.getDataFolder().toPath(), directoryName);
         classLoader = new URLClassLoaderHelper((URLClassLoader) plugin.getClass().getClassLoader(), this);
-        this.plugin = plugin;
-    }
-
-    @Override
-    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
-        return plugin.getResourceAsStream(path);
     }
 
     /**

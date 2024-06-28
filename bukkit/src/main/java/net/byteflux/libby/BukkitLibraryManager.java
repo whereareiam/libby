@@ -4,7 +4,6 @@ import net.byteflux.libby.classloader.URLClassLoaderHelper;
 import net.byteflux.libby.logging.adapters.JDKLogAdapter;
 import org.bukkit.plugin.Plugin;
 
-import java.io.InputStream;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 
@@ -18,7 +17,6 @@ public class BukkitLibraryManager extends LibraryManager {
      * Plugin classpath helper
      */
     private final URLClassLoaderHelper classLoader;
-    private final Plugin plugin;
 
     /**
      * Creates a new Bukkit library manager.
@@ -38,7 +36,6 @@ public class BukkitLibraryManager extends LibraryManager {
     public BukkitLibraryManager(Plugin plugin, String directoryName) {
         super(new JDKLogAdapter(requireNonNull(plugin, "plugin").getLogger()), plugin.getDataFolder().toPath(), directoryName);
         classLoader = new URLClassLoaderHelper((URLClassLoader) plugin.getClass().getClassLoader(), this);
-        this.plugin = plugin;
     }
 
     /**
@@ -49,10 +46,5 @@ public class BukkitLibraryManager extends LibraryManager {
     @Override
     protected void addToClasspath(Path file) {
         classLoader.addToClasspath(file);
-    }
-
-    @Override
-    protected InputStream getPluginResourceAsInputStream(String path) {
-        return plugin.getResource(path);
     }
 }

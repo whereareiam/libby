@@ -1,17 +1,11 @@
 package net.byteflux.libby;
 
-import com.grack.nanojson.JsonArray;
-import com.grack.nanojson.JsonObject;
-import com.grack.nanojson.JsonParser;
-import com.grack.nanojson.JsonParserException;
-import com.grack.nanojson.JsonReader;
 import net.byteflux.libby.classloader.IsolatedClassLoader;
 import net.byteflux.libby.logging.LogLevel;
 import net.byteflux.libby.logging.Logger;
 import net.byteflux.libby.logging.adapters.LogAdapter;
 import net.byteflux.libby.relocation.Relocation;
 import net.byteflux.libby.relocation.RelocationHelper;
-import net.byteflux.libby.transitive.TransitiveDependencyHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,13 +30,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -89,8 +81,6 @@ public abstract class LibraryManager {
      */
     private RelocationHelper relocator;
 
-    private TransitiveDependencyHelper transitiveDependencyHelper;
-
     /**
      * Map of isolated class loaders and theirs id
      */
@@ -101,6 +91,7 @@ public abstract class LibraryManager {
      *
      * @param logAdapter    plugin logging adapter
      * @param dataDirectory plugin's data directory
+     *
      * @deprecated Use {@link LibraryManager#LibraryManager(LogAdapter, Path, String)}
      */
     @Deprecated
@@ -132,7 +123,7 @@ public abstract class LibraryManager {
      * Adds a file to the isolated class loader
      *
      * @param library the library to add
-     * @param file    the file to add
+     * @param file the file to add
      */
     protected void addToIsolatedClasspath(Library library, Path file) {
         IsolatedClassLoader classLoader;
@@ -286,9 +277,9 @@ public abstract class LibraryManager {
      * Resolves the URL of the artifact of a snapshot library.
      *
      * @param repository The repository to query for snapshot information
-     * @param library    The library
+     * @param library The library
      * @return The URl of the artifact of a snapshot library or null if no information could be gathered from the
-     * provided repository
+     *         provided repository
      */
     private String resolveSnapshot(String repository, Library library) {
         String url = requireNonNull(repository, "repository") + requireNonNull(library, "library").getPartialPath() + "maven-metadata.xml";
@@ -324,9 +315,9 @@ public abstract class LibraryManager {
      * library's maven-metadata.xml.
      *
      * @param inputStream The InputStream opened to the library's maven-metadata.xml
-     * @param library     The library
+     * @param library The library
      * @return The URl of the artifact of a snapshot library or null if no information could be gathered from the
-     * provided inputStream
+     *         provided inputStream
      * @throws IOException If any IO errors occur
      */
     private String getURLFromMetadata(InputStream inputStream, Library library) throws IOException {
@@ -581,28 +572,6 @@ public abstract class LibraryManager {
     }
 
     /**
-     * Resolves and loads transitive libraries for a given library. This method ensures that
-     * all libraries on which the provided library depends are properly loaded.
-     *
-     * @param library the primary library for which transitive libraries need to be resolved and loaded.
-     * @throws NullPointerException if the provided library is null.
-     * @see #loadLibrary(Library)
-     */
-    private void resolveTransitiveLibraries(Library library) {
-        requireNonNull(library, "library");
-
-        synchronized (this) {
-            if (transitiveDependencyHelper == null) {
-                transitiveDependencyHelper = new TransitiveDependencyHelper(this, saveDirectory);
-            }
-        }
-
-        for (Library transitiveLibrary : transitiveDependencyHelper.findTransitiveLibraries(library)) {
-            loadLibrary(transitiveLibrary);
-        }
-    }
-
-    /**
      * Loads a library jar into the plugin's classpath. If the library jar
      * doesn't exist locally, it will be downloaded.
      * <p>
@@ -617,146 +586,11 @@ public abstract class LibraryManager {
         if (library.hasRelocations()) {
             file = relocate(file, library.getRelocatedPath(), library.getRelocations());
         }
-        if (library.resolveTransitiveDependencies()) {
-            resolveTransitiveLibraries(library);
-        }
 
         if (library.isIsolatedLoad()) {
             addToIsolatedClasspath(library, file);
         } else {
             addToClasspath(file);
         }
-    }
-
-    /**
-     * Loads multiple libraries into the plugin's classpath.
-     *
-     * @param libraries the libraries to load
-     * @see #loadLibrary(Library)
-     */
-    public void loadLibraries(Library... libraries) {
-        for (Library library : libraries) {
-            loadLibrary(library);
-        }
-    }
-
-    /**
-     * Configures the current library manager from a json file.
-     * <p>
-     * This includes:
-     * <ul>
-     *     <li>Adding repositories</li>
-     *     <li>Adding and relocating libraries</li>
-     * </ul>
-     *
-     * @param data The json file
-     * @throws JsonParserException If the json file is corrupted
-     */
-    public void configureFromJSON(InputStream data) throws JsonParserException {
-        JsonObject root = JsonParser.object().from(data);
-
-        // The version value must be included in the JSON file and match the version of the parser
-        int version = root.getInt("version", -1);
-
-        if (version != 0) {
-            throw new IllegalArgumentException("The json file is version " + version + " but this version of libby only supports version 0");
-        }
-
-        // The repositories don't have to be included in the JSON file
-        // If they are, they must be an array of strings representing the repository URLs
-        JsonArray repositories = root.getArray("repositories");
-        if (repositories != null) {
-            for (int i = 0; i < repositories.size(); i++) {
-                addRepository(repositories.getString(i));
-            }
-        }
-
-        Set<Relocation> parsedRelocations = new HashSet<>();
-
-        // The relocations don't have to be included in the JSON file
-        // If they are, they must be an object with keys representing the original class name and values representing the relocated class name
-        JsonObject relocations = root.getObject("relocations");
-
-        for (String from : relocations.keySet()) {
-            parsedRelocations.add(new Relocation(from, relocations.getString(from)));
-        }
-
-        // The libraries don't have to be included in the JSON file
-        // If they are, they must be an array of objects that include the following properties:
-        // - group: The groupId of the library
-        // - name: The artifactId of the library
-        // - version: The version of the library
-        // Optional properties:
-        // - checksum: The SHA-256 checksum of the library, must be a base64 encoded string and may only be included if the library is a JAR.
-        JsonArray libraries = root.getArray("libraries");
-
-        if (libraries != null) {
-            for (int i = 0; i < libraries.size(); i++) {
-                JsonObject library = libraries.getObject(i);
-                Library.Builder libraryBuilder = Library.builder();
-
-                String groupId = library.getString("group");
-
-                if (groupId == null) {
-                    throw new IllegalArgumentException("The group property is required for all libraries");
-                }
-
-                String artifactId = library.getString("name");
-
-                if (artifactId == null) {
-                    throw new IllegalArgumentException("The name property is required for all libraries");
-                }
-
-                String artifactVersion = library.getString("version");
-
-                if (artifactVersion == null) {
-                    throw new IllegalArgumentException("The version property is required for all libraries");
-                }
-
-                libraryBuilder
-                    .groupId(groupId)
-                    .artifactId(artifactId)
-                    .version(artifactVersion);
-
-                String checksum = library.getString("checksum");
-
-                if (checksum != null) {
-                    libraryBuilder.checksum(checksum);
-                }
-
-                // We will just apply the relocations to all libraries. While it's not the most efficient, it's the easiest to implement
-                for (Relocation relocation : parsedRelocations) {
-                    libraryBuilder.relocate(relocation);
-                }
-
-                loadLibrary(libraryBuilder.build());
-            }
-        }
-    }
-
-    /**
-     * Configures the current library manager from a libby.json file in the plugin classpath.
-     *
-     * @see #configureFromJSON(InputStream)
-     */
-    public void configureFromJSON() {
-        try {
-            configureFromJSON(getPluginResourceAsInputStream("libby.json"));
-        } catch (JsonParserException e) {
-            logger.error("Your libby.json file is corrupted!", e);
-        } catch (UnsupportedOperationException e) {
-            logger.error("Loading resources from the plugin file is not implemented on this platform.", e);
-        }
-    }
-
-    /**
-     * Gets an input stream for a resource in the plugin file.
-     *
-     * @param path the path to the resource
-     * @return input stream for the resource
-     * @throws UnsupportedOperationException if the platform doesn't implement loading resources from the plugin file
-     */
-    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("Loading resources from the plugin file is not supported on this platform.");
     }
 }

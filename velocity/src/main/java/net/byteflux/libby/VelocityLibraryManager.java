@@ -4,7 +4,6 @@ import com.velocitypowered.api.plugin.PluginManager;
 import net.byteflux.libby.logging.adapters.VelocityLogAdapter;
 import org.slf4j.Logger;
 
-import java.io.InputStream;
 import java.nio.file.Path;
 
 import static java.util.Objects.requireNonNull;
@@ -67,10 +66,5 @@ public class VelocityLibraryManager<T> extends LibraryManager {
     @Override
     protected void addToClasspath(Path file) {
         pluginManager.addToClasspath(plugin, file);
-    }
-
-    @Override
-    protected InputStream getPluginResourceAsInputStream(String path) throws UnsupportedOperationException {
-        return getClass().getClassLoader().getResourceAsStream(path);
     }
 }
