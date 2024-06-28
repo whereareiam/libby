@@ -53,8 +53,8 @@ public class RelocationHelper {
             Library.builder()
                    .groupId("org.ow2.asm")
                    .artifactId("asm-commons")
-                   .version("9.2")
-                   .checksum("vkzlMTiiOLtSLNeBz5Hzulzi9sqT7GLUahYqEnIl4KY=")
+                   .version("9.7")
+                   .checksum("OJvCR5WOBJ/JoECNOYySxtNwwYA1EgOV1Muh2dkwS3o=")
                    .repository(Repositories.MAVEN_CENTRAL)
                    .build()
         ));
@@ -64,8 +64,8 @@ public class RelocationHelper {
             Library.builder()
                    .groupId("org.ow2.asm")
                    .artifactId("asm")
-                   .version("9.2")
-                   .checksum("udT+TXGTjfOIOfDspCqqpkz4sxPWeNoDbwyzyhmbR/U=")
+                   .version("9.7")
+                   .checksum("rfRtXjSUC98Ujs3Sap7o7qlElqcgNP9xQQZrPupcTp0=")
                    .repository(Repositories.MAVEN_CENTRAL)
                    .build()
         ));
