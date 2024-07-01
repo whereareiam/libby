@@ -1,6 +1,6 @@
-### Version 1.3.1
-* Support relocation of libraries compiled for Java up to 23
-* Updated libraries used by Libby
+###  Version 1.3.1
+*  Support relocation of libraries compiled for Java up to 23
+*  Updated libraries used by Libby
 
 ### Version 1.3.0
 * Support for snapshot libraries ([GH-20](https://github.com/AlessioDP/libby/pull/20))

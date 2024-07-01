@@ -41,7 +41,7 @@ Firstly, add the maven artifact to your `pom.xml`
     <artifactId>libby-bukkit</artifactId> <!-- Replace bukkit if you're using another platform -->
     <version>1.3.1</version>
 </dependency>
-```
+``` 
 
 Remember to **always** relocate Libby to avoid conflicts
 ```xml
