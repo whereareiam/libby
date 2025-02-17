@@ -85,11 +85,11 @@ public class RelocationHelper {
         // Luck's Jar Relocator
         classLoader.addPath(libraryManager.downloadLibrary(
             Library.builder()
-                   .groupId("me{}lucko")
+                   .groupId("com{}github{}whereareiam")
                    .artifactId("jar-relocator")
-                   .version("1.7")
-                   .checksumFromBase64("b30RhOF6kHiHl+O5suNLh/+eAr1iOFEFLXhwkHHDu4I=")
-                   .fallbackRepository(Repositories.MAVEN_CENTRAL)
+                   .version("1.8")
+                   .checksumFromBase64("OWtt1tBTCRl2NHYqgfHwnGvesf6Vacup0e1kVehJuG4=")
+                   .fallbackRepository(Repositories.JITPACK)
                    .build()
         ));
 
