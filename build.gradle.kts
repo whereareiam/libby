@@ -6,7 +6,7 @@ plugins {
 
 allprojects {
     group = "com.alessiodp.libby"
-    version = "2.0.0-SNAPSHOT"
+    version = "2.0.1"
 
     repositories {
         mavenLocal()
@@ -96,13 +96,5 @@ subprojects {
                 }
             }
         }
-    }
-
-    signing {
-        setRequired {
-            gradle.taskGraph.allTasks.any { it is PublishToMavenRepository }
-        }
-        useGpgCmd()
-        sign(publishing.publications["mavenJava"])
     }
 }
